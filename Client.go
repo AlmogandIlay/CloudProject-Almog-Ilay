@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -34,7 +35,6 @@ func main() {
 		}
 		s = append(s, buf...)
 	}
-	fmt.Println(string(s))
 	serverAddr := "192.168.50.191:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
@@ -44,4 +44,14 @@ func main() {
 	defer conn.Close()
 
 	fmt.Println("Connected to the server!")
+	fileInfo, err := os.Stat(filename)
+	println("Size of the file", fileInfo.Size())
+	println("length of the string converstion ", len(string(fileInfo.Size())))
+	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
+	_, err = conn.Write([]byte(s))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println("Success!")
 }
