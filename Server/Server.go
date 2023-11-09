@@ -14,7 +14,6 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(buf)
 	var size int
 	var convert string
 	for i := 0; i < SizeDigits; i++ {
@@ -26,7 +25,6 @@ func handleConnection(conn net.Conn) {
 
 	size, _ = strconv.Atoi(convert)
 	fmt.Println("Size of the given file is ", size)
-	fmt.Printf("%T", buf[0])
 	buf = make([]byte, size)
 	_, err = conn.Read(buf)
 	if err != nil {
