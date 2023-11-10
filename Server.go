@@ -7,6 +7,18 @@ import (
 
 func handleConnection(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
+	buf := make([]byte, 1024)
+	_, err := conn.Read(buf)
+	if err != nil {
+		fmt.Println("Error reading:", err.Error())
+	}
+	for i := 0; i < 1024; i++ {
+		if buf[i] != 0 {
+			fmt.Print(string(buf[i]))
+		} else {
+			break
+		}
+	}
 }
 
 func main() {
