@@ -10,7 +10,7 @@ import (
 func handleConnection(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 
-	const SizeDigits = 8
+	const SizeDigits = 12
 	buf := make([]byte, SizeDigits)
 
 	_, err := conn.Read(buf)
@@ -26,7 +26,7 @@ func handleConnection(conn net.Conn) {
 		convert += string(buf[i])
 	}
 	size, _ = strconv.Atoi(convert)
-	fmt.Println("Size of the given file is ", size)
+	fmt.Println("Size of the given file is", size)
 
 	file := make([]byte, size)
 	bytesRead := 0
@@ -42,7 +42,7 @@ func handleConnection(conn net.Conn) {
 	}
 
 	println("File content is:")
-	println(string(file))
+	//println(string(file))
 }
 
 func main() {

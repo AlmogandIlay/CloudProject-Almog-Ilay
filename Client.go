@@ -58,6 +58,7 @@ func main() {
 		if err != nil {
 			println(err.Error())
 		}
+		println(string(chunk[:bytesRead]))
 		_, err = conn.Write(chunk[:bytesRead])
 		if err != nil {
 			fmt.Println("Error sending file chunk:", err)
