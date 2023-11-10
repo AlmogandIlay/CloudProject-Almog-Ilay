@@ -10,7 +10,7 @@ import (
 func handleConnection(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 
-	const SizeDigits = 12
+	const SizeDigits = 13
 	buf := make([]byte, SizeDigits)
 
 	_, err := conn.Read(buf)
@@ -42,7 +42,7 @@ func handleConnection(conn net.Conn) {
 	}
 
 	println("File content is:")
-	//println(string(file))
+	println(string(file))
 }
 
 func main() {
