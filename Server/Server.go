@@ -3,13 +3,16 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 )
 
 func handleConnection(conn net.Conn) {
-	const SizeDigits = 13
 	fmt.Println(conn.RemoteAddr(), "is connected")
+
+	const SizeDigits = 8
 	buf := make([]byte, SizeDigits)
+
 	_, err := conn.Read(buf)
 	if err != nil {
 		fmt.Println(err)
@@ -22,20 +25,28 @@ func handleConnection(conn net.Conn) {
 		}
 		convert += string(buf[i])
 	}
-
 	size, _ = strconv.Atoi(convert)
 	fmt.Println("Size of the given file is ", size)
-	buf = make([]byte, size)
-	_, err = conn.Read(buf)
-	if err != nil {
-		fmt.Println(err)
+
+	file := make([]byte, size)
+	bytesRead := 0
+	for bytesRead < size {
+		read, err := conn.Read(file[bytesRead:])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		bytesRead += read
+		file = append(file, buf...)
+
 	}
+
 	println("File content is:")
-	println(string(buf))
+	println(string(file))
 }
 
 func main() {
-	addr := "192.168.50.191:12345"
+	addr := "localhost:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("Error:", err)

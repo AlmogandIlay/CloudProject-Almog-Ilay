@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+const (
+	chunkSize = 1024
+)
+
 func getFileName() string {
 	fmt.Print("Enter file name: ")
 	reader := bufio.NewReader(os.Stdin)
@@ -18,6 +22,7 @@ func getFileName() string {
 }
 
 func main() {
+
 	filename := getFileName()
 	f, err := os.Open(filename)
 	if err != nil {
@@ -25,17 +30,8 @@ func main() {
 	}
 
 	defer f.Close()
-	buf := make([]byte, 1024*1024)
-	s := make([]byte, 0, 1)
 
-	for {
-		_, err = f.Read(buf)
-		if err == io.EOF || err != nil {
-			break
-		}
-		s = append(s, buf...)
-	}
-	serverAddr := "192.168.50.191:12345"
+	serverAddr := "localhost:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
@@ -44,14 +40,30 @@ func main() {
 	defer conn.Close()
 
 	fmt.Println("Connected to the server!")
+
 	fileInfo, err := os.Stat(filename)
-	println("Size of the file", fileInfo.Size())
-	println("length of the string converstion ", len(string(fileInfo.Size())))
-	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
-	_, err = conn.Write([]byte(s))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error getting file info:", err)
 		os.Exit(1)
 	}
+	println("Size of the file", fileInfo.Size())
+	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
+
+	chunk := make([]byte, chunkSize)
+	for {
+		bytesRead, err := f.Read(chunk)
+		if err == io.EOF || bytesRead == 0 {
+			break
+		}
+		if err != nil {
+			println(err.Error())
+		}
+		_, err = conn.Write(chunk[:bytesRead])
+		if err != nil {
+			fmt.Println("Error sending file chunk:", err)
+			os.Exit(1)
+		}
+	}
+
 	fmt.Println("Success!")
 }
