@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 )
 
 func handleConnection(conn net.Conn) {
@@ -30,6 +31,7 @@ func handleConnection(conn net.Conn) {
 
 	file := make([]byte, size)
 	bytesRead := 0
+	start := time.Now()
 	for bytesRead < size {
 		read, err := conn.Read(file[bytesRead:])
 		if err != nil {
@@ -37,9 +39,9 @@ func handleConnection(conn net.Conn) {
 			os.Exit(1)
 		}
 		bytesRead += read
-		file = append(file, buf...)
-
 	}
+	elapsed := time.Since(start)
+	fmt.Printf("Binomial took %s", elapsed)
 
 	println("File content is:")
 	println(string(file))

@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -50,6 +51,7 @@ func main() {
 	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
 
 	chunk := make([]byte, chunkSize)
+	start := time.Now()
 	for {
 		bytesRead, err := f.Read(chunk)
 		if err == io.EOF || bytesRead == 0 {
@@ -64,6 +66,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-
+	elapsed := time.Since(start)
+	fmt.Printf("Binomial took %s", elapsed)
 	fmt.Println("Success!")
 }
