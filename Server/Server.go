@@ -37,18 +37,18 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
+			fmt.Print(read)
 		}
 		bytesRead += read
 	}
+	fmt.Println("File has fully received!")
 	elapsed := time.Since(start)
 	fmt.Printf("Binomial took %s", elapsed)
 
-	println("File content is:")
-	println(string(file))
 }
 
 func main() {
-	addr := "localhost:12345"
+	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("Error:", err)
