@@ -29,14 +29,7 @@ func main() {
 	buf := make([]byte, 1024*1024)
 	s := make([]byte, 0, 1)
 
-	for {
-		_, err = f.Read(buf)
-		if err == io.EOF || err != nil {
-			break
-		}
-		s = append(s, buf...)
-	}
-	serverAddr := "192.168.50.191:12345"
+	serverAddr := "46.116.203.184:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
@@ -50,6 +43,13 @@ func main() {
 	println("length of the string converstion ", len(string(fileInfo.Size())))
 	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
 	start := time.Now()
+	for {
+		_, err = f.Read(buf)
+		if err == io.EOF || err != nil {
+			break
+		}
+		s = append(s, buf...)
+	}
 	_, err = conn.Write([]byte(s))
 	if err != nil {
 		fmt.Println(err)
