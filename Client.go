@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func getFileName() string {
@@ -48,10 +49,14 @@ func main() {
 	println("Size of the file", fileInfo.Size())
 	println("length of the string converstion ", len(string(fileInfo.Size())))
 	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
+	start := time.Now()
 	_, err = conn.Write([]byte(s))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	elapsed := time.Since(start)
+
+	fmt.Print("time: ", elapsed, "\n")
 	fmt.Println("Success!")
 }

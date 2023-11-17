@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 )
 
 func handleConnection(conn net.Conn) {
@@ -26,7 +27,12 @@ func handleConnection(conn net.Conn) {
 	size, _ = strconv.Atoi(convert)
 	fmt.Println("Size of the given file is ", size)
 	buf = make([]byte, size)
+	start := time.Now()
 	_, err = conn.Read(buf)
+
+	elapsed := time.Since(start)
+
+	fmt.Println("\ntime: ", elapsed)
 	if err != nil {
 		fmt.Println(err)
 	}
