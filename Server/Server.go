@@ -41,9 +41,10 @@ func handleConnection(conn net.Conn) {
 		}
 		bytesRead += read
 	}
-	fmt.Println("File has fully received!")
+	fmt.Println("File has fully received!\nContent:")
+	fmt.Println(string(file[:]))
 	elapsed := time.Since(start)
-	fmt.Printf("Binomial took %s", elapsed)
+	fmt.Printf("\n\nBinomial took %s\n\n", elapsed)
 
 }
 
