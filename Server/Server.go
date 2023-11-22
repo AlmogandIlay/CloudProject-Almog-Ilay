@@ -32,12 +32,12 @@ func handleConnection(conn net.Conn) {
 
 	elapsed := time.Since(start)
 
-	fmt.Println("\ntime: ", elapsed)
 	if err != nil {
 		fmt.Println(err)
 	}
 	println("File content is:")
 	println(string(buf))
+	fmt.Println("\ntime: ", elapsed)
 }
 
 func main() {
