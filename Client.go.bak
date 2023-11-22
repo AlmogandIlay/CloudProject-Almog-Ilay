@@ -32,7 +32,7 @@ func main() {
 
 	defer f.Close()
 
-	serverAddr := "46.116.199.220:12345"
+	serverAddr := "localhost:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
