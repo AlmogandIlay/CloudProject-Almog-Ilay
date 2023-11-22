@@ -29,7 +29,7 @@ func main() {
 	buf := make([]byte, 1024*1024)
 	s := make([]byte, 0, 1)
 
-	serverAddr := "46.116.199.220:12345"
+	serverAddr := "46.116.203.184:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
