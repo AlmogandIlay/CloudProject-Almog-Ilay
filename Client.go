@@ -26,8 +26,6 @@ func main() {
 	}
 
 	defer f.Close()
-	buf := make([]byte, 1024*1024)
-	s := make([]byte, 0, 1)
 
 	serverAddr := "46.116.199.220:12345"
 	conn, err := net.Dial("tcp", serverAddr)
@@ -43,18 +41,21 @@ func main() {
 	println("length of the string converstion ", len(strconv.FormatInt(fileInfo.Size(), 10)))
 	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
 	start := time.Now()
+
+	buf := make([]byte, 1024*1024)
+	var s []byte
+
 	for {
-		_, err = f.Read(buf)
+		bytesRead, err := f.Read(buf)
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			fmt.Println("\n\n\n\n\n\n\n\n", err.Error(), "\n\n\n\n\n\n\n\n")
+			fmt.Println(err.Error())
 			break
-		} else {
-			fmt.Println(string(buf[:]))
 		}
-		s = append(s, buf...)
+		print(string(buf[:bytesRead]))
+		s = append(s, buf[:bytesRead]...)
 	}
 
 	_, err = conn.Write([]byte(s))
