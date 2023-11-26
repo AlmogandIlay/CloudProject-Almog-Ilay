@@ -26,13 +26,18 @@ func handleConnection(conn net.Conn) {
 
 	size, _ = strconv.Atoi(convert)
 	buf = make([]byte, size)
+	totalRead := 0
 	start := time.Now()
 	_, err = conn.Read(buf)
 
 	elapsed := time.Since(start)
-
-	if err != nil {
-		fmt.Println(err)
+	for totalRead < size {
+		n, err := conn.Read(buf[totalRead:])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		totalRead += n
 	}
 	println("File content is:")
 	println(string(buf))
