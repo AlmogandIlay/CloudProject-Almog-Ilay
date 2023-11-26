@@ -37,7 +37,6 @@ func main() {
 
 	fmt.Println("Connected to the server!")
 	fileInfo, err := os.Stat(filename)
-	println("Size of the file", fileInfo.Size())
 	println("length of the string converstion ", len(strconv.FormatInt(fileInfo.Size(), 10)))
 	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
 	start := time.Now()
@@ -65,6 +64,7 @@ func main() {
 	}
 	elapsed := time.Since(start)
 
-	fmt.Print("\n\ntime:", elapsed, "\n")
+	fmt.Println("\n\nSize of the file", fileInfo.Size())
+	fmt.Print("time:", elapsed, "\n")
 	fmt.Println("Success!")
 }
