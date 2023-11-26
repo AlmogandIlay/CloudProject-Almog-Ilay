@@ -22,7 +22,7 @@ func main() {
 	filename := getFileName()
 	f, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Error is: ", err)
+		fmt.Println("Error is:", err)
 	}
 
 	defer f.Close()
@@ -65,6 +65,6 @@ func main() {
 	}
 	elapsed := time.Since(start)
 
-	fmt.Print("time: ", elapsed, "\n")
+	fmt.Print("\n\ntime:", elapsed, "\n")
 	fmt.Println("Success!")
 }
