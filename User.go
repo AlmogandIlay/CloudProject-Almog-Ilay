@@ -1,14 +1,16 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
 type Name string
-type Passsword string
+type Password string
 type Email string
 
 type User struct {
 	username Name
-	password Passsword
+	password Password
 	email    Email
 }
 
@@ -17,7 +19,7 @@ type Validatable interface {
 	isValid() bool
 }
 
-func newUser(username Name, password Passsword, email Email) (*User, error) {
+func newUser(username Name, password Password, email Email) (*User, error) {
 
 	var err error = nil
 	//validate the values before create struct
@@ -40,7 +42,7 @@ func newUser(username Name, password Passsword, email Email) (*User, error) {
 func (user *User) Username() Name {
 	return user.username
 }
-func (user *User) Password() Passsword {
+func (user *User) Password() Password {
 	return user.password
 }
 func (user *User) Email() Email {
@@ -48,23 +50,46 @@ func (user *User) Email() Email {
 }
 
 // setters for each one of the User struct fields
-func (user *User) setName(newName Name) {
-	user.username = newName
+func (user *User) setName(newName Name) error {
+	var err error = nil
+	if user.username.isValid() {
+		user.username = newName
+	} else {
+		err = errors.New("invalid username")
+	}
+	return err
 }
-func (user *User) setPassword(newPassword Passsword) {
-	user.password = newPassword
+func (user *User) setPassword(newPassword Password) error {
+	var err error = nil
+	if user.password.isValid() {
+		user.password = newPassword
+	} else {
+		err = errors.New("invalid password")
+	}
+	return err
+
 }
-func (user *User) setEmail(newEmail Email) {
-	user.email = newEmail
+func (user *User) setEmail(newEmail Email) error {
+	var err error = nil
+	if user.password.isValid() {
+		user.email = newEmail
+	} else {
+		err = errors.New("invalid email")
+	}
+	return err
 }
 
 // implementation of the interface
 func (name *Name) isValid() bool {
 	return true
 }
-func (name *Passsword) isValid() bool {
+func (password *Password) isValid() bool {
 	return true
 }
-func (name *Email) isValid() bool {
+func (email *Email) isValid() bool {
 	return true
+}
+
+func (password *Password) Hash() string {
+	return ""
 }
