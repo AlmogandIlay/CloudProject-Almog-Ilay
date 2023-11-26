@@ -25,7 +25,7 @@ func handleConnection(conn net.Conn) {
 	}
 
 	size, _ = strconv.Atoi(convert)
-	fmt.Println("Size of the given file is ", size)
+	fmt.Println("Size of the given file is", size)
 	buf = make([]byte, size)
 	start := time.Now()
 	_, err = conn.Read(buf)
@@ -37,7 +37,7 @@ func handleConnection(conn net.Conn) {
 	}
 	println("File content is:")
 	println(string(buf))
-	fmt.Println("\ntime: ", elapsed)
+	fmt.Println("\ntime:", elapsed)
 }
 
 func main() {
