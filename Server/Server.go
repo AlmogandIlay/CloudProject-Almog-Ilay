@@ -13,7 +13,7 @@ func handleConnection(conn net.Conn) {
 	buf := make([]byte, SizeDigits)
 	_, err := conn.Read(buf)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error reciving the file's size", err)
 	}
 	var size int
 	var convert string
@@ -28,9 +28,7 @@ func handleConnection(conn net.Conn) {
 	buf = make([]byte, size)
 	totalRead := 0
 	start := time.Now()
-	_, err = conn.Read(buf)
 
-	elapsed := time.Since(start)
 	for totalRead < size {
 		n, err := conn.Read(buf[totalRead:])
 		if err != nil {
@@ -39,6 +37,7 @@ func handleConnection(conn net.Conn) {
 		}
 		totalRead += n
 	}
+	elapsed := time.Since(start)
 	println("File content is:")
 	println(string(buf))
 	fmt.Println("\nSize of the given file is", size)
