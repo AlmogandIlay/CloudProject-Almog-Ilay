@@ -1,4 +1,4 @@
-package UserEntry
+package main
 
 import (
 	"errors"
