@@ -23,6 +23,7 @@ type Validator interface {
 	Valid() bool
 }
 
+// constant
 const (
 	MINIMUM_PASSWORD_LENGTH = 8
 	MAXIMUM_PASSWORD_LENGTH = 16
@@ -33,7 +34,7 @@ const (
 func NewUser(username, password, email string) (*User, []error) {
 	var validationErrors []error
 
-	// check if the interface implementators arent valid
+	// check if the interface implementators arent valid and append to the errors slice
 	validate := func(validField Validator, errMsg string) {
 		if !validField.Valid() {
 			validationErrors = append(validationErrors, errors.New(errMsg))
@@ -44,6 +45,7 @@ func NewUser(username, password, email string) (*User, []error) {
 	validate(Password(password), "invalid password")
 	validate(Email(email), "invalid email")
 
+	// check if an error accured
 	if len(validationErrors) > 0 {
 		return nil, validationErrors
 	}
@@ -100,10 +102,12 @@ func (user *User) setEmail(newEmail string) error {
 func (name Name) Valid() bool {
 	return len(name) < MINIMUM_USERNAME_LENGTH || len(name) > MAXIMUM_USERNAME_LENGTH
 }
+
 func (password Password) Valid() bool {
 	return len(password) < MINIMUM_PASSWORD_LENGTH || len(password) > MAXIMUM_PASSWORD_LENGTH
 }
 
+// check the validication of an email by email rules
 func (email Email) Valid() bool {
 	match, _ := regexp.MatchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, string(email))
 	return match
