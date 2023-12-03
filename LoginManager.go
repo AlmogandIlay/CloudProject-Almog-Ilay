@@ -22,15 +22,15 @@ func (manager *LoginManager) login(username string, password string) {
 	}
 }
 
-func (manager *LoginManager) signin(username string, password string, email string) {
-	userExist, err := manager.doesUserExist(username)
+func (manager *LoginManager) signin(user *User) {
+	userExist, err := manager.doesUserExist(user.Username())
 	if err != nil {
 
 	}
 	if userExist {
 
 	}
-	manager.addUser(username, password, email)
+	manager.addUser(user.Username(), user.Password(), user.Email())
 }
 
 func (manager *LoginManager) logout(username string) {

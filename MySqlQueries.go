@@ -12,9 +12,9 @@ type Database struct {
 
 // add methods to change values in specific row
 
-func (db *Database) addUser(user *User) error {
+func (db *Database) addUser(username, password, email string) error {
 	_, err := db.Exec("INSERT INTO users (id, username, password, email) VALUES (NULL, ?, ?, ?)",
-		user.Username(), user.Password(), user.Email())
+		username, password, email)
 	return err
 }
 
@@ -32,7 +32,7 @@ func (db *Database) doesUserExist(username string) (bool, error) {
 	return exist, nil
 }
 
-func (db *Database) doesPasswordMatch(username string, password string) (bool, error) {
+func (db *Database) doesPasswordMatch(username, password string) (bool, error) {
 	var match bool
 	err := db.QueryRow("SELECT EXISTS(SELECT * FROM users WHERE username = ? AND password = ?)", username, password).Scan(&match)
 	if err != nil {
