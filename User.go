@@ -2,10 +2,12 @@ package main
 
 import (
 	"errors"
+	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
+// for Valid interface
 type Name string
 type Password string
 type Email string
@@ -21,9 +23,17 @@ type Validator interface {
 	Valid() bool
 }
 
+const (
+	MINIMUM_PASSWORD_LENGTH = 8
+	MAXIMUM_PASSWORD_LENGTH = 16
+	MINIMUM_USERNAME_LENGTH = 4
+	MAXIMUM_USERNAME_LENGTH = 8
+)
+
 func NewUser(username, password, email string) (*User, []error) {
 	var validationErrors []error
 
+	// check if the interface implementators arent valid
 	validate := func(validField Validator, errMsg string) {
 		if !validField.Valid() {
 			validationErrors = append(validationErrors, errors.New(errMsg))
@@ -86,15 +96,17 @@ func (user *User) setEmail(newEmail string) error {
 	return err
 }
 
-// implementation of the interface
+// implementation of the interface, check if the fields are valid
 func (name Name) Valid() bool {
-	return true
+	return len(name) < MINIMUM_USERNAME_LENGTH || len(name) > MAXIMUM_USERNAME_LENGTH
 }
 func (password Password) Valid() bool {
-	return true
+	return len(password) < MINIMUM_PASSWORD_LENGTH || len(password) > MAXIMUM_PASSWORD_LENGTH
 }
+
 func (email Email) Valid() bool {
-	return true
+	match, _ := regexp.MatchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, string(email))
+	return match
 }
 
 func Hash(password string) (string, error) {

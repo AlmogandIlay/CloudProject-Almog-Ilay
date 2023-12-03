@@ -2,6 +2,7 @@ package main
 
 type LoginManager struct {
 	*Database
+	//loggedUsers []Users
 }
 
 func (manager *LoginManager) login(username string, password string) {
