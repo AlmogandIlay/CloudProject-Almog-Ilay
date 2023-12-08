@@ -17,4 +17,7 @@ func main() {
 	defer conn.Close()
 
 	fmt.Println("Connected to the server!")
+
+	fmt.Println("Welcome to our Cloud\nWhat would you like to do:\n1. LOGIN\n2. SIGN IN\nYour choice: ")
+
 }
