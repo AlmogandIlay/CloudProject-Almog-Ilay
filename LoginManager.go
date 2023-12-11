@@ -5,6 +5,12 @@ type LoginManager struct {
 	loggedUsers []User
 }
 
+func newLoginManager() *LoginManager { // Constructor function of Login Manager
+	var manager LoginManager
+	manager.loggedUsers = make([]User, 0)
+	return &manager
+}
+
 func (manager *LoginManager) login(username string, password string) {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
