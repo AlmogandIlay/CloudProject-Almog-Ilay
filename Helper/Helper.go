@@ -6,9 +6,9 @@ import (
 )
 
 // bufferSize is usually 1024
-func ReciveData(conn net.Conn, bufferSize int) []byte {
+func ReciveData(conn *net.Conn, bufferSize int) []byte {
 	buffer := make([]byte, bufferSize)
-	_, err := (conn).Read(buffer)
+	_, err := (*conn).Read(buffer)
 	if err != nil {
 		fmt.Println("Error reading data:", err)
 		return nil
@@ -16,8 +16,8 @@ func ReciveData(conn net.Conn, bufferSize int) []byte {
 	return buffer
 }
 
-func SendData(conn net.Conn, message string) {
-	_, err := (conn).Write([]byte(message))
+func SendData(conn *net.Conn, message []byte) {
+	_, err := (*conn).Write(message)
 	if err != nil {
 		fmt.Println("Error sending response:", err)
 	}
