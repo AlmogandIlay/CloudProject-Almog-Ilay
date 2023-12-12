@@ -15,7 +15,6 @@ type Database struct {
 func (db *Database) addUser(username, password, email string) error {
 	_, err := db.Exec("INSERT INTO users (id, username, password, email) VALUES (NULL, ?, ?, ?)",
 		username, password, email)
-	db.
 	return err
 }
 

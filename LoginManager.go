@@ -7,7 +7,12 @@ type LoginManager struct {
 
 func newLoginManager() *LoginManager { // Constructor function of Login Manager
 	var manager LoginManager
+	var err error
 	manager.loggedUsers = make([]User, 0)
+	manager.Database, err = newDatabase()
+	if err != nil {
+		panic(err.Error())
+	}
 	return &manager
 }
 
