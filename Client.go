@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	chunkSize = 1024
+	chunkSize = 768
 )
 
 func getFileName() string {
@@ -24,7 +24,8 @@ func getFileName() string {
 
 func main() {
 
-	filename := getFileName()
+	//filename := getFileName()
+	filename := "C:/Users/אילאי/OneDrive/מסמכים/checkfiles/200MB.bin"
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("Error is: ", err)
@@ -32,7 +33,7 @@ func main() {
 
 	defer f.Close()
 
-	serverAddr := "46.116.199.220:12345"
+	serverAddr := "85.250.2.227:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
@@ -47,11 +48,19 @@ func main() {
 		fmt.Println("Error getting file info:", err)
 		os.Exit(1)
 	}
-	println("Size of the file", fileInfo.Size())
-	_, err = conn.Write([]byte(strconv.Itoa(int(fileInfo.Size()))))
-
+	fileSize := fileInfo.Size()
+	println("Size of the file", fileSize)
+	_, err = conn.Write([]byte(strconv.Itoa(int(fileSize))))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	chunk := make([]byte, chunkSize)
+
 	start := time.Now()
+
+	var totalBytesRead int64
+	var totalReadFlag int64
+	var precentage int64
 	for {
 		bytesRead, err := f.Read(chunk)
 		if err == io.EOF || bytesRead == 0 {
@@ -60,14 +69,33 @@ func main() {
 		if err != nil {
 			println(err.Error())
 		}
-		//println(string(chunk[:bytesRead]))
+
 		_, err = conn.Write(chunk[:bytesRead])
 		if err != nil {
 			fmt.Println("Error sending file chunk:", err)
 			os.Exit(1)
 		}
+
+		totalReadFlag += int64(bytesRead)
+		totalBytesRead += int64(bytesRead)
+
+		if totalReadFlag >= 1_000_000 {
+			totalReadFlag = 0
+			precentage = (totalBytesRead * 100) / fileSize
+
+			printer := func(length int, char string) string {
+				var s string
+				for i := 0; i < int(precentage/2); i++ {
+					s += "-"
+				}
+				return s
+			}
+
+			fmt.Printf("\rDownload progress: %v%% - %s", precentage, printer(int(precentage), "-"))
+		}
 	}
+	fmt.Print("\n")
 	elapsed := time.Since(start)
-	fmt.Printf("Binomial took %s", elapsed)
+	fmt.Printf("Binomial took %s\n", elapsed)
 	fmt.Println("Success!")
 }
