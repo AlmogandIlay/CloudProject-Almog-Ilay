@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("Enter your email: ")
 	fmt.Scanln(&email)
 	*/
-	ml, err := authentication.NewLoginManager()
+	ml, err := authentication.InitializeLoginManager()
 
 	if err != nil {
 		fmt.Print(err.Error())

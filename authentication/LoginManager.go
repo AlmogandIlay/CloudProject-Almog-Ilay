@@ -6,7 +6,7 @@ type LoginManager struct {
 }
 
 // Constructor function of Login Manager
-func NewLoginManager() (*LoginManager, error) {
+func InitializeLoginManager() (*LoginManager, error) {
 	var manager LoginManager
 	var err error
 
@@ -58,12 +58,12 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 			userErrors = append(userErrors, err)
 		}
 	}
-	if len(userErrors) > 0 {
+	if len(userErrors) > 0 { // no errors
 		return userErrors
 	}
 
-	manager.addUser(user.Username(), user.Password(), user.Email())
-	manager.loggedUsers = append(manager.loggedUsers, *user)
+	manager.addUser(user.Username(), user.Password(), user.Email()) // add to the database
+	manager.loggedUsers = append(manager.loggedUsers, *user)        // add to the loggedUser slice
 	return nil
 }
 
@@ -74,7 +74,7 @@ func (manager *LoginManager) Logout(username string) error {
 	}
 	for index, user := range manager.loggedUsers {
 		if user.username == username {
-			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...)
+			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
 			return nil
 		}
 	}
@@ -88,6 +88,12 @@ func (manager *LoginManager) DeleteUser(username string) error {
 	}
 	if !userExist {
 		return &UsernameNotExistsError{username}
+	}
+	for index, user := range manager.loggedUsers { // look for the index of the user
+		if user.username == username {
+			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
+			return nil
+		}
 	}
 	manager.removeUser(username)
 	return nil
