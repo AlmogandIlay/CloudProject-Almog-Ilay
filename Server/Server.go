@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"net"
-	"os"
 	"strconv"
 	"time"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, start time.Time) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 
 	const SizeDigits = 13
@@ -16,7 +15,8 @@ func handleConnection(conn net.Conn) {
 
 	_, err := conn.Read(buf)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
+		return
 	}
 	var size int
 	var convert string
@@ -31,24 +31,28 @@ func handleConnection(conn net.Conn) {
 
 	file := make([]byte, size)
 	bytesRead := 0
-	start := time.Now()
+	elapsed := time.Since(start)
+	fmt.Printf("Timer before upload: %s\n", elapsed)
 	for bytesRead < size {
 		read, err := conn.Read(file[bytesRead:])
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-			fmt.Print(read)
+			fmt.Println(err.Error())
 		}
 		bytesRead += read
 	}
 	fmt.Println("File has fully received!\nContent:")
-	fmt.Println(string(file[:]))
-	elapsed := time.Since(start)
+	content := string(file[:])
+	for i := 0; i < 50; i++ {
+		fmt.Print(content[i])
+	}
+	fmt.Println()
+	elapsed = time.Since(start)
 	fmt.Printf("\n\nBinomial took %s\n\n", elapsed)
 
 }
 
 func main() {
+	start := time.Now()
 	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -65,6 +69,6 @@ func main() {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, start)
 	}
 }
