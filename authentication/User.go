@@ -22,7 +22,7 @@ type Validator interface {
 	Valid() bool
 }
 
-// constant
+// constants
 const (
 	MINIMUM_PASSWORD_LENGTH = 8
 	MAXIMUM_PASSWORD_LENGTH = 16
@@ -40,6 +40,7 @@ func NewUser(username, password, email string) (*User, []error) {
 		}
 	}
 
+	// check for user value before creation
 	validate(Name(username), &UsernameError{username})
 	validate(Password(password), &PasswordError{password})
 	validate(Email(email), &EmailError{email})

@@ -2,6 +2,7 @@ package authentication
 
 import "fmt"
 
+// errors implement error interface
 type UsernameError struct {
 	username string
 }
