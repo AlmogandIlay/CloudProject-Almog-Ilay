@@ -1,7 +1,6 @@
-package main
+package authentication
 
 import (
-	"errors"
 	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
@@ -35,15 +34,15 @@ func NewUser(username, password, email string) (*User, []error) {
 	var validationErrors []error
 
 	// check if the interface implementators arent valid and append to the errors slice
-	validate := func(validField Validator, errMsg string) {
+	validate := func(validField Validator, err error) {
 		if !validField.Valid() {
-			validationErrors = append(validationErrors, errors.New(errMsg))
+			validationErrors = append(validationErrors, err)
 		}
 	}
 
-	validate(Name(username), "invalid username")
-	validate(Password(password), "invalid password")
-	validate(Email(email), "invalid email")
+	validate(Name(username), &UsernameError{username})
+	validate(Password(password), &PasswordError{password})
+	validate(Email(email), &EmailError{email})
 
 	// check if an error accured
 	if len(validationErrors) > 0 {
@@ -72,28 +71,28 @@ func (user *User) Email() string {
 // setters for each one of the User struct fields
 func (user *User) setName(newName string) error {
 	var err error = nil
-	if Name(user.username).Valid() {
+	if Name(newName).Valid() {
 		user.username = newName
 	} else {
-		err = errors.New("invalid username")
+		err = &UsernameError{newName}
 	}
 	return err
 }
-func (user *User) setPassword(password string) error {
+func (user *User) setPassword(newPassword string) error {
 	var err error = nil
-	if Password(user.password).Valid() {
-		user.password, err = Hash(password)
+	if Password(newPassword).Valid() {
+		user.password, err = Hash(newPassword)
 	} else {
-		err = errors.New("invalid password")
+		err = &PasswordError{newPassword}
 	}
 	return err
 }
 func (user *User) setEmail(newEmail string) error {
 	var err error = nil
-	if Email(user.email).Valid() {
+	if Email(newEmail).Valid() {
 		user.email = newEmail
 	} else {
-		err = errors.New("invalid email")
+		err = &EmailError{newEmail}
 	}
 	return err
 }

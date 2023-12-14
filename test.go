@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -15,9 +15,5 @@ func main() {
 	fmt.Scanln(&password)
 	fmt.Println("Enter your email: ")
 	fmt.Scanln(&email)
-	user, err := NewUser(username, password, email)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println((user.username))
+
 }

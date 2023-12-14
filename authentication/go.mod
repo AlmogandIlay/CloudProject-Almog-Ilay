@@ -1,4 +1,4 @@
-module server
+module authentication
 
 go 1.21.0
 
