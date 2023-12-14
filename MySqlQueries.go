@@ -36,7 +36,7 @@ func (db *Database) doesPasswordMatch(username, password string) (bool, error) {
 	var match bool
 	err := db.QueryRow("SELECT EXISTS(SELECT * FROM users WHERE username = ? AND password = ?)", username, password).Scan(&match)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 	return match, nil
 }

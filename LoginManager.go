@@ -5,69 +5,98 @@ type LoginManager struct {
 	loggedUsers []User
 }
 
-func newLoginManager() *LoginManager { // Constructor function of Login Manager
+// Constructor function of Login Manager
+func newLoginManager() (*LoginManager, error) {
 	var manager LoginManager
 	var err error
+
 	manager.loggedUsers = make([]User, 0)
 	manager.Database, err = newDatabase()
+
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
-	return &manager
+	return &manager, nil
 }
 
-func (manager *LoginManager) login(username string, password string) {
+func (manager *LoginManager) login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
-		// query error
+		return err
 	}
 	if !userExist {
-		// user not found error
+		return &UsernameNotExistsError{username}
 	}
+
 	match, err := manager.doesPasswordMatch(username, password)
 	if err != nil {
-		// query error
+		return err
 	}
 	if !match {
-		//username does not match
+		return &UsernameNotMatchPasswrodError{username, password}
 	}
 	user, err := manager.getUser(username)
 	if err != nil {
-		// query error
+		return err
 	}
 	manager.loggedUsers = append(manager.loggedUsers, *user)
+	return nil
 }
 
-func (manager *LoginManager) signin(user *User) {
-	userExist, err := manager.doesUserExist(user.Username())
+func (manager *LoginManager) signin(username, password, email string) []error {
+	userExist, err := manager.doesUserExist(username)
 	if err != nil {
-		// query error
+		return []error{err}
 	}
 	if userExist {
-		// user already exist
+		return []error{&UsernameExistsError{username}}
 	}
+
+	user, userErrors := NewUser(username, password, email)
+	for _, err := range userErrors {
+		if err != nil {
+			userErrors = append(userErrors, err)
+		}
+	}
+	if len(userErrors) > 0 {
+		return userErrors
+	}
+
 	manager.addUser(user.Username(), user.Password(), user.Email())
 	manager.loggedUsers = append(manager.loggedUsers, *user)
+	return nil
 }
 
-func (manager *LoginManager) logout(username string) {
+func (manager *LoginManager) logout(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
-
+		return err
 	}
 	if !userExist {
-
+		return &UsernameNotExistsError{username}
 	}
-	//?
+	var deleteIndex int
+	for index, user := range manager.loggedUsers {
+		if user.username == username {
+			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...)
+			return nil
+		}
+	}
+
 }
 
-func (manager *LoginManager) logoutSystem(username string) {
+func (manager *LoginManager) deleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
-
+		return err
 	}
 	if !userExist {
-
+		return &UsernameNotExistsError{username}
 	}
 	manager.removeUser(username)
+	return nil
+}
+
+func (manager *LoginManager) getLoggedUsers() []User {
+	return manager.loggedUsers
 }
