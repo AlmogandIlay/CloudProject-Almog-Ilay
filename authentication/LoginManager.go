@@ -6,7 +6,7 @@ type LoginManager struct {
 }
 
 // Constructor function of Login Manager
-func newLoginManager() (*LoginManager, error) {
+func NewLoginManager() (*LoginManager, error) {
 	var manager LoginManager
 	var err error
 
@@ -19,7 +19,7 @@ func newLoginManager() (*LoginManager, error) {
 	return &manager, nil
 }
 
-func (manager *LoginManager) login(username, password string) error {
+func (manager *LoginManager) Login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (manager *LoginManager) login(username, password string) error {
 	return nil
 }
 
-func (manager *LoginManager) signin(username, password, email string) []error {
+func (manager *LoginManager) Signup(username, password, email string) []error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return []error{err}
@@ -67,7 +67,7 @@ func (manager *LoginManager) signin(username, password, email string) []error {
 	return nil
 }
 
-func (manager *LoginManager) logout(username string) error {
+func (manager *LoginManager) Logout(username string) error {
 	_, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func (manager *LoginManager) logout(username string) error {
 	return &UsernameNotExistsError{username}
 }
 
-func (manager *LoginManager) deleteUser(username string) error {
+func (manager *LoginManager) DeleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -93,6 +93,6 @@ func (manager *LoginManager) deleteUser(username string) error {
 	return nil
 }
 
-func (manager *LoginManager) getLoggedUsers() []User {
+func (manager *LoginManager) GetLoggedUsers() []User {
 	return manager.loggedUsers
 }

@@ -40,7 +40,7 @@ func NewUser(username, password, email string) (*User, []error) {
 		}
 	}
 
-	validate(Name(username), &UsernameError{username})
+	Validate(Name(username), &UsernameError{username})
 	validate(Password(password), &PasswordError{password})
 	validate(Email(email), &EmailError{email})
 

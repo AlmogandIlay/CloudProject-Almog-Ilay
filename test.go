@@ -1,7 +1,8 @@
-package server
+package main
 
 import (
 	"fmt"
+	"server/authentication"
 )
 
 func main() {
@@ -15,5 +16,11 @@ func main() {
 	fmt.Scanln(&password)
 	fmt.Println("Enter your email: ")
 	fmt.Scanln(&email)
+	manager, err := authentication.NewLoginManager()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	manager.Signup(username, password, email)
+	fmt.Println(manager.GetLoggedUsers())
 
 }
