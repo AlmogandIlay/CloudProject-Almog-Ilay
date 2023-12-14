@@ -7,7 +7,7 @@ import (
 
 func main() {
 	fmt.Println("Hey")
-	var username string
+	/*var username string
 	var password string
 	var email string
 	fmt.Println("Enter your username: ")
@@ -16,11 +16,12 @@ func main() {
 	fmt.Scanln(&password)
 	fmt.Println("Enter your email: ")
 	fmt.Scanln(&email)
-	manager, err := authentication.NewLoginManager()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	manager.Signup(username, password, email)
-	fmt.Println(manager.GetLoggedUsers())
+	*/
+	ml, err := authentication.NewLoginManager()
 
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	_ = ml.Signup("ilmog", "12345678", "ilmog5@gmail.com")
+	fmt.Print(ml.GetLoggedUsers())
 }

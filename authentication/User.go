@@ -40,7 +40,7 @@ func NewUser(username, password, email string) (*User, []error) {
 		}
 	}
 
-	Validate(Name(username), &UsernameError{username})
+	validate(Name(username), &UsernameError{username})
 	validate(Password(password), &PasswordError{password})
 	validate(Email(email), &EmailError{email})
 
@@ -99,11 +99,11 @@ func (user *User) setEmail(newEmail string) error {
 
 // implementation of the interface, check if the fields are valid
 func (name Name) Valid() bool {
-	return len(name) < MINIMUM_USERNAME_LENGTH || len(name) > MAXIMUM_USERNAME_LENGTH
+	return len(name) >= MINIMUM_USERNAME_LENGTH || len(name) <= MAXIMUM_USERNAME_LENGTH
 }
 
 func (password Password) Valid() bool {
-	return len(password) < MINIMUM_PASSWORD_LENGTH || len(password) > MAXIMUM_PASSWORD_LENGTH
+	return len(password) >= MINIMUM_PASSWORD_LENGTH || len(password) <= MAXIMUM_PASSWORD_LENGTH
 }
 
 // check the validication of an email by email rules
