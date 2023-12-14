@@ -1,4 +1,4 @@
-package main
+package authentication
 
 type LoginManager struct {
 	*Database
