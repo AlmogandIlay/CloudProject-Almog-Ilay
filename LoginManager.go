@@ -68,21 +68,17 @@ func (manager *LoginManager) signin(username, password, email string) []error {
 }
 
 func (manager *LoginManager) logout(username string) error {
-	userExist, err := manager.doesUserExist(username)
+	_, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
 	}
-	if !userExist {
-		return &UsernameNotExistsError{username}
-	}
-	var deleteIndex int
 	for index, user := range manager.loggedUsers {
 		if user.username == username {
 			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...)
 			return nil
 		}
 	}
-
+	return &UsernameNotExistsError{username}
 }
 
 func (manager *LoginManager) deleteUser(username string) error {
