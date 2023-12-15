@@ -58,12 +58,13 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 			userErrors = append(userErrors, err)
 		}
 	}
+
 	if len(userErrors) > 0 { // no errors
 		return userErrors
 	}
 
-	manager.addUser(user.Username(), user.Password(), user.Email()) // add to the database
-	manager.loggedUsers = append(manager.loggedUsers, *user)        // add to the loggedUser slice
+	//manager.addUser(user.Username(), user.Password(), user.Email()) // add to the database
+	manager.loggedUsers = append(manager.loggedUsers, *user) // add to the loggedUser slice
 	return nil
 }
 
