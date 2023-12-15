@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Hey")
+	fmt.Println("Starting Testing")
 	/*var username string
 	var password string
 	var email string
@@ -23,8 +23,17 @@ func main() {
 		fmt.Print(err.Error())
 	}
 	//_ = ml.Signup("ilmog", "12345678", "ilmog5@gmail.com")
-
-	errs := ml.Signup("almogg", "87654321", "almog1@gmail.com")
-	fmt.Print(errs)
+	fmt.Println("Valid Signup:")
+	errs := ml.Signup("almog", "87654321", "almog1@gmail.com")
+	for _, err := range errs {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("Logged Users after a valid signup:", ml.GetLoggedUsers())
+	fmt.Println("Invalid Signup: Short Username")
+	errs = ml.Signup("A", "8764321", "almog2@gmail.com")
+	for _, err := range errs {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("Logged users after an invalid signup: ", ml.GetLoggedUsers())
 
 }
