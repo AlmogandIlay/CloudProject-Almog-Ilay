@@ -1,3 +1,3 @@
-package requesthandlers
+package RequestHandlers
 
 type LoginRequestHandler IRequestHandler

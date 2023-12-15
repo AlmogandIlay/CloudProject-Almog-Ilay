@@ -1,9 +1,11 @@
-package requesthandlers
+package RequestHandlers
 
-import "Requests"
+import (
+	"Requests"
+)
 
 type IRequestHandler interface {
 	isValidRequest(info Requests.RequestInfo) bool
-	handleRequest()
+	handleRequest(info Requests.RequestInfo)
 	error()
 }
