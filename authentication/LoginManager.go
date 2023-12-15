@@ -53,11 +53,6 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 	}
 
 	user, userErrors := NewUser(username, password, email)
-	for _, err := range userErrors {
-		if err != nil {
-			userErrors = append(userErrors, err)
-		}
-	}
 
 	if len(userErrors) > 0 { // no errors
 		return userErrors
