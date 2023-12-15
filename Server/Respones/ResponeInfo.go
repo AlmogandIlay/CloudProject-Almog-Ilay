@@ -1,6 +1,6 @@
 package Respones
 
-import "RequestHandlers"
+import "server/RequestHandlers"
 
 type ResponeType int
 

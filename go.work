@@ -2,8 +2,6 @@ go 1.21.0
 
 use (
 	.
-	./Server/RequestHandlers
-	./Server/Requests
-	./Server/Respones
+	./Server/
 	
 )

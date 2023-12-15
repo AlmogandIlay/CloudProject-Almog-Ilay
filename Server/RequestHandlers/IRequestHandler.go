@@ -1,7 +1,7 @@
 package RequestHandlers
 
 import (
-	"Requests"
+	"server/Requests"
 )
 
 type IRequestHandler interface {
