@@ -1,6 +1,8 @@
 package Responses
 
-import "Helper"
+import (
+	"server/Requests"
+)
 
 type ResponeType int
 
@@ -9,7 +11,13 @@ const (
 	signinRespone ResponeType = iota // 1
 )
 
+type IRequestHandler interface {
+	ValidRequest(info Requests.RequestInfo) bool
+	HandleRequest(info Requests.RequestInfo) ResponeInfo
+	Error() ResponeInfo
+}
+
 type ResponeInfo struct {
 	messageCode ResponeType
-	newHandler  *Helper.IRequestHandler
+	newHandler  IRequestHandler
 }
