@@ -1,6 +1,6 @@
-package Respones
+package Responses
 
-import "server/RequestHandlers"
+import "Helper"
 
 type ResponeType int
 
@@ -11,5 +11,5 @@ const (
 
 type ResponeInfo struct {
 	messageCode ResponeType
-	newHandler  *RequestHandlers.IRequestHandler
+	newHandler  *Helper.IRequestHandler
 }

@@ -1,3 +1,7 @@
 package RequestHandlers
 
-type LoginRequestHandler IRequestHandler
+type LoginRequestHandler struct{}
+
+func (loginHandler *LoginRequestHandler) error() {
+
+}
