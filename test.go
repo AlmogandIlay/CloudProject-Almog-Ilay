@@ -19,9 +19,9 @@ func main() {
 	}
 	fmt.Println("Logged Users after a valid signup:", ml.GetLoggedUsers())
 	fmt.Println("\nInvalid Signup: Short Username")
-	errs = ml.Signup("A", "87654321", "almog2@gmail.com")
+	errs = ml.Signup("A", "8764321", "almog2@gmail.com")
 	for _, err := range errs {
 		fmt.Println(err.Error())
 	}
-	fmt.Println("Logged users after an invalid signup: ", ml.GetLoggedUsers())
+	fmt.Println("Logged users after a short usernames signup: ", ml.GetLoggedUsers())
 }
