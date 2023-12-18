@@ -12,7 +12,7 @@ type Database struct {
 
 // add methods to change values in specific row
 
-func newDatabase() (*Database, error) {
+func openDatabase() (*Database, error) {
 	sqlDatabase := Database{}
 
 	// Open the database
@@ -22,6 +22,10 @@ func newDatabase() (*Database, error) {
 	}
 	sqlDatabase.DB = db
 	return &sqlDatabase, nil
+}
+
+func (db *Database) closeDatabase() error {
+	return db.Close()
 }
 
 func (db *Database) addUser(username, password, email string) error {

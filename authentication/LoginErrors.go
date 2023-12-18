@@ -3,22 +3,18 @@ package authentication
 import "fmt"
 
 // errors implement error interface
-type UsernameError struct {
-	username string
-}
-type PasswordError struct {
-	password string
-}
-type EmailError struct {
-	email string
-}
+type UsernameError struct{ username string }
 
-type UsernameExistsError struct {
-	username string
-}
-type UsernameNotExistsError struct {
-	username string
-}
+type PasswordError struct{ password string }
+
+type EmailError struct{ email string }
+
+type UsernameExistsError struct{ username string }
+
+type UsernameNotExistsError struct{ username string }
+
+type EmailExistsError struct{ email string }
+
 type UsernameNotMatchPasswrodError struct {
 	username string
 	Password string
@@ -46,4 +42,8 @@ func (passError *PasswordError) Error() string {
 
 func (emailError *EmailError) Error() string {
 	return fmt.Sprintf("email '%s' is invalid! check for email syntex", emailError.email)
+}
+
+func (userError *EmailExistsError) Error() string {
+	return fmt.Sprintf("user with email '%s' already exists", userError.email)
 }

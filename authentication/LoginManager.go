@@ -1,9 +1,15 @@
 package authentication
 
+import "strings"
+
 type LoginManager struct {
 	*Database
 	loggedUsers []User
 }
+
+const (
+	ErrorFieldExistsCode = "Error 1062" // mySQL ERROR after adding exist data
+)
 
 // Constructor function of Login Manager
 func InitializeLoginManager() (*LoginManager, error) {
@@ -11,7 +17,7 @@ func InitializeLoginManager() (*LoginManager, error) {
 	var err error
 
 	manager.loggedUsers = make([]User, 0)
-	manager.Database, err = newDatabase()
+	manager.Database, err = openDatabase()
 
 	if err != nil {
 		return nil, err
@@ -58,8 +64,14 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 		return userErrors
 	}
 
-	manager.addUser(user.Username(), user.Password(), user.Email()) // add to the database
-	manager.loggedUsers = append(manager.loggedUsers, *user)        // add to the loggedUser slice
+	err = manager.addUser(username, password, email) // add to the database
+	if err != nil {
+		if strings.Contains(err.Error(), ErrorFieldExistsCode) && strings.Contains(err.Error(), email) {
+			return []error{&EmailExistsError{email}}
+		}
+		return []error{err}
+	}
+	manager.loggedUsers = append(manager.loggedUsers, *user) // add to the loggedUser slice
 	return nil
 }
 
@@ -91,7 +103,10 @@ func (manager *LoginManager) DeleteUser(username string) error {
 			return nil
 		}
 	}
-	manager.removeUser(username)
+	err = manager.removeUser(username)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

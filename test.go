@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting Testing")
+	fmt.Println("-----Starting Testing-----")
 	ml, err := authentication.InitializeLoginManager()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -72,6 +72,7 @@ func main() {
 	errs = ml.Signup("Candy", "Whatabeautifu", "almog1@gmail.com")
 	for _, err := range errs {
 		fmt.Println(err.Error())
+		fmt.Print(err)
 	}
 	fmt.Println("Logged users after an exact Email Address Signup", ml.GetLoggedUsers())
 	//fmt.Println("\nInvalid Sign")
