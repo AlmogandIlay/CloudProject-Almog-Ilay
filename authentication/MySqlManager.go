@@ -28,9 +28,9 @@ func (db *Database) closeDatabase() error {
 	return db.Close()
 }
 
-func (db *Database) addUser(username, password, email string) error {
+func (db *Database) addUser(user *User) error {
 	_, err := db.Exec("INSERT INTO users (userId, username, password, email) VALUES (NULL, ?, ?, ?)",
-		username, password, email)
+		user.Username(), user.Password(), user.Email())
 	return err
 }
 

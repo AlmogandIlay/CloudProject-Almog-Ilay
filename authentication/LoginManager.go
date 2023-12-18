@@ -64,7 +64,7 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 		return userErrors
 	}
 
-	err = manager.addUser(username, password, email) // add to the database
+	err = manager.addUser(user) // add to the database
 	if err != nil {
 		if strings.Contains(err.Error(), ErrorFieldExistsCode) && strings.Contains(err.Error(), email) {
 			return []error{&EmailExistsError{email}}
