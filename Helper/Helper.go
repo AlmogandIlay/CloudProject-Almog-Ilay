@@ -3,12 +3,7 @@ package helper
 import (
 	"fmt"
 	"net"
-	"server/RequestHandlers"
 )
-
-type IRequestHandler interface {
-	RequestHandlers.IRequestHandler
-}
 
 // bufferSize is usually 1024
 func ReciveData(conn *net.Conn, bufferSize int) []byte {

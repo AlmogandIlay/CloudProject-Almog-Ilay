@@ -1,12 +1,11 @@
 package RequestHandlers
 
 import (
-	"server/Requests"
-	"server/Responses"
+	"server/RequestHandlers/Requests"
 )
 
 type IRequestHandler interface {
 	ValidRequest(info Requests.RequestInfo) bool
-	HandleRequest(info Requests.RequestInfo) Responses.ResponeInfo
-	Error() Responses.ResponeInfo
+	HandleRequest(info Requests.RequestInfo) ResponeInfo
+	Error(info Requests.RequestInfo) ResponeInfo
 }
