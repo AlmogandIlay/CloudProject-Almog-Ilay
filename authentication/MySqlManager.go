@@ -60,7 +60,8 @@ func (db *Database) doesPasswordMatch(username, password string) (bool, error) {
 
 func (db *Database) getUser(username string) (*User, error) {
 	var user User
-	err := db.QueryRow("SELECT * FROM users WHERE username = ?", username).Scan(&user.username, &user.password, &user.email)
+	var userId int
+	err := db.QueryRow("SELECT * FROM users WHERE username = ?", username).Scan(&userId, &user.username, &user.password, &user.email)
 	if err != nil {
 		return nil, err
 	}

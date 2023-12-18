@@ -27,7 +27,7 @@ const (
 	MINIMUM_PASSWORD_LENGTH = 8
 	MAXIMUM_PASSWORD_LENGTH = 16
 	MINIMUM_USERNAME_LENGTH = 4
-	MAXIMUM_USERNAME_LENGTH = 8
+	MAXIMUM_USERNAME_LENGTH = 16
 )
 
 func NewUser(username, password, email string) (*User, []error) {
