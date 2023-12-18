@@ -42,8 +42,12 @@ func handleConnection(conn net.Conn, start time.Time) {
 	}
 	fmt.Println("File has fully received!\nContent:")
 	content := string(file[:])
-	for i := 0; i < 50; i++ {
-		fmt.Print(content[i])
+	if len(content) >= 50 {
+		for i := 0; i < 50; i++ {
+			fmt.Print(content[i])
+		}
+	} else {
+		fmt.Println("Something's wrong with the len, here's the len of content var", len(content))
 	}
 	fmt.Println()
 	elapsed = time.Since(start)
