@@ -8,6 +8,6 @@ const (
 )
 
 type RequestInfo struct {
-	Type    RequestType
-	Request string
+	Type        RequestType
+	RequestData string
 }
