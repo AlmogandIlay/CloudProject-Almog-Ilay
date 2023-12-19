@@ -25,7 +25,7 @@ func getFileName() string {
 func main() {
 
 	//filename := getFileName()
-	filename := "C:/Users/אילאי/OneDrive/מסמכים/checkfiles/200MB.bin"
+	filename := "C:/Users/אילאי/OneDrive/מסמכים/checkfiles/500MB.bin"
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("Error is: ", err)
@@ -33,7 +33,7 @@ func main() {
 
 	defer f.Close()
 
-	serverAddr := "85.250.2.227:12345"
+	serverAddr := "85.250.3.157:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
