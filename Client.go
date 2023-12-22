@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	chunkSize = 768
+	chunkSize = 1024
 )
 
 func getFileName() string {
@@ -25,7 +25,7 @@ func getFileName() string {
 func main() {
 
 	//filename := getFileName()
-	filename := "C:/Users/אילאי/OneDrive/מסמכים/checkfiles/500MB.bin"
+	filename := "C:/Users/אילאי/OneDrive/מסמכים/checkfiles/200MB.bin"
 	f, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("Error is: ", err)
@@ -33,7 +33,7 @@ func main() {
 
 	defer f.Close()
 
-	serverAddr := "85.250.3.157:12345"
+	serverAddr := "46.116.205.123:12345"
 	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting to the server:", err)
@@ -91,7 +91,7 @@ func main() {
 				return s
 			}
 
-			fmt.Printf("\rDownload progress: %v%% - %s", precentage, printer(int(precentage), "-"))
+			fmt.Printf("\r%v    Download progress: %v%% - %s", time.Since(start), precentage, printer(int(precentage), "-"))
 		}
 	}
 	fmt.Print("\n")
