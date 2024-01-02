@@ -1,7 +1,7 @@
 package RequestHandlers
 
 import (
-	"server/RequestHandlers/Requests"
+	"CloudDrive/Server/RequestHandlers/Requests"
 )
 
 type LoginRequestHandler struct{}

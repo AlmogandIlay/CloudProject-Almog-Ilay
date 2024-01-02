@@ -12,9 +12,9 @@ type Password string
 type Email string
 
 type User struct {
-	username string
-	password string
-	email    string
+	username string `json:"username"`
+	password string `json:"password"`
+	email    string `json:"email"`
 }
 
 // every field need to implement "Valid" method to check if the value is valid

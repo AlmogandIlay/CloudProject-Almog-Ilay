@@ -1,7 +1,7 @@
 package Responses
 
 import (
-	"server/Requests"
+	"CloudDrive/Server/Requests"
 )
 
 type ResponeType int
