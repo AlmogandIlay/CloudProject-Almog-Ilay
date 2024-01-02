@@ -8,7 +8,7 @@ type LoginManagerFactory struct {
 	manager *authentication.LoginManager
 }
 
-func newLoginManagerFactory() (LoginManagerFactory, error) {
+func NewLoginManagerFactory() (LoginManagerFactory, error) {
 	manager, err := authentication.InitializeLoginManager()
 	if err != nil {
 		return LoginManagerFactory{}, err
@@ -17,6 +17,6 @@ func newLoginManagerFactory() (LoginManagerFactory, error) {
 	return LoginManagerFactory{manager}, nil
 }
 
-func (factory LoginManagerFactory) getManager() authentication.LoginManager {
+func (factory LoginManagerFactory) GetManager() authentication.LoginManager {
 	return *factory.manager
 }

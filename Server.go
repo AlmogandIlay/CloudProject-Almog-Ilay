@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CloudDrive/server/RequestHandlers"
 	"fmt"
 	"net"
 )
@@ -12,16 +13,10 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
-	for i := 0; i < 1024; i++ {
-		if buf[i] != 0 {
-			fmt.Print(string(buf[i]))
-		} else {
-			break
-		}
-	}
 }
 
 func main() {
+	loginmanager, err := RequestHandlers.NewLoginManagerFactory()
 	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
