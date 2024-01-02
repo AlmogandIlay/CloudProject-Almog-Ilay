@@ -33,6 +33,7 @@ func (loginHandler *LoginRequestHandler) Error(info Requests.RequestInfo) Respon
 }
 
 func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
+	info.RequestData
 
 }
 
