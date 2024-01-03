@@ -1,7 +1,7 @@
 package main
 
 import (
-	"CloudDrive/server/RequestHandlers"
+	"CloudDrive/Server/RequestHandlers"
 	"fmt"
 	"net"
 )

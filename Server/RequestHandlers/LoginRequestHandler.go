@@ -35,25 +35,28 @@ func (loginHandler *LoginRequestHandler) Error(info Requests.RequestInfo) Respon
 	return respone
 }
 
+/*
+Handle Login requests from client
+*/
 func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo { // add error to handles?
 	var user authentication.User
-	err := json.Unmarshal([]byte(info.RequestData), &user)
+	err := json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
 	if err != nil {
 		fmt.Println(err.Error())
 		return ResponeInfo{}
 	}
 
-	manager, err := GetManager()
+	manager, err := GetManager() // Accessing Login Manager
 	if err != nil {
 		return ResponeInfo{}
 	}
 
-	err = manager.Login(user.Username, user.Password)
+	err = manager.Login(user.Username, user.Password) // Attempting to perform a login request
 	if err != nil {
 		return ResponeInfo{}
 	}
 
-	return buildRespone("200: Okay", nil)
+	return buildRespone("200: Okay", nil) // Login request success
 
 }
 
