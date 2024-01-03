@@ -12,9 +12,9 @@ type Password string
 type Email string
 
 type User struct {
-	username string `json:"username"`
-	password string `json:"password"`
-	email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
 }
 
 // every field need to implement "Valid" method to check if the value is valid
@@ -55,25 +55,25 @@ func NewUser(username, password, email string) (*User, []error) {
 		return nil, []error{err}
 	}
 
-	return &User{username: username, password: hashedPassword, email: email}, nil
+	return &User{Username: username, Password: hashedPassword, Email: email}, nil
 }
 
 // getters for each one of the User struct fields
-func (user *User) Username() string {
-	return user.username
+func (user *User) username() string {
+	return user.Username
 }
-func (user *User) Password() string {
-	return user.password
+func (user *User) password() string {
+	return user.Password
 }
-func (user *User) Email() string {
-	return user.email
+func (user *User) email() string {
+	return user.Email
 }
 
 // setters for each one of the User struct fields
 func (user *User) setName(newName string) error {
 	var err error = nil
 	if Name(newName).Valid() {
-		user.username = newName
+		user.Username = newName
 	} else {
 		err = &UsernameError{newName}
 	}
@@ -82,7 +82,7 @@ func (user *User) setName(newName string) error {
 func (user *User) setPassword(newPassword string) error {
 	var err error = nil
 	if Password(newPassword).Valid() {
-		user.password, err = Hash(newPassword)
+		user.Password, err = Hash(newPassword)
 	} else {
 		err = &PasswordError{newPassword}
 	}
@@ -91,7 +91,7 @@ func (user *User) setPassword(newPassword string) error {
 func (user *User) setEmail(newEmail string) error {
 	var err error = nil
 	if Email(newEmail).Valid() {
-		user.email = newEmail
+		user.Email = newEmail
 	} else {
 		err = &EmailError{newEmail}
 	}

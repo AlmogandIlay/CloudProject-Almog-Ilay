@@ -84,7 +84,7 @@ func (manager *LoginManager) Logout(username string) error {
 		return err
 	}
 	for index, user := range manager.loggedUsers {
-		if user.username == username {
+		if user.Username == username {
 			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
 			return nil
 		}
@@ -102,7 +102,7 @@ func (manager *LoginManager) DeleteUser(username string) error {
 		return &UsernameNotExistsError{username}
 	}
 	for index, user := range manager.loggedUsers { // look for the index of the user
-		if user.username == username {
+		if user.Username == username {
 			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
 			return nil
 		}

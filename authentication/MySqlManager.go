@@ -30,7 +30,7 @@ func (db *Database) closeDatabase() error {
 
 func (db *Database) addUser(user *User) error {
 	_, err := db.Exec("INSERT INTO users (userId, username, password, email) VALUES (NULL, ?, ?, ?)",
-		user.Username(), user.Password(), user.Email())
+		user.username(), user.password(), user.email())
 	return err
 }
 
@@ -61,7 +61,7 @@ func (db *Database) doesPasswordMatch(username, password string) (bool, error) {
 func (db *Database) getUser(username string) (*User, error) {
 	var user User
 	var userId int
-	err := db.QueryRow("SELECT * FROM users WHERE username = ?", username).Scan(&userId, &user.username, &user.password, &user.email)
+	err := db.QueryRow("SELECT * FROM users WHERE username = ?", username).Scan(&userId, &user.Username, &user.Password, &user.Email)
 	if err != nil {
 		return nil, err
 	}

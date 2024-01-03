@@ -1,8 +1,10 @@
 package RequestHandlers
 
 import (
-	//	"CloudDrive/authentication"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"CloudDrive/authentication"
+	"encoding/json"
+	"fmt"
 )
 
 type LoginRequestHandler struct{}
@@ -33,9 +35,25 @@ func (loginHandler *LoginRequestHandler) Error(info Requests.RequestInfo) Respon
 	return respone
 }
 
-func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
-	//var user User = info.RequestData
-	return ResponeInfo{}
+func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo { // add error to handles?
+	var user authentication.User
+	err := json.Unmarshal([]byte(info.RequestData), &user)
+	if err != nil {
+		fmt.Println(err.Error())
+		return ResponeInfo{}
+	}
+
+	manager, err := GetManager()
+	if err != nil {
+		return ResponeInfo{}
+	}
+
+	err = manager.Login(user.Username, user.Password)
+	if err != nil {
+		return ResponeInfo{}
+	}
+
+	return buildRespone("200: Okay", nil)
 
 }
 
