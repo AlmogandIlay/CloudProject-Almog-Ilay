@@ -5,7 +5,7 @@ type ResponeType int
 const (
 	ErrorRespone  ResponeType = iota // 0
 	LoginRespone  ResponeType = iota // 1
-	SigninRespone ResponeType = iota // 2
+	SignupRespone ResponeType = iota // 2
 )
 
 type ResponeInfo struct {

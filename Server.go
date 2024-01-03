@@ -1,7 +1,6 @@
 package main
 
 import (
-	"CloudDrive/Server/RequestHandlers"
 	"fmt"
 	"net"
 )
@@ -16,20 +15,6 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
-	login_manager, err := RequestHandlers.InitializeFactory()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	errs := login_manager.Signup("sdfds", "ssdfdsjdsfdfdfs", "dfdf@jdfj.com")
-	if len(errs) > 0 {
-		fmt.Println(errs)
-	} else {
-		fmt.Println(login_manager.GetLoggedUsers())
-	}
-	dd, err := RequestHandlers.GetManager()
-	if err == nil {
-		fmt.Println(dd.GetLoggedUsers())
-	}
 
 	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
