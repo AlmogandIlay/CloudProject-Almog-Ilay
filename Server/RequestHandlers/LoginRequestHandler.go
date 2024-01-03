@@ -10,15 +10,15 @@ import (
 type LoginRequestHandler struct{}
 
 func (loginHandler *LoginRequestHandler) ValidRequest(info Requests.RequestInfo) bool {
-	return info.Type == Requests.LoginRequest || info.Type == Requests.SigninRequest
+	return info.Type == Requests.LoginRequest || info.Type == Requests.SignupRequest
 }
 
 func (loginHandler *LoginRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
 		return loginHandler.HandleLogin(info)
-	case Requests.SigninRequest:
-		return loginHandler.HandleSignin(info)
+	case Requests.SignupRequest:
+		return loginHandler.HandleSignup(info)
 	default:
 		return loginHandler.Error(info)
 	}
@@ -60,6 +60,6 @@ func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) 
 
 }
 
-func (loginHandler *LoginRequestHandler) HandleSignin(info Requests.RequestInfo) ResponeInfo {
+func (loginHandler *LoginRequestHandler) HandleSignup(info Requests.RequestInfo) ResponeInfo {
 	return ResponeInfo{}
 }
