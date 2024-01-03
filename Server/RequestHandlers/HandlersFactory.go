@@ -2,12 +2,10 @@ package RequestHandlers
 
 import (
 	"CloudDrive/authentication"
-	"sync"
 )
 
 var (
 	Manager *authentication.LoginManager
-	Once    sync.Once
 )
 
 func InitializeFactory() (*authentication.LoginManager, error) {
