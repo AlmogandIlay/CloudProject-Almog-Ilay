@@ -1,32 +1,26 @@
 package RequestHandlers
 
 import (
-	"sync"
 	"CloudDrive/authentication"
+	"sync"
 )
 
 var (
-	manager	*authentication.LoginManager
-	Once	sync.Once
+	Manager *authentication.LoginManager
+	Once    sync.Once
 )
 
 func InitializeFactory() (*authentication.LoginManager, error) {
-	
-	manager, err = authentication.InitializeLoginManager()
+	var err error
+	Manager, err = authentication.InitializeLoginManager()
 	if err != nil {
-		manager = LoginManager{}
-		return manager, err
+		Manager = &authentication.LoginManager{}
+		return Manager, err
 	}
 
-	return manager, nil
+	return Manager, nil
 }
 
 func GetManager() (*authentication.LoginManager, error) {
-	sync.Do(func()) {
-		manager, err = InitializeFactory()
-		if err != nil {
-			return manager, err
-		}
-	}
-	return &manager, nil
+	return Manager, nil
 }
