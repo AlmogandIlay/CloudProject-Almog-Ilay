@@ -25,6 +25,7 @@ func InitializeLoginManager() (*LoginManager, error) {
 	return &manager, nil
 }
 
+// Add comment
 func (manager *LoginManager) Login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
@@ -49,6 +50,7 @@ func (manager *LoginManager) Login(username, password string) error {
 	return nil
 }
 
+// Add comment
 func (manager *LoginManager) Signup(username, password, email string) []error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
@@ -75,6 +77,7 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 	return nil
 }
 
+// Add comment
 func (manager *LoginManager) Logout(username string) error {
 	_, err := manager.doesUserExist(username)
 	if err != nil {
@@ -89,6 +92,7 @@ func (manager *LoginManager) Logout(username string) error {
 	return &UsernameNotExistsError{username}
 }
 
+// Add comment
 func (manager *LoginManager) DeleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
