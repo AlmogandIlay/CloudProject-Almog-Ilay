@@ -1,6 +1,7 @@
 package RequestHandlers
 
 import (
+	"CloudDrive/authentication"
 	"CloudDrive/Server/RequestHandlers/Requests"
 )
 
@@ -33,7 +34,7 @@ func (loginHandler *LoginRequestHandler) Error(info Requests.RequestInfo) Respon
 }
 
 func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
-	info.RequestData
+	var user User = info.RequestData
 
 }
 

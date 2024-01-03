@@ -1,22 +1,32 @@
 package RequestHandlers
 
 import (
+	"sync"
 	"CloudDrive/authentication"
 )
 
-type LoginManagerFactory struct {
-	manager *authentication.LoginManager
-}
+var (
+	manager	*authentication.LoginManager
+	Once	sync.Once
+)
 
-func NewLoginManagerFactory() (LoginManagerFactory, error) {
-	manager, err := authentication.InitializeLoginManager()
+func InitializeFactory() (*authentication.LoginManager, error) {
+	
+	manager, err = authentication.InitializeLoginManager()
 	if err != nil {
-		return LoginManagerFactory{}, err
+		manager = LoginManager{}
+		return manager, err
 	}
 
-	return LoginManagerFactory{manager}, nil
+	return manager, nil
 }
 
-func (factory LoginManagerFactory) GetManager() authentication.LoginManager {
-	return *factory.manager
+func GetManager() (*authentication.LoginManager, error) {
+	sync.Do(func()) {
+		manager, err = InitializeFactory()
+		if err != nil {
+			return manager, err
+		}
+	}
+	return &manager, nil
 }

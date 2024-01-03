@@ -16,7 +16,10 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
-	loginmanager, err := RequestHandlers.NewLoginManagerFactory()
+	loginmanager, err := GetManager()
+	if err != nil {
+		fmt.Println(err.Error)
+	}
 	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
