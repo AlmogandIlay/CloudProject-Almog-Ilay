@@ -5,20 +5,20 @@ import (
 )
 
 var (
-	Manager *authentication.LoginManager
+	Manager *authentication.IdentityManager
 )
 
-func InitializeFactory() (*authentication.LoginManager, error) {
+func InitializeFactory() (*authentication.IdentityManager, error) {
 	var err error
-	Manager, err = authentication.InitializeLoginManager()
+	Manager, err = authentication.InitializeIdentifyManager()
 	if err != nil {
-		Manager = &authentication.LoginManager{}
+		Manager = &authentication.IdentityManager{}
 		return Manager, err
 	}
 
 	return Manager, nil
 }
 
-func GetManager() (*authentication.LoginManager, error) {
+func GetManager() (*authentication.IdentityManager, error) {
 	return Manager, nil
 }

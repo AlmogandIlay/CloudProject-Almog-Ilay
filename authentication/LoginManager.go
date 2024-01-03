@@ -2,7 +2,7 @@ package authentication
 
 import "strings"
 
-type LoginManager struct {
+type IdentityManager struct {
 	*Database
 	loggedUsers []User
 }
@@ -12,8 +12,8 @@ const (
 )
 
 // Constructor function of Login Manager
-func InitializeLoginManager() (*LoginManager, error) {
-	var manager LoginManager
+func InitializeIdentifyManager() (*IdentityManager, error) {
+	var manager IdentityManager
 	var err error
 
 	manager.loggedUsers = make([]User, 0)
@@ -26,7 +26,7 @@ func InitializeLoginManager() (*LoginManager, error) {
 }
 
 // Add comment
-func (manager *LoginManager) Login(username, password string) error {
+func (manager *IdentityManager) Login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (manager *LoginManager) Login(username, password string) error {
 }
 
 // Add comment
-func (manager *LoginManager) Signup(username, password, email string) []error {
+func (manager *IdentityManager) Signup(username, password, email string) []error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return []error{err}
@@ -78,7 +78,7 @@ func (manager *LoginManager) Signup(username, password, email string) []error {
 }
 
 // Add comment
-func (manager *LoginManager) Logout(username string) error {
+func (manager *IdentityManager) Logout(username string) error {
 	_, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (manager *LoginManager) Logout(username string) error {
 }
 
 // Add comment
-func (manager *LoginManager) DeleteUser(username string) error {
+func (manager *IdentityManager) DeleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -114,6 +114,6 @@ func (manager *LoginManager) DeleteUser(username string) error {
 	return nil
 }
 
-func (manager *LoginManager) GetLoggedUsers() []User {
+func (manager *IdentityManager) GetLoggedUsers() []User {
 	return manager.loggedUsers
 }
