@@ -40,6 +40,7 @@ Handle Login requests from client
 */
 func (loginHandler *LoginRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo { // add error to handles?
 	var user authentication.User
+
 	err := json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
 	if err != nil {
 		fmt.Println(err.Error())

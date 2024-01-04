@@ -9,5 +9,5 @@ const (
 
 type RequestInfo struct {
 	Type        RequestType
-	RequestData string
+	RequestData []byte
 }
