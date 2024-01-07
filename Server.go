@@ -1,38 +1,48 @@
 package main
 
 import (
+	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers"
-	"CloudDrive/Server/RequestHandlers/Requests"
 	"fmt"
 	"log"
 	"net"
 )
 
+/*
+Prints the Remote IP:Port's client in the CLI server program.
+*/
 func printRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 }
 
-func handleConnection(conn net.Conn) {
-	printRemoteAddr(conn)
+/*
+Initializes RequestHandler variable
+*/
+func initializeRequestHandler() *RequestHandlers.AuthenticationRequestHandler {
+	return &RequestHandlers.AuthenticationRequestHandler{}
+}
 
-	buffer := make([]byte, 1024)
-	bytesRead, err := conn.Read(buffer)
-	if err != nil {
-		fmt.Println("Error reading:", err.Error())
+/*
+Handles new client connection
+*/
+func handleConnection(conn net.Conn) {
+	// Initialize setup
+	printRemoteAddr(conn)
+	userHandler := initializeRequestHandler()
+
+	requestInfo, err := helper.ReciveRequestInfo(&conn)
+	err = helper.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+
+	if err != nil { // If sending request info was unsucessful
+		return // exit client handle
 	}
 
-	data := make([]byte, bytesRead)
-	copy(data, buffer[:bytesRead])
-
-	info := Requests.RequestInfo{0, data}
-	handler := new(RequestHandlers.LoginRequestHandler)
-	handler.HandleLogin(info)
 }
 
 func main() {
 	_, err := RequestHandlers.InitializeFactory()
 	if err != nil {
-		log.Fatal("There has been an error when attempting to initializeFactory.\nError Data:", err.Error())
+		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return
 	}
 

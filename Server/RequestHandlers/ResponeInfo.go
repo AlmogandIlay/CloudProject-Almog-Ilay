@@ -16,3 +16,7 @@ type ResponeInfo struct {
 func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
 	return ResponeInfo{Respone: respone, NewHandler: handler}
 }
+
+func buildError(response string) ResponeInfo {
+	return ResponeInfo{Respone: response, NewHandler: nil}
+}

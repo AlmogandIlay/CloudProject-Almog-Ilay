@@ -19,6 +19,6 @@ func InitializeFactory() (*authentication.IdentityManager, error) {
 	return Manager, nil
 }
 
-func GetManager() (*authentication.IdentityManager, error) {
-	return Manager, nil
+func GetManager() *authentication.IdentityManager {
+	return Manager
 }
