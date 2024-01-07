@@ -3,8 +3,8 @@ package Requests
 type RequestType int
 
 const (
-	LoginRequest  RequestType = iota // 0
-	SignupRequest RequestType = iota // 1
+	LoginRequest  RequestType = 101
+	SignupRequest RequestType = 102
 	// ...
 	ErrorRequest RequestType = 999
 )
