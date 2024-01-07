@@ -52,5 +52,20 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 }
 
 func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo) ResponeInfo {
-	return ResponeInfo{}
+	var user authentication.User
+
+	json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
+	login_manager := GetManager()
+
+	errs := login_manager.Signup(user.Username, user.Password, user.Email) // Attempt to perform a signup request
+	if len(errs) > 0 {
+		var errors string = ""
+		for _, err := range errs { // Save all errors in string
+			errors += "* " + err.Error() + "\n"
+		}
+		return buildError(errors)
+	}
+
+	return buildRespone("200: Okay", nil) // Signup request success (tdl: add handler)
+
 }
