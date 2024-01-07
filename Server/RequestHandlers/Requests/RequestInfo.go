@@ -1,5 +1,7 @@
 package Requests
 
+import "encoding/json"
+
 type RequestType int
 
 const (
@@ -10,8 +12,8 @@ const (
 )
 
 type RequestInfo struct {
-	Type        RequestType `json:"Type"`
-	RequestData []byte      `json:"Data"`
+	Type        RequestType     `json:"Type"`
+	RequestData json.RawMessage `json:"Data"`
 
 	// Add Time data for log
 

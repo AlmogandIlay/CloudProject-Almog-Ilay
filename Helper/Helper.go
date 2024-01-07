@@ -40,6 +40,7 @@ func ReciveRequestInfo(conn *net.Conn) (Requests.RequestInfo, error) {
 
 	err := json.Unmarshal(data, &requestInfo)
 	if err != nil {
+		fmt.Println(err.Error())
 		return Requests.RequestInfo{
 			Type:        Requests.ErrorRequest,
 			RequestData: []byte("Error: One or more of the fields are being used wrong."),
