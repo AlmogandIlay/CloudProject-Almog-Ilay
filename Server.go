@@ -11,8 +11,12 @@ import (
 /*
 Prints the Remote IP:Port's client in the CLI server program.
 */
-func printRemoteAddr(conn net.Conn) {
+func printNewRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
+}
+
+func printDisconnectedRemoteAddr(conn net.Conn) {
+	fmt.Println(conn.RemoteAddr(), "is disconnected")
 }
 
 /*
@@ -26,17 +30,27 @@ func initializeRequestHandler() *RequestHandlers.AuthenticationRequestHandler {
 Handles new client connection
 */
 func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
 	// Initialize setup
-	printRemoteAddr(conn)
+	printNewRemoteAddr(conn)
 	userHandler := initializeRequestHandler()
+	closeConnection := false
 
-	requestInfo, err := helper.ReciveRequestInfo(&conn)
-	err = helper.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+	for !closeConnection {
 
-	if err != nil { // If sending request info was unsucessful
-		return // exit client handle
+		requestInfo, err := helper.ReciveRequestInfo(&conn)
+		if err != nil {
+			closeConnection = true
+		}
+		err = helper.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+
+		if err != nil { // If sending request info was unsucessful
+			closeConnection = true
+		}
 	}
 
+	printDisconnectedRemoteAddr(conn)
 }
 
 func main() {
