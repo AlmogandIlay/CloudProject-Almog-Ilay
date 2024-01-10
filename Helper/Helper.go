@@ -4,6 +4,7 @@ import (
 	"CloudDrive/Server/RequestHandlers"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
+	"fmt"
 	"net"
 )
 
@@ -41,6 +42,7 @@ func ReciveRequestInfo(conn *net.Conn) (Requests.RequestInfo, error) {
 	var requestInfo Requests.RequestInfo
 
 	err = json.Unmarshal(data, &requestInfo)
+	fmt.Println("Request Json data is ", string(requestInfo.RequestData))
 	if err != nil {
 		return Requests.RequestInfo{
 			Type:        Requests.ErrorRequest,
@@ -72,6 +74,6 @@ func SendResponseInfo(conn *net.Conn, responseInfo RequestHandlers.ResponeInfo) 
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("Response Json data is ", string(message))
 	return SendData(conn, message)
 }
