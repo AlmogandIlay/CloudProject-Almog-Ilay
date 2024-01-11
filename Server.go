@@ -54,7 +54,7 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
-	_, err := RequestHandlers.InitializeFactory()
+	_, err := RequestHandlers.InitializeIdentifyManagerFactory()
 	if err != nil {
 		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return
