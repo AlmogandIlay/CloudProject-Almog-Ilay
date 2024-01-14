@@ -1,5 +1,8 @@
 package main
 
-func main() {
+import "client/menu"
 
+func main() {
+	cli := menu.NewCLI()
+	cli.PrintStartup()
 }
