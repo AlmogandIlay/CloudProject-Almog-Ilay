@@ -3,6 +3,7 @@ package Handleinput
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
 type UserInput struct {
@@ -13,13 +14,28 @@ func NewUserInput() *UserInput {
 	return &UserInput{scanner: bufio.NewScanner(os.Stdin)}
 }
 
-// Scan input from client
-func (input UserInput) GetInput() string {
-	input.scanner.Scan()
-	command := input.scanner.Text()
+/*
+Scans user's input and convert it to text
+*/
+func (inputBuffer UserInput) convertToText() string {
+	inputBuffer.scanner.Scan()
+	command := inputBuffer.scanner.Text()
 
 	return command
-
 }
 
-func Handleinput(command string)
+/*
+Gets user input and handles its command request.
+*/
+func (inputBuffer UserInput) Handleinput() string {
+	command := strings.ToLower(inputBuffer.convertToText()) // Recieves user command and saves it as case insensitive
+
+	switch command {
+	case "help":
+
+	case "cd":
+
+	}
+
+	return ""
+}
