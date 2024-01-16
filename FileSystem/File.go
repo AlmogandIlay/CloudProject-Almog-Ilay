@@ -15,7 +15,6 @@ const (
 	maxFileSize   = GB - 100*MB // 900KB
 	maxNameLength = 256
 
-	DrivePath             = "C:\\CloudDrive\\"
 	invalidFileCharacters = "\\/:*?\"<>|"
 )
 
