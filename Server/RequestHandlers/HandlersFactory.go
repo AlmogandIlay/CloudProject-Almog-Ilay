@@ -15,7 +15,6 @@ func InitializeIdentifyManagerFactory() (*authentication.IdentityManager, error)
 		Manager = &authentication.IdentityManager{}
 		return Manager, err
 	}
-	Manager.GetLoggedUsers()
 
 	return Manager, nil
 }
