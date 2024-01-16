@@ -9,15 +9,17 @@ var (
 )
 
 func InitializeIdentifyManagerFactory() (*authentication.IdentityManager, error) {
-	Manager, err := authentication.InitializeIdentifyManager()
+	var err error
+	Manager, err = authentication.InitializeIdentifyManager()
 	if err != nil {
 		Manager = &authentication.IdentityManager{}
 		return Manager, err
 	}
+	Manager.GetLoggedUsers()
 
 	return Manager, nil
 }
 
-func GetManager() authentication.IdentityManager {
-	return *Manager
+func GetManager() *authentication.IdentityManager {
+	return Manager
 }
