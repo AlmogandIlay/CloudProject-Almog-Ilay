@@ -2,8 +2,14 @@ package Handleinput
 
 import (
 	"bufio"
+	"client/Authentication"
 	"os"
 	"strings"
+)
+
+const (
+	prefix_index      = 0
+	command_arguments = 1
 )
 
 type UserInput struct {
@@ -28,9 +34,14 @@ func (inputBuffer UserInput) convertToText() string {
 Gets user input and handles its command request.
 */
 func (inputBuffer UserInput) Handleinput() string {
-	command := strings.ToLower(inputBuffer.convertToText()) // Recieves user command and saves it as case insensitive
+	command := strings.Fields(strings.ToLower(inputBuffer.convertToText()))
+	command_prefix := command[prefix_index]
 
-	switch command {
+	switch command_prefix {
+
+	case "signup":
+		Authentication.HandleSignup(command[command_arguments:])
+
 	case "help":
 
 	case "cd":
