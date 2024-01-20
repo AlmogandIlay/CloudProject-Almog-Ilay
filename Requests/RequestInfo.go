@@ -1,6 +1,10 @@
 package Requests
 
-import "encoding/json"
+import (
+	"client/connection"
+	"encoding/json"
+	"fmt"
+)
 
 type RequestType int
 
@@ -16,4 +20,21 @@ type RequestInfo struct {
 
 	// Add Time data for log
 
+}
+
+// BuildRequestInfo creates a new RequestInfo struct with the given request type and data.
+
+func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) RequestInfo {
+	return RequestInfo{
+		Type:        request_type,
+		RequestData: request_data,
+	}
+}
+
+func SendRequestInfo(request_info RequestInfo) ResponeInfo {
+	requestBytes, err := json.Marshal(request_info)
+	if err != nil {
+		panic(fmt.Sprintf("Error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers: ", err.Error()))
+	}
+	*(connection.Socket).Write(requestBytes)
 }

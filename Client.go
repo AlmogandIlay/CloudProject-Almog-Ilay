@@ -1,8 +1,16 @@
 package main
 
-import "client/menu"
+import (
+	connection "client/Connection"
+	"client/Menu"
+	"net"
+)
+
+var Socket *net.Conn
 
 func main() {
-	cli := menu.NewCLI()
+	connection.Connect()
+
+	cli := Menu.NewCLI()
 	cli.PrintStartup()
 }

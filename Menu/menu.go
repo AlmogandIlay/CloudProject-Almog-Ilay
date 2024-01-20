@@ -1,6 +1,8 @@
 package Menu
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type CLI struct {
 	prompt string
