@@ -32,6 +32,15 @@ func NewCLI() (*CLI, error) {
 
 }
 
+func (cli *CLI) closeConnection() error {
+	err := cli.socket.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Prints the program startup intro
 func (cli *CLI) PrintStartup() {
 	fmt.Println("CloudDrive v1.0 Command Line Interface")
@@ -44,6 +53,7 @@ func (cli *CLI) readInput() {
 }
 
 func (cli *CLI) Loop() {
+	defer cli.closeConnection()
 	for {
 		cli.readInput()
 		if cli.input.Scanner.Bytes() == nil { // If unexpected input given
