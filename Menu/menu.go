@@ -1,7 +1,7 @@
 package Menu
 
 import (
-	"errors"
+	HandleInput "client/HandleInput"
 	"fmt"
 	"net"
 )
@@ -11,19 +11,21 @@ const (
 )
 
 type CLI struct {
-	prompt string
 	socket net.Conn
+	prompt string
+	input  *HandleInput.UserInput
 }
 
 func NewCLI() (*CLI, error) {
 	var err error
 	var cli CLI
 
-	cli.prompt = ">>"
+	cli.prompt = ">> "
+	cli.input = HandleInput.NewUserInput()
 	cli.socket, err = net.Dial("tcp", ip_addr)
 	if err != nil {
 
-		return nil, errors.New(fmt.Sprintf("There has been an error connecting to the server.\nPlease check your connection and try again.\nIf it doesn't work contact the developers and send them this error message:\n%s", err.Error()))
+		return nil, fmt.Errorf(fmt.Sprintf("There has been an error connecting to the server.\nPlease check your connection and try again.\nIf it doesn't work contact the developers and send them this error message:\n%s", err.Error()))
 	}
 
 	return &cli, nil
@@ -34,4 +36,18 @@ func NewCLI() (*CLI, error) {
 func (cli *CLI) PrintStartup() {
 	fmt.Println("CloudDrive v1.0 Command Line Interface")
 	fmt.Println("Type \"help\" for available commands.")
+}
+
+func (cli *CLI) readInput() {
+	fmt.Print(cli.prompt)
+	cli.input.Handleinput()
+}
+
+func (cli *CLI) Loop() {
+	for {
+		cli.readInput()
+		if cli.input.Scanner.Bytes() == nil { // If unexpected input given
+			break
+		}
+	}
 }

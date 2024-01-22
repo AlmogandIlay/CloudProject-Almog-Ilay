@@ -3,6 +3,7 @@ package Handleinput
 import (
 	"bufio"
 	"client/Authentication"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -13,19 +14,19 @@ const (
 )
 
 type UserInput struct {
-	scanner *bufio.Scanner
+	Scanner *bufio.Scanner
 }
 
 func NewUserInput() *UserInput {
-	return &UserInput{scanner: bufio.NewScanner(os.Stdin)}
+	return &UserInput{Scanner: bufio.NewScanner(os.Stdin)}
 }
 
 /*
-Scans user's input and convert it to text
+Scan user's input and convert it to text
 */
-func (inputBuffer UserInput) convertToText() string {
-	inputBuffer.scanner.Scan()
-	command := inputBuffer.scanner.Text()
+func (inputBuffer UserInput) readInput() string {
+	inputBuffer.Scanner.Scan()
+	command := inputBuffer.Scanner.Text()
 
 	return command
 }
@@ -34,19 +35,26 @@ func (inputBuffer UserInput) convertToText() string {
 Gets user input and handles its command request.
 */
 func (inputBuffer UserInput) Handleinput() string {
-	command := strings.Fields(strings.ToLower(inputBuffer.convertToText()))
-	command_prefix := command[prefix_index]
+	var err error
+	command := strings.Fields(strings.ToLower(inputBuffer.readInput()))
+	if len(command) > 0 { // If command is not empty
+		command_prefix := command[prefix_index]
 
-	switch command_prefix {
+		switch command_prefix {
 
-	case "signup":
-		Authentication.HandleSignup(command[command_arguments:])
+		case "signup":
+			err = Authentication.HandleSignup(command[command_arguments:])
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
-	case "help":
+		case "help":
 
-	case "cd":
+		case "cd":
 
+		}
+
+		return ""
 	}
-
 	return ""
 }

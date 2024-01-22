@@ -1,7 +1,6 @@
 package Requests
 
 import (
-	"client/connection"
 	"encoding/json"
 	"fmt"
 )
@@ -34,7 +33,10 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 func SendRequestInfo(request_info RequestInfo) ResponeInfo {
 	requestBytes, err := json.Marshal(request_info)
 	if err != nil {
-		panic(fmt.Sprintf("Error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers: ", err.Error()))
+		panic(fmt.Sprintf("Error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error()))
 	}
-	*(connection.Socket).Write(requestBytes)
+	fmt.Println(requestBytes)
+	return ResponeInfo{}
+
+	//  _, err = cli.socket.Write(requestBytes)
 }

@@ -13,12 +13,15 @@ const (
 )
 
 // Handles the sign up request
-func HandleSignup(command_arguments []string) {
+func HandleSignup(command_arguments []string) error {
 	user := Signup(command_arguments[username_index], command_arguments[password_index], command_arguments[email_index])
 	request_data, err := json.Marshal(user)
 	if err != nil {
-		panic(fmt.Sprintf("Error when attempting to encode the data to be sent to the server.\nPlease send this info to the developers: ", err.Error()))
+		return fmt.Errorf(fmt.Sprintf("Error when attempting to encode the data to be sent to the server.\nPlease send this info to the developers: %s", err.Error()))
 	}
 
 	request_info := Requests.BuildRequestInfo(Requests.SignupRequest, request_data)
+	fmt.Println(request_info)
+	return nil
+	//Requests.SendRequest(request_info)
 }
