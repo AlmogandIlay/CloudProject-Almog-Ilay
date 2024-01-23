@@ -4,6 +4,7 @@ import (
 	"client/Requests"
 	"encoding/json"
 	"fmt"
+	"net"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 )
 
 // Handles the sign up request
-func HandleSignup(command_arguments []string) error {
+func HandleSignup(command_arguments []string, socket net.Conn) error {
 	user := Signup(command_arguments[username_index], command_arguments[password_index], command_arguments[email_index])
 	request_data, err := json.Marshal(user)
 	if err != nil {
@@ -22,6 +23,8 @@ func HandleSignup(command_arguments []string) error {
 
 	request_info := Requests.BuildRequestInfo(Requests.SignupRequest, request_data)
 	fmt.Println(request_info)
+
+	Requests.SendRequestInfo(request_info)
 	return nil
-	//Requests.SendRequest(request_info)
+
 }

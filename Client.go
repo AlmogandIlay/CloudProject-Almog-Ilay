@@ -2,10 +2,7 @@ package main
 
 import (
 	Menu "client/Menu"
-	"net"
 )
-
-var Socket *net.Conn
 
 func main() {
 	cli, err := Menu.NewCLI()

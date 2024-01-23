@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"client/Authentication"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 )
@@ -34,7 +35,7 @@ func (inputBuffer UserInput) readInput() string {
 /*
 Gets user input and handles its command request.
 */
-func (inputBuffer UserInput) Handleinput() string {
+func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 	var err error
 	command := strings.Fields(strings.ToLower(inputBuffer.readInput()))
 	if len(command) > 0 { // If command is not empty
