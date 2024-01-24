@@ -9,5 +9,6 @@ const (
 )
 
 type ResponeInfo struct {
-	Respone string
+	Type    ResponeType `json:"Type"`
+	Respone string      `json:"Data"`
 }
