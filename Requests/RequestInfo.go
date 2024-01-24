@@ -49,6 +49,7 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 		return ResponeInfo{}, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
 	}
 	dataBytes := buffer[:bytesRead]
+
 	var response_info ResponeInfo
 	err = json.Unmarshal(dataBytes, &response_info)
 	if err != nil {
