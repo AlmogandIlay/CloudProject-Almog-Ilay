@@ -3,9 +3,8 @@ package Requests
 type ResponeType int
 
 const (
-	ErrorRespone  ResponeType = iota // 0
-	LoginRespone  ResponeType = iota // 1
-	SignupRespone ResponeType = iota // 2
+	ErrorRespone ResponeType = 999
+	ValidRespone ResponeType = 200
 )
 
 type ResponeInfo struct {

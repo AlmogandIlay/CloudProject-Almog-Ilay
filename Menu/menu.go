@@ -49,7 +49,7 @@ func (cli *CLI) PrintStartup() {
 
 func (cli *CLI) readInput() {
 	fmt.Print(cli.prompt)
-	cli.input.Handleinput()
+	fmt.Println(cli.input.Handleinput(cli.socket))
 }
 
 func (cli *CLI) Loop() {

@@ -36,7 +36,6 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	if err != nil {
 		return ResponeInfo{}, fmt.Errorf("error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error())
 	}
-	fmt.Println(requestBytes)
 
 	_, err = socket.Write(requestBytes)
 	if err != nil {

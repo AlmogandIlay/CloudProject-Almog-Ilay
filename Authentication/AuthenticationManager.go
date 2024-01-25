@@ -15,6 +15,9 @@ const (
 
 // Handles the sign up request
 func HandleSignup(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) != 3 {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
 	user := Signup(command_arguments[username_index], command_arguments[password_index], command_arguments[email_index])
 	request_data, err := json.Marshal(user)
 	if err != nil {
@@ -22,9 +25,14 @@ func HandleSignup(command_arguments []string, socket net.Conn) error {
 	}
 
 	request_info := Requests.BuildRequestInfo(Requests.SignupRequest, request_data)
-	fmt.Println(request_info)
+	response_info, err := Requests.SendRequestInfo(request_info, socket)
+	if err != nil {
+		return err
+	}
+	if response_info.Type == Requests.ErrorRespone { // If error caught in server side
+		return fmt.Errorf(response_info.Respone)
+	}
 
-	Requests.SendRequestInfo(request_info)
 	return nil
 
 }

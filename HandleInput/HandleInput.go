@@ -3,7 +3,6 @@ package Handleinput
 import (
 	"bufio"
 	"client/Authentication"
-	"fmt"
 	"net"
 	"os"
 	"strings"
@@ -44,9 +43,9 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 		switch command_prefix {
 
 		case "signup":
-			err = Authentication.HandleSignup(command[command_arguments:])
+			err = Authentication.HandleSignup(command[command_arguments:], socket)
 			if err != nil {
-				fmt.Println(err.Error())
+				return err.Error()
 			}
 
 		case "help":
@@ -54,8 +53,8 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 		case "cd":
 
 		}
-
 		return ""
+
 	}
 	return ""
 }
