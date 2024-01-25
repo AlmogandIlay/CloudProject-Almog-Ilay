@@ -33,6 +33,10 @@ func HandleSignup(command_arguments []string, socket net.Conn) error {
 		return fmt.Errorf(response_info.Respone)
 	}
 
+	if response_info.Type == Requests.ValidRespone {
+		fmt.Println("Signup successful!")
+	}
+
 	return nil
 
 }
