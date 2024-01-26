@@ -48,6 +48,12 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 				return err.Error()
 			}
 
+		case "signin":
+			err = Authentication.HandleSignIn(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+
 		case "help":
 
 		case "cd":

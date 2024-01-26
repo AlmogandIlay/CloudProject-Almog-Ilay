@@ -9,3 +9,7 @@ type User struct {
 func Signup(username string, password string, email string) User {
 	return User{Username: username, Password: password, Email: email}
 }
+
+func Signin(username string, password string) User {
+	return User{Username: username, Password: password, Email: ""}
+}

@@ -1,6 +1,7 @@
 package Requests
 
 import (
+	"Client/helper"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -41,20 +42,8 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	if err != nil {
 		return ResponeInfo{}, fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
 	}
-
-	buffer := make([]byte, 1024)
-	bytesRead, err := socket.Read(buffer)
-	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
-	}
-	dataBytes := buffer[:bytesRead]
-
-	var response_info ResponeInfo
-	err = json.Unmarshal(dataBytes, &response_info)
-	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to encode the response from the server.\nPlease send this info to the developers:\n%s", err)
-	}
+	data, err := helper.ReciveData(socket, helper.DefaultBufferSize)
+	response_info, err := helper.GetResponseInfo(data)
 
 	return response_info, nil
-
 }
