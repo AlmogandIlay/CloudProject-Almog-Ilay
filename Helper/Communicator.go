@@ -37,7 +37,7 @@ func SendData(conn *net.Conn, message []byte) error {
 
 	_, err := (*conn).Write(message)
 	if err != nil {
-		return err
+		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
 	}
 	return nil
 }

@@ -1,7 +1,7 @@
 package Requests
 
 import (
-	"Client/helper"
+	"client/helper"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -38,12 +38,20 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 		return ResponeInfo{}, fmt.Errorf("error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error())
 	}
 
-	_, err = socket.Write(requestBytes)
+	err = helper.SendData(&socket, requestBytes)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
-	data, err := helper.ReciveData(socket, helper.DefaultBufferSize)
-	response_info, err := helper.GetResponseInfo(data)
+
+	data, err := helper.ReciveData(&socket, helper.DefaultBufferSize)
+	if err != nil {
+		return ResponeInfo{}, err
+	}
+
+	response_info, err := GetResponseInfo(data)
+	if err != nil {
+		return ResponeInfo{}, err
+	}
 
 	return response_info, nil
 }
