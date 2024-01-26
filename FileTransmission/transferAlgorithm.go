@@ -1,8 +1,8 @@
 package filetransmission
 
 import (
-	"CloudDrive/Filesystem"
-	"CloudDrive/helper"
+	"CloudDrive/FileSystem"
+	helper "CloudDrive/Helper"
 	"io"
 	"net"
 	"os"
@@ -38,7 +38,7 @@ func GetChunkSize(fileSize uint32) uint {
 }
 
 // nununu add comments here
-func SendFile(conn *net.Conn, uploadedFile *Filesystem.File) error {
+func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
 	file, err := os.Open(DrivePath + uploadedFile.Path)
 
 	if err != nil {

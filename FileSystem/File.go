@@ -1,4 +1,4 @@
-package Filesystem
+package FileSystem
 
 import (
 	"os"
@@ -65,13 +65,15 @@ func validFileNameLength(fileName string) bool {
 }
 
 // transfer to helper
+
 func isFileInDirectory(fileName, pathOfDir string) error {
 	dir, err := os.Open(pathOfDir)
-	defer dir.Close()
 
 	if err != nil {
 		return &OpenDirError{pathOfDir}
 	}
+
+	defer dir.Close()
 
 	files, err := dir.ReadDir(-1) // Saves all the path files in a slice
 	if err != nil {
@@ -80,7 +82,7 @@ func isFileInDirectory(fileName, pathOfDir string) error {
 
 	// check for file with same name. note: files are case-senstive
 	for _, file := range files {
-		if strings.ToLower(file.Name()) == strings.ToLower(fileName) {
+		if strings.EqualFold(file.Name(), fileName) {
 			return &FileExistError{fileName, pathOfDir}
 		}
 	}

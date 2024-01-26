@@ -1,4 +1,4 @@
-package Filesystem
+package FileSystem
 
 type Folder struct {
 	Name    string // name without extension

@@ -1,5 +1,8 @@
 package main
 
+/*package main
+
+
 import (
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers"
@@ -8,9 +11,8 @@ import (
 	"net"
 )
 
-/*
-Prints the Remote IP:Port's client in the CLI server program.
-*/
+//Prints the Remote IP:Port's client in the CLI server program.
+
 func printNewRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 }
@@ -19,16 +21,14 @@ func printDisconnectedRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is disconnected")
 }
 
-/*
-Initializes RequestHandler variable
-*/
+//Initializes RequestHandler variable
+
 func initializeRequestHandler() *RequestHandlers.AuthenticationRequestHandler {
 	return &RequestHandlers.AuthenticationRequestHandler{}
 }
 
-/*
-Handles new client connection
-*/
+//Handles new client connection
+
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
@@ -80,3 +80,4 @@ func main() {
 	}
 
 }
+*/
