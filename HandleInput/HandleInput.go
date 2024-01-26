@@ -36,9 +36,9 @@ Gets user input and handles its command request.
 */
 func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 	var err error
-	command := strings.Fields(strings.ToLower(inputBuffer.readInput()))
+	command := strings.Fields(inputBuffer.readInput())
 	if len(command) > 0 { // If command is not empty
-		command_prefix := command[prefix_index]
+		command_prefix := strings.ToLower(command[prefix_index])
 
 		switch command_prefix {
 
