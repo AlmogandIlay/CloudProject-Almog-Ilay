@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -30,10 +29,6 @@ func InitializeIdentifyManager() (*IdentityManager, error) {
 
 // Add comment
 func (manager *IdentityManager) Login(username, password string) error {
-	encryptedPassword, err := Hash(password)
-	if err != nil {
-		return fmt.Errorf("please contact the administrator of the server immediately! Can't encrypt password")
-	}
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -42,7 +37,7 @@ func (manager *IdentityManager) Login(username, password string) error {
 		return &UsernameNotExistsError{username}
 	}
 
-	match, err := manager.doesPasswordMatch(username, encryptedPassword)
+	match, err := manager.doesPasswordMatch(username, Hash(password)) // check if the password match after encryption
 	if err != nil {
 		return err
 	}

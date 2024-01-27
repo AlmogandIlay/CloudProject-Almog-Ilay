@@ -2,19 +2,56 @@ package FileSystem
 
 import (
 	helper "CloudDrive/Helper"
-	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
+func (user *LoggedUser) ChangeDirectory(parameter string) error {
+
+	switch parameter {
+	case "\\":
+		return user.setBackRoot()
+	case "..":
+		return user.setBackDirectory()
+	default:
+		if filepath.IsAbs(parameter) {
+			return user.setAbsDir(parameter)
+		}
+		return user.setForwardDir(parameter)
+	}
+
+}
+
+func (user *LoggedUser) CreateFile(fileName string) error {
+	if !filepath.IsAbs(fileName) {
+		fileName = filepath.Join(user.CurrentPath, fileName)
+	}
+	return createAbsFile(fileName)
+}
+
+func (user *LoggedUser) CreateDirectory(directoryName string) error {
+	if !filepath.IsAbs(directoryName) {
+		directoryName = filepath.Join(user.CurrentPath, directoryName)
+	}
+	return createAbsDir(directoryName)
+}
+
+func (user *LoggedUser) RenameFile(oldFileName string, newFileName string) error {
+	if !filepath.IsAbs(oldFileName) {
+		oldFileName = filepath.Join(user.CurrentPath, oldFileName)
+	}
+	if !filepath.IsAbs(newFileName) {
+		newFileName = filepath.Join(user.CurrentPath, newFileName)
+	}
+	return renameAbsFile(oldFileName, newFileName)
+}
+
 // go back to the root, like cd/
-func (user *LoggedUser) SetBackRoot() error {
+func (user *LoggedUser) setBackRoot() error {
 	return user.SetPath(helper.GetUserStorageRoot(user.UserID))
 }
 
-func (user *LoggedUser) SetBackwardDir() error {
+func (user *LoggedUser) setBackDirectory() error {
 	newPath := filepath.Dir(user.CurrentPath)
 	if newPath == "." {
 		return &PathNotExistError{newPath}
@@ -22,53 +59,40 @@ func (user *LoggedUser) SetBackwardDir() error {
 	return user.SetPath(newPath)
 }
 
-// forward to next dir, like cd homework11
-func (user *LoggedUser) SetForwardDir(forwardDir string) error {
+// forward to next given dir, like cd homework11
+func (user *LoggedUser) setForwardDir(forwardDir string) error {
 	err := isFileInDirectory(forwardDir, user.CurrentPath)
 	if err != nil {
 		return err
 	}
-	fmt.Println("filefile")
-	return user.SetPath(user.CurrentPath + "\\" + forwardDir)
+	return user.SetPath(filepath.Join(user.CurrentPath, forwardDir))
 }
 
-// not finish, need to check for forward directory
-func (user *LoggedUser) SetAbsDir(absDir string) error {
-
-	if strings.Contains(user.CurrentPath, "root\\") {
-		return errors.New("1")
-	}
-
-	tempPath := filepath.Dir(user.CurrentPath) // cd..
-	lastDir := filepath.Base(user.CurrentPath) // return the current dir name
-
-	for {
-		err := isFileInDirectory(lastDir, tempPath)
-		if err != nil {
-			return err
-		}
-
-		if tempPath == "root\\" {
-			return user.SetPath(absDir)
-		}
-
-		tempPath = filepath.Dir(tempPath)
-		lastDir = filepath.Base(lastDir)
-	}
+func (user *LoggedUser) setAbsDir(absDir string) error {
+	return user.SetPath(absDir)
 }
 
-/*
-func (user *LoggedUser) GetStorage() (uint, error) {
-	userDrivePath := helper.DrivePath + "\\" + user.UserID
+// creat a file in the given directory
+func createAbsFile(filePath string) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return nil
+}
 
+func createAbsDir(absDir string) error {
+	err := os.Mkdir(absDir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-}*/
-
-// rename a file name in the current directory
-
+// rename a file name in the current directory, gets full file path and new filename
 func RenameAbsFile(currentFilePath, newFileName string) error {
-
-	newFileName = filepath.Dir(currentFilePath) + "\\" + newFileName
+	newFileName = filepath.Join(filepath.Dir(currentFilePath) + newFileName)
 	// Use os.Rename to rename the file
 	err := os.Rename(currentFilePath, newFileName)
 	if err != nil {
@@ -80,15 +104,10 @@ func RenameAbsFile(currentFilePath, newFileName string) error {
 // on defualt: currentUserPath = loggedUser.CurrentPath
 func RenameRelativeFile(currentFileName, newFileName, currentUserPath string) error {
 	err := isFileInDirectory(currentFileName, currentUserPath)
-
 	if err != nil {
 		return err
 	}
+
 	currentFileName = currentUserPath + "\\" + currentFileName
 	return RenameAbsFile(currentFileName, newFileName)
-
-}
-
-func CreateAbsFile(fileName string) error {
-	return nil
 }

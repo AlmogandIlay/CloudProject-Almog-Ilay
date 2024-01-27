@@ -22,7 +22,7 @@ func main() {
 	}
 
 	printUser(user)
-	err = user.SetForwardDir("f1")
+	err = user.CreateFile("C:\\CloudDrive\\871\\f1\\file.txt")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

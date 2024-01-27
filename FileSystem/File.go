@@ -83,9 +83,9 @@ func isFileInDirectory(fileName, pathOfDir string) error {
 	// check for file with same name. note: files are case-senstive
 	for _, file := range files {
 		if strings.EqualFold(file.Name(), fileName) {
-			return &FileExistError{fileName, pathOfDir}
+			return nil
 		}
 	}
 
-	return nil
+	return &FileExistError{fileName, pathOfDir}
 }
