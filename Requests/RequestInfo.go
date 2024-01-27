@@ -55,3 +55,18 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 
 	return response_info, nil
 }
+
+// Handles the entire request-response cycle.
+func SendRequest(request_data []byte, socket net.Conn) error {
+	request_info := BuildRequestInfo(SignupRequest, request_data)
+	response_info, err := SendRequestInfo(request_info, socket) // sends a request and receives a response
+	if err != nil {
+		return err
+	}
+	if response_info.Type == ErrorRespone { // If error caught in server side
+		return fmt.Errorf(response_info.Respone)
+	} else if response_info.Type == ValidRespone {
+		return nil
+	}
+	return fmt.Errorf(response_info.Respone)
+}
