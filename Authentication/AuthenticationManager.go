@@ -23,7 +23,7 @@ func HandleSignup(command_arguments []string, socket net.Conn) error {
 	if err != nil {
 		return fmt.Errorf(fmt.Sprintf("Error when attempting to encode the data to be sent to the server.\nPlease send this info to the developers: %s", err.Error()))
 	}
-	err = Requests.SendRequest(request_data, socket)
+	err = Requests.SendRequest(Requests.SignupRequest, request_data, socket)
 
 	return err
 
@@ -39,7 +39,7 @@ func HandleSignIn(command_arguments []string, socket net.Conn) error {
 		return fmt.Errorf(fmt.Sprintf("Error when attempting to encode the data to be sent to the server.\nPlease send this info to the developers: %s", err.Error()))
 	}
 
-	err = Requests.SendRequest(request_data, socket)
+	err = Requests.SendRequest(Requests.LoginRequest, request_data, socket)
 
 	return err
 }

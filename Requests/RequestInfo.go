@@ -57,8 +57,8 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 }
 
 // Handles the entire request-response cycle.
-func SendRequest(request_data []byte, socket net.Conn) error {
-	request_info := BuildRequestInfo(SignupRequest, request_data)
+func SendRequest(request_type RequestType, request_data []byte, socket net.Conn) error {
+	request_info := BuildRequestInfo(request_type, request_data)
 	response_info, err := SendRequestInfo(request_info, socket) // sends a request and receives a response
 	if err != nil {
 		return err
