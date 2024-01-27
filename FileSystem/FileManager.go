@@ -23,27 +23,37 @@ func (user *LoggedUser) ChangeDirectory(parameter string) error {
 }
 
 func (user *LoggedUser) CreateFile(fileName string) error {
-	if !filepath.IsAbs(fileName) {
-		fileName = filepath.Join(user.CurrentPath, fileName)
-	}
-	return createAbsFile(fileName)
+	return user.fileOperation(fileName, createAbsFile)
 }
 
-func (user *LoggedUser) CreateDirectory(directoryName string) error {
-	if !filepath.IsAbs(directoryName) {
-		directoryName = filepath.Join(user.CurrentPath, directoryName)
-	}
-	return createAbsDir(directoryName)
+func (user *LoggedUser) CreateFolder(folderName string) error {
+	return user.fileOperation(folderName, createAbsDir)
 }
 
-func (user *LoggedUser) RenameFile(oldFileName string, newFileName string) error {
-	if !filepath.IsAbs(oldFileName) {
-		oldFileName = filepath.Join(user.CurrentPath, oldFileName)
+func (user *LoggedUser) RemoveFile(fileName string) error {
+	return user.fileOperation(fileName, removeAbsFile)
+}
+
+func (user *LoggedUser) RemoveFolder(folderName string) error {
+	return user.fileOperation(folderName, removeAbsFolder)
+}
+
+func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
+	if !filepath.IsAbs(filePath) {
+		err := isFileInDirectory(filePath, user.CurrentPath)
+		if err != nil {
+			return err
+		}
+		filePath = filepath.Join(user.CurrentPath, filePath) // if the file not abs -> file.* -> patn/file.*
 	}
-	if !filepath.IsAbs(newFileName) {
-		newFileName = filepath.Join(user.CurrentPath, newFileName)
+	return renameAbsFile(filePath, newFileName)
+}
+
+func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
+	if !filepath.IsAbs(user.CurrentPath) {
+		path = filepath.Join(user.CurrentPath, path)
 	}
-	return renameAbsFile(oldFileName, newFileName)
+	return operation(path)
 }
 
 // go back to the root, like cd/
@@ -72,10 +82,13 @@ func (user *LoggedUser) setAbsDir(absDir string) error {
 	return user.SetPath(absDir)
 }
 
-// creat a file in the given directory
+// create a file in the given directory
 func createAbsFile(filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {
+		if os.IsExist(err) {
+			return &FileExistError{filePath, filepath.Dir(filePath)}
+		}
 		return err
 	}
 	defer file.Close()
@@ -85,29 +98,43 @@ func createAbsFile(filePath string) error {
 func createAbsDir(absDir string) error {
 	err := os.Mkdir(absDir, os.ModePerm)
 	if err != nil {
+		if os.IsExist(err) {
+			return &FileExistError{absDir, filepath.Dir(absDir)}
+		}
+		return err
+	}
+	return nil
+}
+
+func removeAbsFile(filePath string) error {
+	err := os.Remove(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return &PathNotExistError{filePath}
+		}
+		return err
+	}
+	return nil
+}
+
+func removeAbsFolder(filePath string) error {
+	err := os.RemoveAll(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return &PathNotExistError{filePath}
+		}
 		return err
 	}
 	return nil
 }
 
 // rename a file name in the current directory, gets full file path and new filename
-func RenameAbsFile(currentFilePath, newFileName string) error {
-	newFileName = filepath.Join(filepath.Dir(currentFilePath) + newFileName)
+func renameAbsFile(currentFilePath, newFileName string) error {
+	newFileName = filepath.Join(filepath.Dir(currentFilePath), newFileName)
 	// Use os.Rename to rename the file
 	err := os.Rename(currentFilePath, newFileName)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-// on defualt: currentUserPath = loggedUser.CurrentPath
-func RenameRelativeFile(currentFileName, newFileName, currentUserPath string) error {
-	err := isFileInDirectory(currentFileName, currentUserPath)
-	if err != nil {
-		return err
-	}
-
-	currentFileName = currentUserPath + "\\" + currentFileName
-	return RenameAbsFile(currentFileName, newFileName)
 }

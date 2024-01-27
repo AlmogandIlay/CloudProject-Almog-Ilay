@@ -1,4 +1,4 @@
-package main
+package Tseter
 
 import (
 	"CloudDrive/FileSystem"
@@ -22,11 +22,11 @@ func main() {
 	}
 
 	printUser(user)
-	err = user.CreateFile("C:\\CloudDrive\\871\\f1\\file.txt")
+
+	err = user.CreateFile("C:\\CloudDrive\\871\\f1\\f2\\na.csv")
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		os.Exit(4)
 	}
-	printUser(user)
 
 }
