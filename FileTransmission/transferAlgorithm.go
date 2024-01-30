@@ -25,7 +25,7 @@ func GetChunkSize(fileSize uint32) uint {
 	case fileSize < 10*MB:
 		return uint(fileSize)
 	case fileSize < 100*MB:
-		return 0
+		return 256
 	case fileSize < 400*MB:
 		return 768
 	case fileSize < 700*MB:
