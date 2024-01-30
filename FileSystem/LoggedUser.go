@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type LoggedUser struct { // Might want to replace to a better name
+type LoggedUser struct {
 	UserID      uint32
 	CurrentPath string // server prespective path
 }

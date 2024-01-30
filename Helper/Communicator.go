@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"CloudDrive/Server/RequestHandlers"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
 	"fmt"
@@ -67,13 +66,4 @@ func SendData(conn *net.Conn, message []byte) error {
 		return err
 	}
 	return nil
-}
-
-func SendResponseInfo(conn *net.Conn, responseInfo RequestHandlers.ResponeInfo) error {
-	message, err := json.Marshal(responseInfo)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Response Json data is ", string(message))
-	return SendData(conn, message)
 }

@@ -1,6 +1,8 @@
 package Requests
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type RequestType int
 

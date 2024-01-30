@@ -1,13 +1,15 @@
 package RequestHandlers
 
-import "CloudDrive/Server/RequestHandlers/Requests"
+import (
+	"CloudDrive/Server/RequestHandlers/Requests"
+)
 
 type FileRequestHandler struct{}
 
 func (loginHandler *FileRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
-		return loginHandler.HandleLogin(info)
+		return
 	case Requests.CreateFileRequest:
 		return loginHandler.HandleSignup(info)
 	case Requests.CreateFolderRequest:
@@ -19,5 +21,9 @@ func (loginHandler *FileRequestHandler) HandleRequest(info Requests.RequestInfo)
 	default:
 		return loginHandler.HandleError(info)
 	}
+
+}
+
+func (fileHanlder *FileRequestHandler) HandleChangeDirectory(info Requests.RequestInfo) ResponeInfo {
 
 }

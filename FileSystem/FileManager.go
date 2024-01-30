@@ -1,7 +1,7 @@
 package FileSystem
 
 import (
-	helper "CloudDrive/Helper"
+	"CloudDrive/helper"
 	"os"
 	"path/filepath"
 )
