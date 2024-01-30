@@ -1,11 +1,8 @@
 package main
 
-/*package main
-
-
 import (
-	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers"
+	"CloudDrive/Server/RequestHandlers/Requests"
 	"fmt"
 	"log"
 	"net"
@@ -39,11 +36,11 @@ func handleConnection(conn net.Conn) {
 
 	for !closeConnection {
 
-		requestInfo, err := helper.ReciveRequestInfo(&conn)
+		requestInfo, err := Requests.ReciveRequestInfo(&conn)
 		if err != nil {
 			closeConnection = true
 		}
-		err = helper.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+		err = RequestHandlers.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
 
 		if err != nil { // If sending request info was unsucessful
 			closeConnection = true
@@ -80,4 +77,3 @@ func main() {
 	}
 
 }
-*/
