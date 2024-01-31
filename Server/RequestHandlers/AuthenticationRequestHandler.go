@@ -19,17 +19,8 @@ func (loginHandler *AuthenticationRequestHandler) HandleRequest(info Requests.Re
 	case Requests.SignupRequest:
 		return loginHandler.HandleSignup(info)
 	default:
-		return loginHandler.HandleError(info)
+		return Error(info, IRequestHandler(loginHandler))
 	}
-
-}
-
-func (loginHandler *AuthenticationRequestHandler) HandleError(info Requests.RequestInfo) ResponeInfo {
-	if info.Type == Requests.ErrorRequest { // If error request caught
-		return buildError(string(info.RequestData))
-	}
-
-	return buildError("Error: Not Exist.") // Invalid request type
 
 }
 
@@ -47,6 +38,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 		return buildError(err.Error())
 	}
 
+	//loginHandler = &FileRequestHandler{}
 	return buildRespone("200: Okay", nil) // Login request success (tdl: add handler)
 
 }
@@ -66,6 +58,8 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 		return buildError(errors)
 	}
 
-	return buildRespone("200: Okay", nil) // Signup request success (tdl: add handler)
+	FileRequestHandler := FileRequestHandler{}                    // Initialize file handler
+	var irequestFileHandler IRequestHandler = &FileRequestHandler // convert the file handler to an interface
+	return buildRespone("200: Okay", &irequestFileHandler)        // Signup request success
 
 }

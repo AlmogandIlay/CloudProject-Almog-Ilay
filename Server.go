@@ -32,6 +32,7 @@ func handleConnection(conn net.Conn) {
 	// Initialize setup
 	printNewRemoteAddr(conn)
 	userHandler := initializeRequestHandler()
+	// var loggedUser *FileSystem.LoggedUser
 	closeConnection := false
 
 	for !closeConnection {
@@ -40,6 +41,7 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			closeConnection = true
 		}
+		// response_info := userHandler.HandleRequest(requestInfo)
 		err = RequestHandlers.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
 
 		if err != nil { // If sending request info was unsucessful
@@ -57,7 +59,7 @@ func main() {
 		return
 	}
 
-	addr := "192.168.50.191:12345"
+	addr := "192.168.50.220:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("Error:", err)

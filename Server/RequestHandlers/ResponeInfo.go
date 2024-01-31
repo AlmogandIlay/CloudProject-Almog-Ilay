@@ -10,29 +10,36 @@ import (
 type ResponeType int
 
 const (
-	ErrorRespone  ResponeType = iota // 0
-	LoginRespone  ResponeType = iota // 1
-	SignupRespone ResponeType = iota // 2
+	ErrorRespone ResponeType = 999
+	ValidRespone ResponeType = 200
 )
 
 type ResponeInfo struct {
+	Type       ResponeType
 	Respone    string
 	NewHandler *IRequestHandler
 }
 
+// Given responseinfo to client
+type ClientResponeInfo struct {
+	Type    ResponeType `json:"Type"`
+	Respone string      `json:"Data"`
+}
+
 func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
-	return ResponeInfo{Respone: respone, NewHandler: handler}
+	return ResponeInfo{Type: ValidRespone, Respone: respone, NewHandler: handler}
 }
 
 func buildError(response string) ResponeInfo {
-	return ResponeInfo{Respone: response, NewHandler: nil}
+	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: nil}
 }
 
 func SendResponseInfo(conn *net.Conn, responseInfo ResponeInfo) error {
-	message, err := json.Marshal(responseInfo)
+	clientResponeInfo := ClientResponeInfo{Type: responseInfo.Type, Respone: responseInfo.Respone}
+	message, err := json.Marshal(clientResponeInfo)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Response Json data is ", string(message))
+	fmt.Println("Response Json data is", string(message))
 	return helper.SendData(conn, message)
 }
