@@ -8,18 +8,18 @@ import (
 
 type AuthenticationRequestHandler struct{}
 
-func (loginHandler *AuthenticationRequestHandler) ValidRequest(info Requests.RequestInfo) bool {
+func (loginHandler AuthenticationRequestHandler) ValidRequest(info Requests.RequestInfo) bool {
 	return info.Type == Requests.LoginRequest || info.Type == Requests.SignupRequest
 }
 
-func (loginHandler *AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
+func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
 		return loginHandler.HandleLogin(info)
 	case Requests.SignupRequest:
 		return loginHandler.HandleSignup(info)
 	default:
-		return Error(info, IRequestHandler(loginHandler))
+		return Error(info, IRequestHandler(&loginHandler))
 	}
 
 }
@@ -35,11 +35,12 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 
 	err := login_manager.Login(user.Username, user.Password) // Attempt to perform a login request
 	if err != nil {
-		return buildError(err.Error())
+		return buildError(err.Error(), loginHandler)
 	}
 
-	//loginHandler = &FileRequestHandler{}
-	return buildRespone("200: Okay", nil) // Login request success (tdl: add handler)
+	fileRequestHandler := FileRequestHandler{}
+	var irequesthandler IRequestHandler = &fileRequestHandler
+	return buildRespone("200: Okay", &irequesthandler) // Login request success (tdl: add handler)
 
 }
 
@@ -55,11 +56,11 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 		for _, err := range errs { // Save all errors in string
 			errors += "* " + err.Error() + "\n"
 		}
-		return buildError(errors)
+		return buildError(errors, loginHandler)
 	}
 
-	FileRequestHandler := FileRequestHandler{}                    // Initialize file handler
-	var irequestFileHandler IRequestHandler = &FileRequestHandler // convert the file handler to an interface
+	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
+	var irequestFileHandler IRequestHandler = &fileRequestHandler // convert the file handler to an interface
 	return buildRespone("200: Okay", &irequestFileHandler)        // Signup request success
 
 }

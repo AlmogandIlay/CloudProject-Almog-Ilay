@@ -8,6 +8,10 @@ import (
 	"net"
 )
 
+const (
+	addr = "192.168.50.220:12345"
+)
+
 //Prints the Remote IP:Port's client in the CLI server program.
 
 func printNewRemoteAddr(conn net.Conn) {
@@ -20,8 +24,8 @@ func printDisconnectedRemoteAddr(conn net.Conn) {
 
 //Initializes RequestHandler variable
 
-func initializeRequestHandler() *RequestHandlers.AuthenticationRequestHandler {
-	return &RequestHandlers.AuthenticationRequestHandler{}
+func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
+	return RequestHandlers.AuthenticationRequestHandler{}
 }
 
 //Handles new client connection
@@ -31,7 +35,7 @@ func handleConnection(conn net.Conn) {
 
 	// Initialize setup
 	printNewRemoteAddr(conn)
-	userHandler := initializeRequestHandler()
+	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler()
 	// var loggedUser *FileSystem.LoggedUser
 	closeConnection := false
 
@@ -41,8 +45,9 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			closeConnection = true
 		}
-		// response_info := userHandler.HandleRequest(requestInfo)
-		err = RequestHandlers.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+		response_info := userHandler.HandleRequest(requestInfo)
+		userHandler = RequestHandlers.ChangeRequestHandler(response_info)
+		err = RequestHandlers.SendResponseInfo(&conn, response_info)
 
 		if err != nil { // If sending request info was unsucessful
 			closeConnection = true
@@ -59,7 +64,6 @@ func main() {
 		return
 	}
 
-	addr := "192.168.50.220:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("Error:", err)

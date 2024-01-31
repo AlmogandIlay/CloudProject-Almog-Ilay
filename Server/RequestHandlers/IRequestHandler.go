@@ -9,11 +9,16 @@ type IRequestHandler interface {
 	HandleRequest(info Requests.RequestInfo) ResponeInfo
 }
 
+func ChangeRequestHandler(response ResponeInfo) IRequestHandler {
+	return *response.NewHandler
+
+}
+
 func Error(info Requests.RequestInfo, handler IRequestHandler) ResponeInfo {
 	if info.Type == Requests.ErrorRequest { // If error request caught
-		return buildError(string(info.RequestData))
+		return buildError(string(info.RequestData), handler)
 	}
 
-	return buildError("Error: Not Exist.") // Invalid request type
+	return buildError("Error: Not Exist.", handler) // Invalid request type
 
 }

@@ -30,8 +30,8 @@ func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
 	return ResponeInfo{Type: ValidRespone, Respone: respone, NewHandler: handler}
 }
 
-func buildError(response string) ResponeInfo {
-	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: nil}
+func buildError(response string, irequest IRequestHandler) ResponeInfo {
+	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: &irequest}
 }
 
 func SendResponseInfo(conn *net.Conn, responseInfo ResponeInfo) error {
