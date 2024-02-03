@@ -15,8 +15,8 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleCreateFile(info, loggedUser)
 	case Requests.CreateFolderRequest:
 		return filehandler.handleCreateFolder(info, loggedUser)
-		// 	case Requests.DeleteFileRequest:
-		// 		// TODO
+	case Requests.DeleteFileRequest:
+		return filehandler.handleDeleteFile(info, loggedUser)
 		// 	case Requests.DeleteFolderRequest:
 		// 		// TODO
 		// 	default:
@@ -42,6 +42,7 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
+// Handle Create File requests from client
 func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	file := string(info.RequestData)
 	err := loggedUser.CreateFile(file)
@@ -52,9 +53,21 @@ func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInf
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
+// Handle Create Folder requests from client
 func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	folderName := string(info.RequestData)
 	err := loggedUser.CreateFolder(folderName)
+	if err != nil {
+		buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
+}
+
+// Handle Delete File requests from client
+func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	file := string(info.RequestData)
+	err := loggedUser.RemoveFile(file)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
 	}
