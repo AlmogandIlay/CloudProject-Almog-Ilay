@@ -27,16 +27,9 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleDeleteFolder(info, loggedUser)
 	case Requests.RenameFileRequest:
 		return filehandler.handleRenameFile(info, loggedUser)
-		// 	default:
-		// 		return Error(info, IRequestHandler(filehandler))
-		// 	}
-
-		// }
-
-		// func (fileHanlder *FileRequestHandler) HandleChangeDirectory(info Requests.RequestInfo) ResponeInfo {
-
+	default:
+		return Error(info, IRequestHandler(&filehandler))
 	}
-	return ResponeInfo{}
 }
 
 // Handle cd (Change Directory) requests from client
