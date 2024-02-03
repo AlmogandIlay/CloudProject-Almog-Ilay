@@ -1,6 +1,9 @@
 package RequestHandlers
 
 import (
+	"CloudDrive/FileSystem"
+	helper "CloudDrive/Helper"
+	"CloudDrive/Server/RequestHandlers/Requests"
 	"CloudDrive/authentication"
 )
 
@@ -21,4 +24,19 @@ func InitializeIdentifyManagerFactory() (*authentication.IdentityManager, error)
 
 func GetManager() *authentication.IdentityManager {
 	return Manager
+}
+
+func GetLoggedUser(requestInfo Requests.RequestInfo, responeInfo ResponeInfo) (*FileSystem.LoggedUser, bool) {
+	if requestInfo.Type == Requests.LoginRequest || requestInfo.Type == Requests.SignupRequest {
+		if responeInfo.Type == ValidRespone {
+			user := helper.GetEncodedUser(requestInfo.RequestData)
+			loggedUsers := Manager.GetLoggedUsers()
+			for _, loggedUser := range loggedUsers {
+				if loggedUser.IsEquals(user) {
+
+				}
+			}
+		}
+	}
+	return nil, false
 }

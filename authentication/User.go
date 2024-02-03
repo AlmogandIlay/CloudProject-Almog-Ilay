@@ -117,3 +117,7 @@ func Hash(password string) string {
 	hash := hex.EncodeToString(hasher.Sum(nil))
 	return hash
 }
+
+func (user *User) IsEquals(other User) bool {
+	return user.username() == other.username() && user.password() == other.password() && user.email() == other.email()
+}

@@ -5,7 +5,6 @@ import (
 )
 
 type IRequestHandler interface {
-	ValidRequest(info Requests.RequestInfo) bool
 	HandleRequest(info Requests.RequestInfo) ResponeInfo
 }
 

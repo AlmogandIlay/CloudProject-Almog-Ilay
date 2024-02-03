@@ -4,8 +4,10 @@ import (
 	helper "CloudDrive/Helper"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
+// TODO: relate to the garbage in all the functions
 func (user *LoggedUser) ChangeDirectory(parameter string) error {
 
 	switch parameter {
@@ -137,4 +139,40 @@ func renameAbsFile(currentFilePath, newFileName string) error {
 		return err
 	}
 	return nil
+}
+
+func printFolder(folderPath string) (string, error) {
+
+	folder, err := os.Open(folderPath)
+	if err != nil {
+		return "", err
+	}
+	defer folder.Close()
+
+	files, err := folder.Readdir(-1)
+
+	if err != nil {
+		return "", &ReadDirError{folderPath}
+	}
+
+	var builder strings.Builder
+	var fileCounter, dirCounter uint
+
+	for _, entry := range files {
+		// "dd/mm/yyyy HH:mm:ss <DIR|FILE> <filename>      at the end i need count file and folder"
+		if entry.IsDir() {
+			fileCounter++
+			WriteString(&builder, " <DIR> ", entry.Name(), "\n")
+		} else {
+			dirCounter++
+			WriteString(&builder, " <FILE> ", entry.Name(), "\n")
+		}
+	}
+	return builder.String(), nil
+}
+
+func WriteString(builder *strings.Builder, fileParameter ...string) {
+	for _, stringObject := range fileParameter {
+		builder.WriteString(stringObject)
+	}
 }

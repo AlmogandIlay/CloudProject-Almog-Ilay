@@ -1,16 +1,11 @@
 package RequestHandlers
 
 import (
+	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
-	"CloudDrive/authentication"
-	"encoding/json"
 )
 
 type AuthenticationRequestHandler struct{}
-
-func (loginHandler AuthenticationRequestHandler) ValidRequest(info Requests.RequestInfo) bool {
-	return info.Type == Requests.LoginRequest || info.Type == Requests.SignupRequest
-}
 
 func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
 	switch info.Type {
@@ -28,9 +23,7 @@ func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.Req
 Handle Login requests from client
 */
 func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
-	var user authentication.User
-
-	json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
+	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
 	err := login_manager.Login(user.Username, user.Password) // Attempt to perform a login request
@@ -45,9 +38,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 }
 
 func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo) ResponeInfo {
-	var user authentication.User
-
-	json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
+	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
 	errs := login_manager.Signup(user.Username, user.Password, user.Email) // Attempt to perform a signup request

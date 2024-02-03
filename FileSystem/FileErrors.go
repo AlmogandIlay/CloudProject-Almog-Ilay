@@ -15,6 +15,8 @@ type FileExistError struct{ Name, Path string }
 type FileLengthError struct{ Name string }
 type CharactersError struct{}
 
+type PremmisionError struct{ Path string }
+
 func (fileError *FileSizeError) Error() string {
 	return fmt.Sprintf("The file size is %d exceeded your total storage size which is %d", fileError.Size, -1)
 }
@@ -44,4 +46,8 @@ func (fileError *FileLengthError) Error() string {
 }
 func (fileError *CharactersError) Error() string {
 	return fmt.Sprintf("Illegal letters such as: %s in the file", strings.Join(strings.Split(invalidFileCharacters, ""), " "))
+}
+
+func (fileError *PremmisionError) Error() string {
+	return fmt.Sprintf("You have no permission to access %s", fileError.Path)
 }
