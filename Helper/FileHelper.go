@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DrivePath = "C:\\CloudDrive"
+	DrivePath = "D:\\CloudDrive"
 	RootDir   = "root"
 )
 

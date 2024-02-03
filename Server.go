@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CloudDrive/FileSystem"
 	"CloudDrive/Server/RequestHandlers"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"fmt"
@@ -36,22 +37,24 @@ func handleConnection(conn net.Conn) {
 	// Initialize setup
 	printNewRemoteAddr(conn)
 	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler()
-	// var loggedUser *FileSystem.LoggedUser
+	var loggedUser *FileSystem.LoggedUser
 	closeConnection := false
 
 	for !closeConnection {
 
-		requestInfo, err := Requests.ReciveRequestInfo(&conn)
+		request_Info, err := Requests.ReciveRequestInfo(&conn)
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(requestInfo)
-		err = RequestHandlers.SendResponseInfo(&conn, response_info)
-		userHandler = RequestHandlers.ChangeRequestHandler(response_info)
+		response_info := userHandler.HandleRequest(request_Info, loggedUser)
 
+		err = RequestHandlers.SendResponseInfo(&conn, response_info)
 		if err != nil { // If sending request info was unsucessful
 			closeConnection = true
 		}
+		userHandler = RequestHandlers.ChangeRequestHandler(response_info)
+
+		fmt.Println(loggedUser.UserID)
 	}
 
 	printDisconnectedRemoteAddr(conn)

@@ -8,10 +8,10 @@ import (
 
 type FileRequestHandler struct{}
 
-func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
+func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
-		return filehandler.handleChangeDirectory(info)
+		return filehandler.handleChangeDirectory(info, loggedUser)
 		// 	case Requests.CreateFileRequest:
 		// 		return loginHandler.HandleSignup(info)
 		// 	case Requests.CreateFolderRequest:
@@ -32,9 +32,12 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo) R
 	return ResponeInfo{}
 }
 
-func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.RequestInfo) ResponeInfo {
+func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	path := string(info.RequestData)
-	err := FileSystem.ChangeDirectory(path)
+	err := loggedUser.ChangeDirectory(path)
+	if err != nil {
+		buildError(err.Error(), IRequestHandler(filehandler))
+	}
 	fmt.Println(string(info.RequestData))
 	return ResponeInfo{}
 }

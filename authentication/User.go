@@ -119,5 +119,5 @@ func Hash(password string) string {
 }
 
 func (user *User) IsEquals(other *User) bool {
-	return user.username() == other.username() && user.password() == other.password() && user.email() == other.email()
+	return user.username() == other.username() && user.password() == Hash(other.password()) && user.email() == other.email()
 }

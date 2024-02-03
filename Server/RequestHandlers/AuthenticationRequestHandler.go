@@ -1,18 +1,20 @@
 package RequestHandlers
 
 import (
+	"CloudDrive/FileSystem"
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"fmt"
 )
 
 type AuthenticationRequestHandler struct{}
 
-func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
+func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
-		return loginHandler.HandleLogin(info)
+		return loginHandler.HandleLogin(info, loggedUser)
 	case Requests.SignupRequest:
-		return loginHandler.HandleSignup(info)
+		return loginHandler.HandleSignup(info, loggedUser)
 	default:
 		return Error(info, IRequestHandler(&loginHandler))
 	}
@@ -22,11 +24,16 @@ func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.Req
 /*
 Handle Login requests from client
 */
-func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
+func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
 	err := login_manager.Login(user.Username, user.Password) // Attempt to perform a login request
+	if err != nil {
+		return buildError(err.Error(), loginHandler)
+	}
+
+	loggedUser, err = GetLoggedUser(info)
 	if err != nil {
 		return buildError(err.Error(), loginHandler)
 	}
@@ -37,7 +44,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 
 }
 
-func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo) ResponeInfo {
+func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
@@ -48,6 +55,12 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 			errors += "* " + err.Error() + "\n"
 		}
 		return buildError(errors, loginHandler)
+	}
+
+	var err error
+	loggedUser, err = GetLoggedUser(info)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
