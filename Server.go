@@ -37,7 +37,7 @@ func handleConnection(conn net.Conn) {
 	// Initialize setup
 	printNewRemoteAddr(conn)
 	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler()
-	var loggedUser *FileSystem.LoggedUser
+	var loggedUser FileSystem.LoggedUser
 	closeConnection := false
 
 	for !closeConnection {
@@ -46,7 +46,7 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, loggedUser)
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser)
 
 		err = RequestHandlers.SendResponseInfo(&conn, response_info)
 		if err != nil { // If sending request info was unsucessful

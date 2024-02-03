@@ -26,7 +26,7 @@ func GetManager() *authentication.AuthenticationManager {
 	return Manager
 }
 
-func GetLoggedUser(requestInfo Requests.RequestInfo) (*FileSystem.LoggedUser, error) {
+func GetLoggedUser(requestInfo Requests.RequestInfo) (FileSystem.LoggedUser, error) {
 	var loggedUser *FileSystem.LoggedUser
 	user := helper.GetEncodedUser(requestInfo.RequestData)
 	connectedUsers := Manager.GetLoggedUsers()
@@ -34,14 +34,14 @@ func GetLoggedUser(requestInfo Requests.RequestInfo) (*FileSystem.LoggedUser, er
 		if connectedUser.IsEquals(&user) {
 			id, err := Manager.GetUserID(user.Username)
 			if err != nil {
-				return nil, err
+				return FileSystem.LoggedUser{}, err
 			}
 			loggedUser, err = FileSystem.NewLoggedUser(id)
 			if err != nil {
-				return nil, err
+				return FileSystem.LoggedUser{}, err
 			}
 
 		}
 	}
-	return loggedUser, nil
+	return *loggedUser, nil
 }

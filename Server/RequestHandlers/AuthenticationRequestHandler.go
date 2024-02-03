@@ -33,7 +33,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 		return buildError(err.Error(), loginHandler)
 	}
 
-	loggedUser, err = GetLoggedUser(info)
+	*loggedUser, err = GetLoggedUser(info)
 	if err != nil {
 		return buildError(err.Error(), loginHandler)
 	}
@@ -58,7 +58,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 	}
 
 	var err error
-	loggedUser, err = GetLoggedUser(info)
+	*loggedUser, err = GetLoggedUser(info)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

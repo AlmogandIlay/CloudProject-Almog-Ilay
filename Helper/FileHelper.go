@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -11,21 +10,6 @@ const (
 	DrivePath = "D:\\CloudDrive"
 	RootDir   = "root"
 )
-
-func BuildUserFileSystem(userID uint32) error {
-	rootPath := GetUserStorageRoot(userID)
-
-	err := os.Mkdir(rootPath, os.ModePerm) // sets permissions for the directory
-	if err != nil {
-		return err
-	}
-
-	err = os.Mkdir(filepath.Join(rootPath, "Garbage"), os.ModePerm)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 /*
 from the user observation he see and write the encapsulate path(root/filesys/etc...) but the server validate the literal path(C:/CloudDrive)
