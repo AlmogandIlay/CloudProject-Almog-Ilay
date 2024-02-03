@@ -3,6 +3,12 @@ package RequestHandlers
 import (
 	"CloudDrive/FileSystem"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"strings"
+)
+
+const (
+	fileName    = 0
+	newFileName = 1
 )
 
 type FileRequestHandler struct{}
@@ -20,6 +26,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	case Requests.DeleteFolderRequest:
 		return filehandler.handleDeleteFolder(info, loggedUser)
 	case Requests.RenameFileRequest:
+		return filehandler.handleRenameFile(info, loggedUser)
 		// 	default:
 		// 		return Error(info, IRequestHandler(filehandler))
 		// 	}
@@ -80,6 +87,17 @@ func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInf
 func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	folderName := Requests.ParseDataToString(info.RequestData)
 	err := loggedUser.RemoveFolder(folderName)
+	if err != nil {
+		buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
+}
+
+func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	command := Requests.ParseDataToString(info.RequestData)
+	arguments := strings.Fields(command)
+	err := loggedUser.RenameFile(arguments[fileName], arguments[newFileName])
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
 	}
