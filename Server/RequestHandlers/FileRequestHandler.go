@@ -94,6 +94,7 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
+// Handle Rename File requests from client
 func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
