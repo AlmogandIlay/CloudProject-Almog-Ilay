@@ -12,9 +12,9 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	case Requests.ChangeDirectoryRequest:
 		return filehandler.handleChangeDirectory(info, loggedUser)
 	case Requests.CreateFileRequest:
-		// 		return loginHandler.HandleSignup(info)
-		// 	case Requests.CreateFolderRequest:
-		// 		// TODO
+		return filehandler.handleCreateFile(info, loggedUser)
+	case Requests.CreateFolderRequest:
+		return filehandler.handleCreateFolder(info, loggedUser)
 		// 	case Requests.DeleteFileRequest:
 		// 		// TODO
 		// 	case Requests.DeleteFolderRequest:
@@ -45,6 +45,16 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	file := string(info.RequestData)
 	err := loggedUser.CreateFile(file)
+	if err != nil {
+		buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
+}
+
+func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	folderName := string(info.RequestData)
+	err := loggedUser.CreateFolder(folderName)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
 	}

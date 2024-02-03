@@ -54,7 +54,6 @@ func handleConnection(conn net.Conn) {
 		}
 		userHandler = RequestHandlers.ChangeRequestHandler(response_info)
 
-		fmt.Println(loggedUser.UserID)
 	}
 
 	printDisconnectedRemoteAddr(conn)

@@ -2,8 +2,8 @@ package RequestHandlers
 
 import (
 	"CloudDrive/FileSystem"
+	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
-	"CloudDrive/helper"
 	"fmt"
 )
 

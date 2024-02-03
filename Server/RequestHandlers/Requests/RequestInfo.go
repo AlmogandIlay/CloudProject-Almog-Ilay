@@ -1,9 +1,8 @@
 package Requests
 
 import (
-	"CloudDrive/helper"
+	helper "CloudDrive/Helper"
 	"encoding/json"
-	"fmt"
 	"net"
 )
 
@@ -43,7 +42,6 @@ func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
 	var requestInfo RequestInfo
 
 	err = json.Unmarshal(data, &requestInfo)
-	fmt.Println("Request Json data is ", string(requestInfo.RequestData))
 	if err != nil {
 		return RequestInfo{
 			Type:        ErrorRequest,

@@ -3,7 +3,6 @@ package RequestHandlers
 import (
 	helper "CloudDrive/Helper"
 	"encoding/json"
-	"fmt"
 	"net"
 )
 
@@ -41,6 +40,5 @@ func SendResponseInfo(conn *net.Conn, responseInfo ResponeInfo) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Response Json data is", string(message))
 	return helper.SendData(conn, message)
 }
