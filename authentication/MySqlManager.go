@@ -67,3 +67,12 @@ func (db *Database) getUser(username string) (*User, error) {
 	}
 	return &user, nil
 }
+
+func (db *Database) getUserID(username string) (uint32, error) {
+	var userId uint32
+	err := db.QueryRow("SELECT userId FROM users WHERE username = ?", username).Scan(userId)
+	if err != nil {
+		return 0, err
+	}
+	return userId, nil
+}

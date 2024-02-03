@@ -8,21 +8,21 @@ import (
 )
 
 var (
-	Manager *authentication.IdentityManager
+	Manager *authentication.AuthenticationManager
 )
 
-func InitializeIdentifyManagerFactory() (*authentication.IdentityManager, error) {
+func InitializeIdentifyManagerFactory() (*authentication.AuthenticationManager, error) {
 	var err error
-	Manager, err = authentication.InitializeIdentifyManager()
+	Manager, err = authentication.InitializeAuthenticationManager()
 	if err != nil {
-		Manager = &authentication.IdentityManager{}
+		Manager = &authentication.AuthenticationManager{}
 		return Manager, err
 	}
 
 	return Manager, nil
 }
 
-func GetManager() *authentication.IdentityManager {
+func GetManager() *authentication.AuthenticationManager {
 	return Manager
 }
 

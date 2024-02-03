@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type IdentityManager struct {
+type AuthenticationManager struct {
 	*Database
 	loggedUsers []User
 }
@@ -14,8 +14,8 @@ const (
 )
 
 // Constructor function of Login Manager
-func InitializeIdentifyManager() (*IdentityManager, error) {
-	var manager IdentityManager
+func InitializeAuthenticationManager() (*AuthenticationManager, error) {
+	var manager AuthenticationManager
 	var err error
 
 	manager.loggedUsers = make([]User, 0)
@@ -28,7 +28,7 @@ func InitializeIdentifyManager() (*IdentityManager, error) {
 }
 
 // Add comment
-func (manager *IdentityManager) Login(username, password string) error {
+func (manager *AuthenticationManager) Login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (manager *IdentityManager) Login(username, password string) error {
 }
 
 // Add comment
-func (manager *IdentityManager) Signup(username, password, email string) []error {
+func (manager *AuthenticationManager) Signup(username, password, email string) []error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return []error{err}
@@ -80,7 +80,7 @@ func (manager *IdentityManager) Signup(username, password, email string) []error
 }
 
 // Add comment
-func (manager *IdentityManager) Logout(username string) error {
+func (manager *AuthenticationManager) Logout(username string) error {
 	_, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func (manager *IdentityManager) Logout(username string) error {
 }
 
 // Add comment
-func (manager *IdentityManager) DeleteUser(username string) error {
+func (manager *AuthenticationManager) DeleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -116,6 +116,10 @@ func (manager *IdentityManager) DeleteUser(username string) error {
 	return nil
 }
 
-func (manager *IdentityManager) GetLoggedUsers() []User {
+func (manager *AuthenticationManager) GetLoggedUsers() []User {
 	return manager.loggedUsers
+}
+
+func (manager *AuthenticationManager) GetUserID(username string) (uint32, error) {
+	return manager.getUserID(username)
 }
