@@ -12,9 +12,9 @@ type AuthenticationRequestHandler struct{}
 func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
-		return loginHandler.HandleLogin(info, loggedUser)
+		return loginHandler.handleLogin(info, loggedUser)
 	case Requests.SignupRequest:
-		return loginHandler.HandleSignup(info, loggedUser)
+		return loginHandler.handleSignup(info, loggedUser)
 	default:
 		return Error(info, IRequestHandler(&loginHandler))
 	}
@@ -24,7 +24,7 @@ func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.Req
 /*
 Handle Login requests from client
 */
-func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
@@ -44,7 +44,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 
 }
 
-func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (loginHandler *AuthenticationRequestHandler) handleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
