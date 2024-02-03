@@ -2,8 +2,8 @@ package RequestHandlers
 
 import (
 	"CloudDrive/FileSystem"
-	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"CloudDrive/helper"
 	"fmt"
 )
 
@@ -38,9 +38,7 @@ func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.Requ
 		return buildError(err.Error(), loginHandler)
 	}
 
-	fileRequestHandler := FileRequestHandler{}
-	var irequesthandler IRequestHandler = &fileRequestHandler
-	return buildRespone(OkayRespone, &irequesthandler) // Login request success (tdl: add handler)
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Login request success (tdl: add handler)
 
 }
 
@@ -64,8 +62,6 @@ func (loginHandler *AuthenticationRequestHandler) handleSignup(info Requests.Req
 		fmt.Println(err.Error())
 	}
 
-	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
-	var irequestFileHandler IRequestHandler = &fileRequestHandler // convert the file handler to an interface
-	return buildRespone(OkayRespone, &irequestFileHandler)        // Signup request success
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Signup request success
 
 }

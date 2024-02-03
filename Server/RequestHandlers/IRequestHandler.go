@@ -22,3 +22,9 @@ func Error(info Requests.RequestInfo, handler IRequestHandler) ResponeInfo {
 	return buildError("Error: Not Exist.", handler) // Invalid request type
 
 }
+
+func CreateFileRequestHandler() *IRequestHandler {
+	FileRequestHandler := FileRequestHandler{}                    // Initialize file handler
+	var irequestFileHandler IRequestHandler = &FileRequestHandler // convert the file handler to an interface
+	return &irequestFileHandler
+}

@@ -1,7 +1,7 @@
 package Requests
 
 import (
-	helper "CloudDrive/Helper"
+	"CloudDrive/helper"
 	"encoding/json"
 	"fmt"
 	"net"

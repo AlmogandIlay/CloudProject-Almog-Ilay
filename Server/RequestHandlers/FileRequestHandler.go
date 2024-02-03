@@ -39,7 +39,15 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 		buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
-	var irequestFileHandler IRequestHandler = &fileRequestHandler // convert the file handler to an interface
-	return buildRespone(OkayRespone, &irequestFileHandler)
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
+}
+
+func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	file := string(info.RequestData)
+	err := loggedUser.CreateFile(file)
+	if err != nil {
+		buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
