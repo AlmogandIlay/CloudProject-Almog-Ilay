@@ -44,6 +44,7 @@ func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.Requ
 
 }
 
+// Handle Signup requests from client
 func (loginHandler *AuthenticationRequestHandler) handleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()

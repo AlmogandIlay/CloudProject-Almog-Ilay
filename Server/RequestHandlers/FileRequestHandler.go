@@ -31,6 +31,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	return ResponeInfo{}
 }
 
+// Handle cd (Change Directory) requests from client
 func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	path := string(info.RequestData)
 	err := loggedUser.ChangeDirectory(path)
