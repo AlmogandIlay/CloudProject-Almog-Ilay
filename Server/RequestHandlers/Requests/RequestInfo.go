@@ -19,6 +19,7 @@ const (
 	CreateFolderRequest    RequestType = 303
 	DeleteFileRequest      RequestType = 304
 	DeleteFolderRequest    RequestType = 305
+	RenameFileRequest      RequestType = 306
 
 	ErrorRequest RequestType = 999
 )
@@ -52,4 +53,8 @@ func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
 
 	return requestInfo, nil
 
+}
+
+func ParseDataToString(data json.RawMessage) string {
+	return string(data)
 }
