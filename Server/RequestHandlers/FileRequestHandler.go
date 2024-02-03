@@ -3,7 +3,6 @@ package RequestHandlers
 import (
 	"CloudDrive/FileSystem"
 	"CloudDrive/Server/RequestHandlers/Requests"
-	"fmt"
 )
 
 type FileRequestHandler struct{}
@@ -12,7 +11,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
 		return filehandler.handleChangeDirectory(info, loggedUser)
-		// 	case Requests.CreateFileRequest:
+	case Requests.CreateFileRequest:
 		// 		return loginHandler.HandleSignup(info)
 		// 	case Requests.CreateFolderRequest:
 		// 		// TODO
@@ -38,6 +37,8 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	fmt.Println(string(info.RequestData))
-	return ResponeInfo{}
+
+	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
+	var irequestFileHandler IRequestHandler = &fileRequestHandler // convert the file handler to an interface
+	return buildRespone(OkayRespone, &irequestFileHandler)
 }

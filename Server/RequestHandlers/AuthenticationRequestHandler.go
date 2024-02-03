@@ -40,7 +40,7 @@ func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.Requ
 
 	fileRequestHandler := FileRequestHandler{}
 	var irequesthandler IRequestHandler = &fileRequestHandler
-	return buildRespone("200: Okay", &irequesthandler) // Login request success (tdl: add handler)
+	return buildRespone(OkayRespone, &irequesthandler) // Login request success (tdl: add handler)
 
 }
 
@@ -65,6 +65,6 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 
 	fileRequestHandler := FileRequestHandler{}                    // Initialize file handler
 	var irequestFileHandler IRequestHandler = &fileRequestHandler // convert the file handler to an interface
-	return buildRespone("200: Okay", &irequestFileHandler)        // Signup request success
+	return buildRespone(OkayRespone, &irequestFileHandler)        // Signup request success
 
 }

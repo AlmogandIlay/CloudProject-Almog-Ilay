@@ -12,6 +12,7 @@ type ResponeType int
 const (
 	ErrorRespone ResponeType = 999
 	ValidRespone ResponeType = 200
+	OkayRespone  string      = "200: Okay"
 )
 
 type ResponeInfo struct {
