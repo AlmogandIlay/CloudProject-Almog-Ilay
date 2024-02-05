@@ -6,10 +6,10 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-func Signup(username string, password string, email string) User {
+func Signup(username, password, email string) User {
 	return User{Username: username, Password: password, Email: email}
 }
 
-func Signin(username string, password string) User {
+func Signin(username, password string) User {
 	return User{Username: username, Password: password, Email: ""}
 }

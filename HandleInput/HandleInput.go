@@ -21,9 +21,7 @@ func NewUserInput() *UserInput {
 	return &UserInput{Scanner: bufio.NewScanner(os.Stdin)}
 }
 
-/*
-Scan user's input and convert it to text
-*/
+// Scan user's input and convert it to text
 func (inputBuffer UserInput) readInput() string {
 	inputBuffer.Scanner.Scan()
 	command := inputBuffer.Scanner.Text()

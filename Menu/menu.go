@@ -8,6 +8,7 @@ import (
 
 const (
 	ip_addr = "192.168.50.191:12345"
+	prompt  = ">> "
 )
 
 type CLI struct {
@@ -17,19 +18,12 @@ type CLI struct {
 }
 
 func NewCLI() (*CLI, error) {
-	var err error
-	var cli CLI
 
-	cli.prompt = ">> "
-	cli.input = HandleInput.NewUserInput()
-	cli.socket, err = net.Dial("tcp", ip_addr)
+	sock, err := net.Dial("tcp", ip_addr)
 	if err != nil {
-
 		return nil, fmt.Errorf(fmt.Sprintf("There has been an error connecting to the server.\nPlease check your connection and try again.\nIf it doesn't work contact the developers and send them this error message:\n%s", err.Error()))
 	}
-
-	return &cli, nil
-
+	return &CLI{socket: sock, prompt: prompt, input: HandleInput.NewUserInput()}, nil
 }
 
 func (cli *CLI) closeConnection() error {
@@ -37,13 +31,12 @@ func (cli *CLI) closeConnection() error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // Prints the program startup intro
 func (cli *CLI) PrintStartup() {
-	fmt.Println("CloudDrive v1.0 Command Line Interface")
+	fmt.Println("CloudDrive v1.0 Command Line Interface!")
 	fmt.Println("Type \"help\" for available commands.")
 }
 
