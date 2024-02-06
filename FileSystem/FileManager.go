@@ -7,11 +7,15 @@ import (
 	"strings"
 )
 
+// FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
+
 // TODO: relate to the garbage in all the functions
+
+// Changes the current directory for the user according to the parameter
 func (user *LoggedUser) ChangeDirectory(parameter string) error {
 
 	switch parameter {
-	case "\\":
+	case "\\", "/":
 		return user.setBackRoot()
 	case "..":
 		return user.setBackDirectory()
@@ -24,22 +28,27 @@ func (user *LoggedUser) ChangeDirectory(parameter string) error {
 
 }
 
+// Creates a new file in the current directory
 func (user *LoggedUser) CreateFile(fileName string) error {
 	return user.fileOperation(fileName, createAbsFile)
 }
 
+// Creates a new folder in the current directory
 func (user *LoggedUser) CreateFolder(folderName string) error {
 	return user.fileOperation(folderName, createAbsDir)
 }
 
+// Remove a file in the current directory
 func (user *LoggedUser) RemoveFile(fileName string) error {
 	return user.fileOperation(fileName, removeAbsFile)
 }
 
+// Remove a folder in the current directory
 func (user *LoggedUser) RemoveFolder(folderName string) error {
 	return user.fileOperation(folderName, removeAbsFolder)
 }
 
+// Renames a file
 func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 	if !filepath.IsAbs(filePath) {
 		err := isFileInDirectory(filePath, user.CurrentPath)
@@ -51,6 +60,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 	return renameAbsFile(filePath, newFileName)
 }
 
+// file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(user.CurrentPath) {
 		path = filepath.Join(user.CurrentPath, path)
@@ -58,11 +68,12 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 	return operation(path)
 }
 
-// go back to the root, like cd/
+// go back to the CloudDrive user root: Root/
 func (user *LoggedUser) setBackRoot() error {
 	return user.SetPath(helper.GetUserStorageRoot(user.UserID))
 }
 
+// Go back to the previous folder in the CloudDrive path user root
 func (user *LoggedUser) setBackDirectory() error {
 	newPath := filepath.Dir(user.CurrentPath)
 	if newPath == "." {
@@ -71,7 +82,7 @@ func (user *LoggedUser) setBackDirectory() error {
 	return user.SetPath(newPath)
 }
 
-// forward to next given dir, like cd homework11
+// forward to next given dir, for example: cd homework11
 func (user *LoggedUser) setForwardDir(forwardDir string) error {
 	err := isFileInDirectory(forwardDir, user.CurrentPath)
 	if err != nil {
@@ -97,10 +108,11 @@ func createAbsFile(filePath string) error {
 	return nil
 }
 
+// Create an absolute directory with the parameter folder name
 func createAbsDir(absDir string) error {
-	err := os.Mkdir(absDir, os.ModePerm)
+	err := os.Mkdir(absDir, os.ModePerm) // Create a folder
 	if err != nil {
-		if os.IsExist(err) {
+		if os.IsExist(err) { // If folder exists
 			return &FileExistError{absDir, filepath.Dir(absDir)}
 		}
 		return err
@@ -108,6 +120,7 @@ func createAbsDir(absDir string) error {
 	return nil
 }
 
+// Remove an absolute file with the parameter file name
 func removeAbsFile(filePath string) error {
 	err := os.Remove(filePath)
 	if err != nil {
@@ -119,6 +132,7 @@ func removeAbsFile(filePath string) error {
 	return nil
 }
 
+// Remove an absolute directory with the parameter folder name
 func removeAbsFolder(filePath string) error {
 	err := os.RemoveAll(filePath)
 	if err != nil {
@@ -130,7 +144,7 @@ func removeAbsFolder(filePath string) error {
 	return nil
 }
 
-// rename a file name in the current directory, gets full file path and new filename
+// Rename a file name in the current directory, gets full file path and new filename
 func renameAbsFile(currentFilePath, newFileName string) error {
 	newFileName = filepath.Join(filepath.Dir(currentFilePath), newFileName)
 	// Use os.Rename to rename the file
@@ -141,7 +155,8 @@ func renameAbsFile(currentFilePath, newFileName string) error {
 	return nil
 }
 
-func printFolder(folderPath string) (string, error) {
+// Returns folder's content including its files and folders in a string variable. Return error if it fails
+func getFolderContent(folderPath string) (string, error) {
 
 	folder, err := os.Open(folderPath)
 	if err != nil {
@@ -149,7 +164,7 @@ func printFolder(folderPath string) (string, error) {
 	}
 	defer folder.Close()
 
-	files, err := folder.Readdir(-1)
+	entries, err := folder.Readdir(-1) // Saves all entries in the directory
 
 	if err != nil {
 		return "", &ReadDirError{folderPath}
@@ -158,19 +173,20 @@ func printFolder(folderPath string) (string, error) {
 	var builder strings.Builder
 	var fileCounter, dirCounter uint
 
-	for _, entry := range files {
+	for _, entry := range entries {
 		// "dd/mm/yyyy HH:mm:ss <DIR|FILE> <filename>      at the end i need count file and folder"
-		if entry.IsDir() {
-			fileCounter++
-			WriteString(&builder, " <DIR> ", entry.Name(), "\n")
-		} else {
+		if entry.IsDir() { // If the entry is a directory
 			dirCounter++
+			WriteString(&builder, " <DIR> ", entry.Name(), "\n")
+		} else { // Else if the entry is a file
+			fileCounter++
 			WriteString(&builder, " <FILE> ", entry.Name(), "\n")
 		}
 	}
 	return builder.String(), nil
 }
 
+// Append entry to the builder.string object contains all the entries of the directory
 func WriteString(builder *strings.Builder, fileParameter ...string) {
 	for _, stringObject := range fileParameter {
 		builder.WriteString(stringObject)

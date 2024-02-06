@@ -36,31 +36,35 @@ func handleConnection(conn net.Conn) {
 
 	// Initialize setup
 	printNewRemoteAddr(conn)
-	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler()
-	var loggedUser FileSystem.LoggedUser
+	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler() // Initialize handler interface for requests
+	var loggedUser FileSystem.LoggedUser                                         // Logged User initialize
 	closeConnection := false
 
 	for !closeConnection {
 
-		request_Info, err := Requests.ReciveRequestInfo(&conn)
+		request_Info, err := Requests.ReciveRequestInfo(&conn) // Recive request info from client
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, &loggedUser)
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser) // Handle request processing
 
-		err = RequestHandlers.SendResponseInfo(&conn, response_info)
-		if err != nil { // If sending request info was unsucessful
+		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
+		if err != nil {                                              // If sending request info was unsucessful
 			closeConnection = true
 		}
-		userHandler = RequestHandlers.ChangeRequestHandler(response_info)
+		userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
 
 	}
 
+	err := RequestHandlers.RemoveOnlineUser(loggedUser) // Remove the current user from the online users array
+	if err != nil {
+		return
+	}
 	printDisconnectedRemoteAddr(conn)
 }
 
 func main() {
-	_, err := RequestHandlers.InitializeIdentifyManagerFactory()
+	_, err := RequestHandlers.InitializeAuthenticationManagerFactory()
 	if err != nil {
 		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return

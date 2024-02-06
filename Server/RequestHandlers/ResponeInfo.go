@@ -11,7 +11,7 @@ type ResponeType int
 const (
 	ErrorRespone ResponeType = 999
 	ValidRespone ResponeType = 200
-	OkayRespone  string      = "200: Okay"
+	OkayRespone  string      = "200: Okay" // Valid Response default data
 )
 
 type ResponeInfo struct {
@@ -20,20 +20,23 @@ type ResponeInfo struct {
 	NewHandler *IRequestHandler
 }
 
-// Given responseinfo to client
+// ResponseInfo for client
 type ClientResponeInfo struct {
 	Type    ResponeType `json:"Type"`
 	Respone string      `json:"Data"`
 }
 
+// Create a valid response info
 func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
 	return ResponeInfo{Type: ValidRespone, Respone: respone, NewHandler: handler}
 }
 
+// Create an error response info
 func buildError(response string, irequest IRequestHandler) ResponeInfo {
 	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: &irequest}
 }
 
+// Send the ResponseInfo to the client
 func SendResponseInfo(conn *net.Conn, responseInfo ResponeInfo) error {
 	clientResponeInfo := ClientResponeInfo{Type: responseInfo.Type, Respone: responseInfo.Respone}
 	message, err := json.Marshal(clientResponeInfo)

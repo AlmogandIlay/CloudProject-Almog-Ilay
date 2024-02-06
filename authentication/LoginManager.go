@@ -6,7 +6,7 @@ import (
 
 type AuthenticationManager struct {
 	*Database
-	loggedUsers []User
+	onlineUsers []User
 }
 
 const (
@@ -18,7 +18,7 @@ func InitializeAuthenticationManager() (*AuthenticationManager, error) {
 	var manager AuthenticationManager
 	var err error
 
-	manager.loggedUsers = make([]User, 0)
+	manager.onlineUsers = make([]User, 0)
 	manager.Database, err = openDatabase()
 
 	if err != nil {
@@ -48,7 +48,7 @@ func (manager *AuthenticationManager) Login(username, password string) error {
 	if err != nil {
 		return err
 	}
-	manager.loggedUsers = append(manager.loggedUsers, *user)
+	manager.onlineUsers = append(manager.onlineUsers, *user)
 	return nil
 }
 
@@ -75,7 +75,7 @@ func (manager *AuthenticationManager) Signup(username, password, email string) [
 		}
 		return []error{err}
 	}
-	manager.loggedUsers = append(manager.loggedUsers, *user) // add to the loggedUser slice
+	manager.onlineUsers = append(manager.onlineUsers, *user) // add to the onlineUsers slice
 	return nil
 }
 
@@ -85,9 +85,9 @@ func (manager *AuthenticationManager) Logout(username string) error {
 	if err != nil {
 		return err
 	}
-	for index, user := range manager.loggedUsers {
+	for index, user := range manager.onlineUsers {
 		if user.Username == username {
-			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
+			manager.onlineUsers = append(manager.onlineUsers[:index], manager.onlineUsers[index+1:]...) // remove the user
 			return nil
 		}
 	}
@@ -103,9 +103,9 @@ func (manager *AuthenticationManager) DeleteUser(username string) error {
 	if !userExist {
 		return &UsernameNotExistsError{username}
 	}
-	for index, user := range manager.loggedUsers { // look for the index of the user
+	for index, user := range manager.onlineUsers { // look for the index of the user
 		if user.Username == username {
-			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
+			manager.onlineUsers = append(manager.onlineUsers[:index], manager.onlineUsers[index+1:]...) // remove the user
 			return nil
 		}
 	}
@@ -116,10 +116,14 @@ func (manager *AuthenticationManager) DeleteUser(username string) error {
 	return nil
 }
 
-func (manager *AuthenticationManager) GetLoggedUsers() []User {
-	return manager.loggedUsers
+func (manager *AuthenticationManager) GetOnlineUsers() []User {
+	return manager.onlineUsers
 }
 
 func (manager *AuthenticationManager) GetUserID(username string) (uint32, error) {
 	return manager.getUserID(username)
+}
+
+func (manager *AuthenticationManager) GetUserName(id uint32) (string, error) {
+	return manager.getUserName(id)
 }

@@ -13,6 +13,7 @@ const (
 
 type FileRequestHandler struct{}
 
+// Handle the file system type requests
 func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:

@@ -17,6 +17,8 @@ type CharactersError struct{}
 
 type PremmisionError struct{ Path string }
 
+// Creates custom errors for filesystem
+
 func (fileError *FileSizeError) Error() string {
 	return fmt.Sprintf("The file size is %d exceeded your total storage size which is %d", fileError.Size, -1)
 }

@@ -9,7 +9,7 @@ type IRequestHandler interface {
 	HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo
 }
 
-func ChangeRequestHandler(response ResponeInfo) IRequestHandler {
+func UpdateRequestHandler(response ResponeInfo) IRequestHandler {
 	return *response.NewHandler
 
 }
@@ -19,7 +19,7 @@ func Error(info Requests.RequestInfo, handler IRequestHandler) ResponeInfo {
 		return buildError(string(info.RequestData), handler)
 	}
 
-	return buildError("Error: Not Exist.", handler) // Invalid request type
+	return buildError("Error: Unknown Command.", handler) // Invalid request type
 
 }
 

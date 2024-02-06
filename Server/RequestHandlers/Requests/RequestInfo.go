@@ -55,6 +55,7 @@ func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
 
 }
 
+// Convert raw json data to string
 func ParseDataToString(data json.RawMessage) string {
 	return string(data)
 }

@@ -8,17 +8,17 @@ import (
 	"os"
 )
 
-// add comment
+// File sizes
 const (
 	_  = iota
-	KB = uint32(1 << (10 * iota)) // 1 << (10 * 1)
-	MB = uint32(1 << (10 * iota))
-	GB = uint32(1 << (10 * iota))
+	KB = uint32(1 << (10 * iota)) // 1 KB = 1000 bytes
+	MB = uint32(1 << (10 * iota)) // 1 MB = 1000000 bytes
+	GB = uint32(1 << (10 * iota)) // 1 GB = 1000000000 bytes
 
-	DrivePath = "C:\\CloudDrive"
+	DrivePath = "D:\\CloudDrive"
 )
 
-// nununu Add comments here
+// Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
 func GetChunkSize(fileSize uint32) uint {
 
 	switch {
@@ -37,7 +37,7 @@ func GetChunkSize(fileSize uint32) uint {
 	}
 }
 
-// nununu add comments here
+// Upload a file to the client
 func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
 	file, err := os.Open(DrivePath + uploadedFile.Path)
 
@@ -47,11 +47,11 @@ func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
 
 	defer file.Close()
 
-	// add comment
+	// Recieve the chunksize for the uploaded file size
 	chunkSize := GetChunkSize(uploadedFile.Size)
-	chunk := make([]byte, chunkSize)
+	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
 
-	for { // add comment
+	for { // Reads the file
 		bytesRead, err := file.Read(chunk)
 		if err == io.EOF || bytesRead == 0 {
 			break
@@ -59,7 +59,7 @@ func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
 		if err != nil {
 			return err
 		}
-		err = helper.SendData(conn, chunk)
+		err = helper.SendData(conn, chunk) // Sends the file data according to the chunk size
 		if err != nil {
 			return err
 		}

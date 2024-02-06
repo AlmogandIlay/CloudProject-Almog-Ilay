@@ -11,7 +11,8 @@ var (
 	Manager *authentication.AuthenticationManager
 )
 
-func InitializeIdentifyManagerFactory() (*authentication.AuthenticationManager, error) {
+// Initialize Authentication Manager instance
+func InitializeAuthenticationManagerFactory() (*authentication.AuthenticationManager, error) {
 	var err error
 	Manager, err = authentication.InitializeAuthenticationManager()
 	if err != nil {
@@ -22,6 +23,7 @@ func InitializeIdentifyManagerFactory() (*authentication.AuthenticationManager, 
 	return Manager, nil
 }
 
+// Access Authentication Manager instance
 func GetManager() *authentication.AuthenticationManager {
 	return Manager
 }
@@ -29,19 +31,26 @@ func GetManager() *authentication.AuthenticationManager {
 func GetLoggedUser(requestInfo Requests.RequestInfo) (FileSystem.LoggedUser, error) {
 	var loggedUser *FileSystem.LoggedUser
 	user := helper.GetEncodedUser(requestInfo.RequestData)
-	connectedUsers := Manager.GetLoggedUsers()
-	for _, connectedUser := range connectedUsers {
-		if connectedUser.IsEquals(&user) {
-			id, err := Manager.GetUserID(user.Username)
-			if err != nil {
-				return FileSystem.LoggedUser{}, err
-			}
-			loggedUser, err = FileSystem.NewLoggedUser(id)
-			if err != nil {
-				return FileSystem.LoggedUser{}, err
-			}
-
-		}
+	id, err := Manager.GetUserID(user.Username)
+	if err != nil {
+		return FileSystem.LoggedUser{}, err
+	}
+	loggedUser, err = FileSystem.NewLoggedUser(id)
+	if err != nil {
+		return FileSystem.LoggedUser{}, err
 	}
 	return *loggedUser, nil
+}
+
+// Remove Online User from the Online Users slice
+func RemoveOnlineUser(loggedUser FileSystem.LoggedUser) error {
+	username, err := Manager.GetUserName(loggedUser.UserID)
+	if err != nil {
+		return err
+	}
+	err = Manager.DeleteUser(username)
+	if err != nil {
+		return err
+	}
+	return nil
 }

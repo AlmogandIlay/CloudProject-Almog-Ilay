@@ -118,6 +118,7 @@ func Hash(password string) string {
 	return hash
 }
 
+// Compares between two users
 func (user *User) IsEquals(other *User) bool {
-	return user.username() == other.username() && user.password() == Hash(other.password()) && user.email() == other.email()
+	return user.username() == other.username() && user.password() == Hash(other.password())
 }

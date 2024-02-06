@@ -9,6 +9,7 @@ import (
 
 type AuthenticationRequestHandler struct{}
 
+// Handle Authentication type requests
 func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:

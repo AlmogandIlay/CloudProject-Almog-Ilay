@@ -12,14 +12,17 @@ type LoggedUser struct {
 	CurrentPath string // server prespective path
 }
 
+// Initializes a new logged user
 func NewLoggedUser(id uint32) (*LoggedUser, error) {
-
-	user := &LoggedUser{UserID: id}
-	err := BuildUserFileSystem(id)
-	if err != nil {
-		return nil, err
+	var err error
+	user := &LoggedUser{UserID: id} // Creates a new user instance
+	if !IsFileSystemExist(id) {     // Checks if the File System was not made before
+		err = BuildUserFileSystem(id)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = user.SetPath(helper.GetUserStorageRoot(id))
+	err = user.SetPath(helper.GetUserStorageRoot(id)) // Sets user's path
 	if err != nil {
 		return nil, err
 	}
@@ -27,6 +30,14 @@ func NewLoggedUser(id uint32) (*LoggedUser, error) {
 	return user, nil
 }
 
+// Checks if the File System was created before
+func IsFileSystemExist(userID uint32) bool {
+	rootPath := helper.GetUserStorageRoot(userID)
+	_, err := os.OpenFile(rootPath, os.O_RDONLY, os.ModeDir) // Try to open the directory
+	return err == nil                                        // Returns if path exists
+}
+
+// Builds a File System in the cloud for new clients
 func BuildUserFileSystem(userID uint32) error {
 	rootPath := helper.GetUserStorageRoot(userID)
 
@@ -35,7 +46,7 @@ func BuildUserFileSystem(userID uint32) error {
 		return err
 	}
 
-	err = os.Mkdir(filepath.Join(rootPath, "Garbage"), os.ModePerm)
+	err = os.Mkdir(filepath.Join(rootPath, "Garbage"), os.ModePerm) // Creates the Garbage location
 	if err != nil {
 		return err
 	}
@@ -51,6 +62,7 @@ func (user *LoggedUser) SetPath(path string) error {
 	return nil
 }
 
+// Valid the path that is given in the parameters of the client
 func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
 		return &PathNotExistError{path}
