@@ -1,6 +1,7 @@
 package Requests
 
 import (
+	"client/Helper"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -37,24 +38,35 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 		return ResponeInfo{}, fmt.Errorf("error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error())
 	}
 
-	_, err = socket.Write(requestBytes)
+	err = Helper.SendData(&socket, requestBytes)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
 
-	buffer := make([]byte, 1024)
-	bytesRead, err := socket.Read(buffer)
+	data, err := Helper.ReciveData(&socket, Helper.DefaultBufferSize)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
-	dataBytes := buffer[:bytesRead]
 
-	var response_info ResponeInfo
-	err = json.Unmarshal(dataBytes, &response_info)
+	response_info, err := GetResponseInfo(data)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to encode the response from the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
 
 	return response_info, nil
+}
 
+// Handles the entire request-response cycle.
+func SendRequest(request_type RequestType, request_data []byte, socket net.Conn) error {
+	request_info := BuildRequestInfo(request_type, request_data)
+	response_info, err := SendRequestInfo(request_info, socket) // sends a request and receives a response
+	if err != nil {
+		return err
+	}
+	if response_info.Type == ErrorRespone { // If error caught in server side
+		return fmt.Errorf(response_info.Respone)
+	} else if response_info.Type == ValidRespone {
+		return nil
+	}
+	return fmt.Errorf(response_info.Respone)
 }

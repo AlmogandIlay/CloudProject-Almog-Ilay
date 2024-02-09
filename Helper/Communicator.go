@@ -1,11 +1,12 @@
-package helper
+package Helper
 
 import (
+	"fmt"
 	"net"
 )
 
 const (
-	defaultBufferSize = 1024
+	DefaultBufferSize = 1024
 )
 
 // bufferSize is usually 1024
@@ -19,7 +20,7 @@ func ReciveData(conn *net.Conn, bufferSize int) ([]byte, error) {
 	buffer := make([]byte, bufferSize)
 	bytesRead, err := (*conn).Read(buffer)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
 	}
 
 	data := make([]byte, bytesRead)
@@ -36,7 +37,7 @@ func SendData(conn *net.Conn, message []byte) error {
 
 	_, err := (*conn).Write(message)
 	if err != nil {
-		return err
+		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
 	}
 	return nil
 }
