@@ -64,7 +64,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(user.CurrentPath) {
-		path = filepath.Join(user.CurrentPath, path)
+		path = filepath.Join(user.CurrentPath, path) // convert to an absolute path
 	}
 	return operation(path)
 }
@@ -156,6 +156,10 @@ func renameAbsFile(currentFilePath, newFileName string) error {
 	return nil
 }
 
+func moveFile(currentAbsFilePath, newFileName string) error {
+	return renameAbsFile(currentAbsFilePath, newFileName)
+}
+
 // Returns folder's content including its files and folders in a string variable. Return error if it fails
 func getFolderContent(folderPath string) (string, error) {
 
@@ -185,6 +189,7 @@ func getFolderContent(folderPath string) (string, error) {
 		}
 	}
 	WriteString(&builder, fmt.Sprint((dirCounter)), "Dir(s), ", fmt.Sprint((fileCounter)), "File(s)")
+
 	return builder.String(), nil
 }
 
