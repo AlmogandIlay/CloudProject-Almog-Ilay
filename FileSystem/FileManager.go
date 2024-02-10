@@ -13,7 +13,7 @@ import (
 // TODO: relate to the garbage in all the functions
 
 // Changes the current directory for the user according to the parameter
-func (user *LoggedUser) ChangeDirectory(parameter string) error {
+func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 	switch parameter {
 	case "\\", "/":
@@ -70,30 +70,34 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 }
 
 // go back to the CloudDrive user root: Root/
-func (user *LoggedUser) setBackRoot() error {
-	return user.SetPath(helper.GetUserStorageRoot(user.UserID))
+func (user *LoggedUser) setBackRoot() (string, error) {
+	err := user.SetPath(helper.GetUserStorageRoot(user.UserID))
+	return user.GetPath(), err
 }
 
 // Go back to the previous folder in the CloudDrive path user root
-func (user *LoggedUser) setBackDirectory() error {
+func (user *LoggedUser) setBackDirectory() (string, error) {
 	newPath := filepath.Dir(user.CurrentPath)
 	if newPath == "." {
-		return &PathNotExistError{newPath}
+		return "", &PathNotExistError{newPath}
 	}
-	return user.SetPath(newPath)
+	err := user.SetPath(newPath)
+	return user.GetPath(), err
 }
 
 // forward to next given dir, for example: cd homework11
-func (user *LoggedUser) setForwardDir(forwardDir string) error {
+func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
 	err := isFileInDirectory(forwardDir, user.CurrentPath)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return user.SetPath(filepath.Join(user.CurrentPath, forwardDir))
+	err = user.SetPath(filepath.Join(user.CurrentPath, forwardDir))
+	return user.GetPath(), err
 }
 
-func (user *LoggedUser) setAbsDir(absDir string) error {
-	return user.SetPath(absDir)
+func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
+	err := user.SetPath(absDir)
+	return user.GetPath(), err
 }
 
 // create a file in the given directory

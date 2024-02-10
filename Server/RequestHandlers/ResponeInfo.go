@@ -12,6 +12,7 @@ const (
 	ErrorRespone ResponeType = 999
 	ValidRespone ResponeType = 200
 	OkayRespone  string      = "200: Okay" // Valid Response default data
+	CDRespone    string      = "200: CurrentDirectory:"
 )
 
 type ResponeInfo struct {
