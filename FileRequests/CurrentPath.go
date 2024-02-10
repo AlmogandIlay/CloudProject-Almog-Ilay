@@ -18,6 +18,6 @@ func IsCurrentPathInitialized() bool {
 	return CurrentPath != ""
 }
 
-func SetCurrentPath(path string) {
+func setCurrentPath(path string) {
 	CurrentPath = path
 }
