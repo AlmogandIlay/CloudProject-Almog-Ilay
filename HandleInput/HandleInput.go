@@ -3,6 +3,7 @@ package Handleinput
 import (
 	"bufio"
 	"client/Authentication"
+	FileRequestsManager "client/FileRequests"
 	"net"
 	"os"
 	"strings"
@@ -40,6 +41,8 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 
 		switch command_prefix {
 
+		case "help":
+
 		case "signup":
 			err = Authentication.HandleSignup(command[command_arguments:], socket)
 			if err != nil {
@@ -54,13 +57,15 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			}
 			return "Successfully signed in!\n"
 
-		case "help":
-
 		case "cd":
+			err = FileRequestsManager.HandleChangeDirectory(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
 
 		}
-		return ""
-
 	}
 	return ""
+
 }

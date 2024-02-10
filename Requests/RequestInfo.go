@@ -10,9 +10,9 @@ import (
 type RequestType int
 
 const (
-	LoginRequest  RequestType = 101
-	SignupRequest RequestType = 102
-	// ...
+	LoginRequest           RequestType = 101
+	SignupRequest          RequestType = 102
+	ChangeDirectoryRequest RequestType = 301
 )
 
 type RequestInfo struct {
@@ -47,8 +47,7 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	if err != nil {
 		return ResponeInfo{}, err
 	}
-
-	response_info, err := GetResponseInfo(data)
+	response_info, err := getResponseInfo(data)
 	if err != nil {
 		return ResponeInfo{}, err
 	}
@@ -63,10 +62,9 @@ func SendRequest(request_type RequestType, request_data []byte, socket net.Conn)
 	if err != nil {
 		return err
 	}
-	if response_info.Type == ErrorRespone { // If error caught in server side
-		return fmt.Errorf(response_info.Respone)
-	} else if response_info.Type == ValidRespone {
+	if response_info.Type == ValidRespone { // If error caught in server side
 		return nil
+	} else {
+		return fmt.Errorf(response_info.Respone)
 	}
-	return fmt.Errorf(response_info.Respone)
 }

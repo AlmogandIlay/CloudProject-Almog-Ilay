@@ -3,6 +3,7 @@ package Helper
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 const (
@@ -40,4 +41,13 @@ func SendData(conn *net.Conn, message []byte) error {
 		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
 	}
 	return nil
+}
+
+func ConvertStringToBytes(data string) []byte {
+	var builder strings.Builder
+	builder.WriteString("\"Data\":\"")
+	builder.WriteString(data)
+	builder.WriteString("\"")
+
+	return []byte(builder.String())
 }
