@@ -2,6 +2,7 @@ package FileSystem
 
 import (
 	helper "CloudDrive/Helper"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -183,6 +184,7 @@ func getFolderContent(folderPath string) (string, error) {
 			WriteString(&builder, " <FILE> ", entry.Name(), "\n")
 		}
 	}
+	WriteString(&builder, fmt.Sprint((dirCounter)), "Dir(s), ", fmt.Sprint((fileCounter)), "File(s)")
 	return builder.String(), nil
 }
 
