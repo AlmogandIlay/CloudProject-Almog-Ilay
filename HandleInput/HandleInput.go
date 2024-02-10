@@ -48,6 +48,8 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			if err != nil {
 				return err.Error()
 			}
+
+			FileRequestsManager.InitializeCurrentPath()
 			return "Successfully signed up!\n"
 
 		case "signin":
@@ -55,6 +57,8 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			if err != nil {
 				return err.Error()
 			}
+
+			FileRequestsManager.InitializeCurrentPath()
 			return "Successfully signed in!\n"
 
 		case "cd":

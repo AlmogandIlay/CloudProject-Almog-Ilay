@@ -1,13 +1,14 @@
 package Menu
 
 import (
+	FileRequestsManager "client/FileRequests"
 	HandleInput "client/HandleInput"
 	"fmt"
 	"net"
 )
 
 const (
-	ip_addr = "192.168.50.191:12345"
+	ip_addr = "192.168.50.220:12345"
 	prompt  = ">> "
 )
 
@@ -40,8 +41,15 @@ func (cli *CLI) PrintStartup() {
 	fmt.Println("Type \"help\" for available commands.")
 }
 
-func (cli *CLI) readInput() {
+func (cli *CLI) printPrompt() {
+	if FileRequestsManager.IsCurrentPathInitialized() {
+		FileRequestsManager.PrintCurrentPath()
+	}
 	fmt.Print(cli.prompt)
+}
+
+func (cli *CLI) readInput() {
+	cli.printPrompt()
 	fmt.Println(cli.input.Handleinput(cli.socket))
 }
 
