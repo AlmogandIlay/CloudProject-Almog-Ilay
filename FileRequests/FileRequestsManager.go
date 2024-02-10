@@ -31,6 +31,6 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 	}
 
 	path := convertResponeToPath(responeData)
-	SetCurrentPath(path)
+	setCurrentPath(path)
 	return nil
 }
