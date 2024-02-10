@@ -18,7 +18,7 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 	}
 
 	data := Helper.ConvertStringToBytes(command_arguments[path_argument])
-	err := Requests.SendRequest(Requests.ChangeDirectoryRequest, data, socket)
+	data, err := Requests.SendRequest(Requests.ChangeDirectoryRequest, data, socket)
 
 	return err
 }
