@@ -1,9 +1,9 @@
 package Helper
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
-	"strings"
 )
 
 const (
@@ -43,11 +43,16 @@ func SendData(conn *net.Conn, message []byte) error {
 	return nil
 }
 
-func ConvertStringToBytes(data string) []byte {
-	var builder strings.Builder
-	builder.WriteString("\"Data\":\"")
-	builder.WriteString(data)
-	builder.WriteString("\"")
+func ConvertStringToBytes(data string) ([]byte, error) {
+	// Create a simple struct to hold data
+	jsonData := struct {
+		Data string `json:"Data"`
+	}{Data: data}
 
-	return []byte(builder.String())
+	bytes, err := json.Marshal(jsonData)
+	if err != nil {
+		// Handle the error appropriately
+		return nil, fmt.Errorf("error encoding requested path to be sent to the server")
+	}
+	return bytes, nil
 }

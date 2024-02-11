@@ -24,7 +24,10 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
 	}
 
-	data := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
 	responeData, err := Requests.SendRequest(Requests.ChangeDirectoryRequest, data, socket)
 	if err != nil {
 		return err
