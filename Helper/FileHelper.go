@@ -25,6 +25,7 @@ func GetUserStoragePath(userID uint32, clientPath string) string {
 	return filepath.Join(GetUserStorageRoot(userID), clientPath[4:])
 }
 
+// Converts server-side path to client-side path
 func GetVirtualStoragePath(storagePath string) string {
 	cloudDriveIndex := strings.Index(storagePath, CloudDrive)
 
