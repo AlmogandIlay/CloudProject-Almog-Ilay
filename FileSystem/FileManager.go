@@ -87,7 +87,7 @@ func (user *LoggedUser) setBackDirectory() (string, error) {
 
 // forward to next given dir, for example: cd homework11
 func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
-	err := isFileInDirectory(forwardDir, user.CurrentPath)
+	err := isFolderInDirectory(forwardDir, user.CurrentPath)
 	if err != nil {
 		return "", err
 	}

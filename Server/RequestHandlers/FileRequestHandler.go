@@ -2,6 +2,7 @@ package RequestHandlers
 
 import (
 	"CloudDrive/FileSystem"
+	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"strings"
 )
@@ -35,10 +36,11 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 
 // Handle cd (Change Directory) requests from client
 func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	requestPath := Requests.ParseDataToString(info.RequestData)
+	rawData := Requests.ParseDataToString(info.RequestData)
+	requestPath := helper.ConvertRawJsonToData(rawData)
 	path, err := loggedUser.ChangeDirectory(requestPath)
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(CDRespone+path, CreateFileRequestHandler())

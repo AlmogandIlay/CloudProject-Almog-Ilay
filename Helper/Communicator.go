@@ -2,6 +2,7 @@ package helper
 
 import (
 	"net"
+	"strings"
 )
 
 const (
@@ -39,4 +40,10 @@ func SendData(conn *net.Conn, message []byte) error {
 		return err
 	}
 	return nil
+}
+
+func ConvertRawJsonToData(rawJson string) string {
+	data := strings.ReplaceAll(rawJson, "\"", "")
+	data = strings.ReplaceAll(data, "}", "")
+	return data[6:]
 }
