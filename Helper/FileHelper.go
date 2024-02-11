@@ -1,14 +1,16 @@
 package helper
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
 
 const (
-	DrivePath = "D:\\CloudDrive"
-	RootDir   = "Root:\\"
+	CloudDrive = "CloudDrive"
+	DrivePath  = "D:\\CloudDrive"
+	RootDir    = "Root:\\"
 )
 
 /*
@@ -23,7 +25,18 @@ func GetUserStoragePath(userID uint32, clientPath string) string {
 	return filepath.Join(GetUserStorageRoot(userID), clientPath[4:])
 }
 
-// need to fix
-func GetVirtualStoragePath(userID uint32, storagePath string) string {
-	return strings.Replace(storagePath, GetUserStorageRoot(userID), RootDir, -1)
+func GetVirtualStoragePath(storagePath string) string {
+	cloudDriveIndex := strings.Index(storagePath, CloudDrive)
+
+	// Extract the part after "CloudDrive", including separators
+	pathAfterCloudDrive := storagePath[cloudDriveIndex:]
+
+	// Split by '\'
+	pathParts := strings.SplitN(pathAfterCloudDrive, "\\", 3)
+
+	// discard the assumed user ID
+	relativePath := pathParts[2]
+	clientPath := fmt.Sprintf("Root\\%s", relativePath)
+	return clientPath
+
 }

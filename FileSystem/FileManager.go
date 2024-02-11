@@ -14,19 +14,24 @@ import (
 
 // Changes the current directory for the user according to the parameter
 func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
-
+	var err error
+	var path string
 	switch parameter {
 	case "\\", "/":
-		return user.setBackRoot()
+		path, err = user.setBackRoot()
 	case "..":
-		return user.setBackDirectory()
+		path, err = user.setBackDirectory()
 	default:
 		if filepath.IsAbs(parameter) {
-			return user.setAbsDir(parameter)
+			path, err = user.setAbsDir(parameter)
+		} else {
+			path, err = user.setForwardDir(parameter)
 		}
-		return user.setForwardDir(parameter)
 	}
-
+	if err != nil {
+		return path, err
+	}
+	return helper.GetVirtualStoragePath(path), nil
 }
 
 // Creates a new file in the current directory
