@@ -67,12 +67,25 @@ func (user *LoggedUser) GetPath() string {
 	return user.CurrentPath
 }
 
+func isFolderInDirectory(path, pathOfDir string) error {
+	userPath := filepath.Join(pathOfDir, path)
+	_, err := os.Stat(userPath)
+
+	if os.IsNotExist(err) {
+		return &PathNotExistError{userPath}
+	} else if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Valid the path that is given in the parameters of the client
 func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
 		return &PremmisionError{path}
 	}
-	dir, err := os.Open(path)
+	_, err := os.Stat(path)
 
 	if err != nil { // If invalid path
 		if os.IsNotExist(err) {
@@ -81,6 +94,5 @@ func ValidPath(userID uint32, path string) error {
 		return err
 	}
 
-	defer dir.Close()
 	return nil
 }

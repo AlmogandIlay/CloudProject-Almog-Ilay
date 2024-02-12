@@ -1,4 +1,4 @@
-package main
+package Tseter
 
 import (
 	"CloudDrive/FileSystem"

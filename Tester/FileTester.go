@@ -1,4 +1,4 @@
-package Tseter
+package Tester
 
 import (
 	"CloudDrive/FileSystem"
@@ -13,7 +13,7 @@ func printUser(user *FileSystem.LoggedUser) {
 }
 func main() {
 
-	id := uint32(871)
+	id := uint32(872)
 
 	user, err := FileSystem.NewLoggedUser(id)
 	if err != nil {
@@ -23,10 +23,12 @@ func main() {
 
 	printUser(user)
 
-	err = user.CreateFile("C:\\CloudDrive\\871\\f1\\f2\\na.csv")
+	path, err := user.ChangeDirectory("C:\\CloudDrive\\872\\ilay\\aa")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(4)
 	}
+
+	fmt.Println(path)
 
 }

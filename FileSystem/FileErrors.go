@@ -52,5 +52,5 @@ func (fileError *CharactersError) Error() string {
 }
 
 func (fileError *PremmisionError) Error() string {
-	return fmt.Sprintf("You have no permission to access %s", helper.GetVirtualStoragePath(fileError.Path))
+	return fmt.Sprintf("You have no permission to access out of your root%s", helper.GetVirtualStoragePath(fileError.Path))
 }

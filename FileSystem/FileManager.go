@@ -23,8 +23,10 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		path, err = user.setBackDirectory()
 	default:
 		if filepath.IsAbs(parameter) {
+			fmt.Println("abs path")
 			path, err = user.setAbsDir(parameter)
 		} else {
+			fmt.Println("relative path")
 			path, err = user.setForwardDir(parameter)
 		}
 	}
@@ -77,7 +79,7 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 // go back to the CloudDrive user root: Root/
 func (user *LoggedUser) setBackRoot() (string, error) {
 	err := user.SetPath(helper.GetUserStorageRoot(user.UserID))
-	return user.GetPath(), err
+	return user.CurrentPath, err
 }
 
 // Go back to the previous folder in the CloudDrive path user root
@@ -87,7 +89,7 @@ func (user *LoggedUser) setBackDirectory() (string, error) {
 		return "", &PremmisionError{newPath}
 	}
 	err := user.SetPath(newPath)
-	return user.GetPath(), err
+	return user.CurrentPath, err
 }
 
 // forward to next given dir, for example: cd homework11
@@ -97,12 +99,12 @@ func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
 		return "", err
 	}
 	err = user.SetPath(filepath.Join(user.CurrentPath, forwardDir))
-	return user.GetPath(), err
+	return user.CurrentPath, err
 }
 
 func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 	err := user.SetPath(absDir)
-	return user.GetPath(), err
+	return user.CurrentPath, err
 }
 
 // create a file in the given directory

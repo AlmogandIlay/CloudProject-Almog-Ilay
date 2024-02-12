@@ -1,4 +1,4 @@
-package Tseter
+package Tester
 
 /*import (
 	"fmt"
