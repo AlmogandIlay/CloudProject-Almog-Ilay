@@ -15,6 +15,8 @@ const (
 	ChangeDirectoryRequest RequestType = 301
 	CreateFileRequest      RequestType = 302
 	CreateFolderRequest    RequestType = 303
+	DeleteFileRequest      RequestType = 304
+	DeleteFolderRequest    RequestType = 305
 )
 
 type RequestInfo struct {
