@@ -10,7 +10,7 @@ import (
 
 // FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
 
-// TODO: relate to the garbage in all the functions
+// TODO: relacte to the garbage in all the functions
 
 // Changes the current directory for the user according to the parameter
 func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
