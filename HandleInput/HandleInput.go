@@ -30,6 +30,18 @@ func (inputBuffer UserInput) readInput() string {
 	return command
 }
 
+func helpScreen() string {
+	help_command :=
+		`
+SIGNUP		Create an account in CloudDrive service.
+SIGNIN		Sign in to an existing CloudDrive account.
+CD			Displays/Changes the current working directory.
+newfile		Creates a new file.
+newdir		Creates a new directory.
+`
+	return help_command
+}
+
 /*
 Gets user input and handles its command request.
 */
@@ -42,8 +54,7 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 		switch command_prefix {
 
 		case "help":
-			help_command := "SIGNUP\ttest"
-			return help_command
+			return helpScreen()
 
 		case "signup":
 			err = Authentication.HandleSignup(command[command_arguments:], socket)
@@ -69,6 +80,13 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 				return err.Error()
 			}
 			return ""
+
+		case "newfile":
+			err = FileRequestsManager.HandleCreateFile(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "File created successfully!\n"
 
 		default:
 			return "Invalid command.\nPlease try a different command"
