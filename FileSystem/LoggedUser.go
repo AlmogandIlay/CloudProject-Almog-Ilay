@@ -70,7 +70,7 @@ func (user *LoggedUser) GetPath() string {
 // Valid the path that is given in the parameters of the client
 func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
-		return &PathNotExistError{path}
+		return &PremmisionError{path}
 	}
 	dir, err := os.Open(path)
 
