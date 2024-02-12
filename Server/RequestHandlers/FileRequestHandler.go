@@ -48,7 +48,8 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 
 // Handle Create File requests from client
 func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	file := Requests.ParseDataToString(info.RequestData)
+	rawData := Requests.ParseDataToString(info.RequestData)
+	file := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.CreateFile(file)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
@@ -59,7 +60,8 @@ func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInf
 
 // Handle Create Folder requests from client
 func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	folderName := Requests.ParseDataToString(info.RequestData)
+	rawData := Requests.ParseDataToString(info.RequestData)
+	folderName := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.CreateFolder(folderName)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
@@ -70,7 +72,8 @@ func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestI
 
 // Handle Delete File requests from client
 func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	file := Requests.ParseDataToString(info.RequestData)
+	rawData := Requests.ParseDataToString(info.RequestData)
+	file := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.RemoveFile(file)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
@@ -81,7 +84,8 @@ func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInf
 
 // Handle Delete Folder requests from client
 func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	folderName := Requests.ParseDataToString(info.RequestData)
+	rawData := Requests.ParseDataToString(info.RequestData)
+	folderName := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.RemoveFolder(folderName)
 	if err != nil {
 		buildError(err.Error(), IRequestHandler(filehandler))
