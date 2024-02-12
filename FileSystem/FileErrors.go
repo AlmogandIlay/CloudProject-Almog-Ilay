@@ -1,6 +1,7 @@
 package FileSystem
 
 import (
+	helper "CloudDrive/Helper"
 	"fmt"
 	"strings"
 )
@@ -28,19 +29,19 @@ func (fileError *FileNameError) Error() string {
 }
 
 func (fileError *PathNotExistError) Error() string {
-	return fmt.Sprintf("The path: %s not exist", fileError.Path)
+	return fmt.Sprintf("The path: %s not exist", helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *OpenDirError) Error() string {
-	return fmt.Sprintf("Cannot open %s dir", fileError.Path)
+	return fmt.Sprintf("Cannot open %s dir", helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *ReadDirError) Error() string {
-	return fmt.Sprintf("Cannot read %s dir", fileError.Path)
+	return fmt.Sprintf("Cannot read %s dir", helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *FileExistError) Error() string {
-	return fmt.Sprintf("the File %s already exist in %s path", fileError.Name, fileError.Path)
+	return fmt.Sprintf("the File %s already exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *FileLengthError) Error() string {
@@ -51,5 +52,5 @@ func (fileError *CharactersError) Error() string {
 }
 
 func (fileError *PremmisionError) Error() string {
-	return fmt.Sprintf("You have no permission to access %s", fileError.Path)
+	return fmt.Sprintf("You have no permission to access %s", helper.GetVirtualStoragePath(fileError.Path))
 }
