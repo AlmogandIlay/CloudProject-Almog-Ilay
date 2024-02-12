@@ -84,7 +84,7 @@ func (user *LoggedUser) setBackRoot() (string, error) {
 func (user *LoggedUser) setBackDirectory() (string, error) {
 	newPath := filepath.Dir(user.CurrentPath)
 	if newPath == "." {
-		return "", &PathNotExistError{newPath}
+		return "", &PremmisionError{newPath}
 	}
 	err := user.SetPath(newPath)
 	return user.GetPath(), err
