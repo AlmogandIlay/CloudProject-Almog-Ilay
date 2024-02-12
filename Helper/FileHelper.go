@@ -27,6 +27,8 @@ func GetUserStoragePath(userID uint32, clientPath string) string {
 
 // Converts server-side path to client-side path
 func GetVirtualStoragePath(storagePath string) string {
+	var clientPath string
+
 	cloudDriveIndex := strings.Index(storagePath, CloudDrive)
 
 	// Extract the part after "CloudDrive", including separators
@@ -36,8 +38,12 @@ func GetVirtualStoragePath(storagePath string) string {
 	pathParts := strings.SplitN(pathAfterCloudDrive, "\\", 3)
 
 	// discard the assumed user ID
-	relativePath := pathParts[2]
-	clientPath := fmt.Sprintf("Root\\%s", relativePath)
+	if len(pathParts) > 2 { // If the given path is expandable more than the root
+		relativePath := pathParts[2]
+		clientPath = fmt.Sprintf(RootDir+"%s", relativePath)
+	} else { // If the given path is directly the root
+		clientPath = RootDir
+	}
 	return clientPath
 
 }
