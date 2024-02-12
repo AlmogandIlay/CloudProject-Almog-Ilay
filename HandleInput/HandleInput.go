@@ -82,11 +82,18 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			return ""
 
 		case "newfile":
-			err = FileRequestsManager.HandleCreateFile(command[command_arguments:], socket)
+			err = FileRequestsManager.HandleCreate(command[command_arguments:], "createFile", socket)
 			if err != nil {
 				return err.Error()
 			}
 			return "File created successfully!\n"
+
+		case "newdir":
+			err = FileRequestsManager.HandleCreate(command[command_arguments:], "createFolder", socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "Folder created successfully"
 
 		default:
 			return "Invalid command.\nPlease try a different command"

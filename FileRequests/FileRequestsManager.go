@@ -38,16 +38,31 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 	return nil
 }
 
-func HandleCreateFile(command_arguments []string, socket net.Conn) error {
+func HandleCreate(command_arguments []string, request string, socket net.Conn) error {
 	if len(command_arguments) != minimum_arguments {
 		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
 	}
-
 	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
 	if err != nil {
 		return err
 	}
 
-	_, err = Requests.SendRequest(Requests.CreateFileRequest, data, socket)
+	switch request {
+	case "createFile":
+		return handleCreateFile(data, socket)
+	case "createFolder":
+		return handleCreateFolder(data, socket)
+	}
+
+	return fmt.Errorf("wrong create request")
+}
+
+func handleCreateFile(data []byte, socket net.Conn) error {
+	_, err := Requests.SendRequest(Requests.CreateFileRequest, data, socket)
+	return err
+}
+
+func handleCreateFolder(data []byte, socket net.Conn) error {
+	_, err := Requests.SendRequest(Requests.CreateFolderRequest, data, socket)
 	return err
 }

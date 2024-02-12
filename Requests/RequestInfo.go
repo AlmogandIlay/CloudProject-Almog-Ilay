@@ -14,6 +14,7 @@ const (
 	SignupRequest          RequestType = 102
 	ChangeDirectoryRequest RequestType = 301
 	CreateFileRequest      RequestType = 302
+	CreateFolderRequest    RequestType = 303
 )
 
 type RequestInfo struct {
