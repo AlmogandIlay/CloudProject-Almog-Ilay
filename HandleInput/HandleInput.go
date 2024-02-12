@@ -42,6 +42,8 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 		switch command_prefix {
 
 		case "help":
+			help_command := "SIGNUP\ttest"
+			return help_command
 
 		case "signup":
 			err = Authentication.HandleSignup(command[command_arguments:], socket)
@@ -67,6 +69,9 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 				return err.Error()
 			}
 			return ""
+
+		default:
+			return "Invalid command.\nPlease try a different command"
 
 		}
 	}

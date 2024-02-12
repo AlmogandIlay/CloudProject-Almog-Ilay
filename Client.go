@@ -2,12 +2,13 @@ package main
 
 import (
 	Menu "client/Menu"
+	"log"
 )
 
 func main() {
 	cli, err := Menu.NewCLI()
 	if err != nil { // If server connection fails
-		panic(err)
+		log.Fatal(err)
 	}
 
 	cli.PrintStartup()

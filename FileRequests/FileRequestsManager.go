@@ -37,3 +37,17 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 	setCurrentPath(path)
 	return nil
 }
+
+func HandleCreateFile(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) != minimum_arguments {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
+
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
+
+	_, err = Requests.SendRequest(Requests.CreateFileRequest, data, socket)
+	return err
+}
