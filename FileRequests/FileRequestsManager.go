@@ -11,11 +11,11 @@ import (
 const (
 	minimum_arguments = 1
 	path_argument     = 0
-	path_index        = 2
+	path_index        = 1
 )
 
 func convertResponeToPath(data string) string {
-	parts := strings.Split(data, ":")
+	parts := strings.Split(data, "CurrentDirectory:")
 	return parts[path_index]
 }
 
