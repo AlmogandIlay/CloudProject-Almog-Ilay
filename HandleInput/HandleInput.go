@@ -35,9 +35,9 @@ func helpScreen() string {
 		`
 SIGNUP		Create an account in CloudDrive service.
 SIGNIN		Sign in to an existing CloudDrive account.
-CD			Displays/Changes the current working directory.
-newfile		Creates a new file.
-newdir		Creates a new directory.
+CD		Displays/Changes the current working directory.
+NEWFILE		Creates a new file.
+NEWDIR		Creates a new directory.
 `
 	return help_command
 }
