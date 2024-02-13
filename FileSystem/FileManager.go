@@ -2,6 +2,7 @@ package FileSystem
 
 import (
 	helper "CloudDrive/Helper"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -17,6 +18,17 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	var err error
 	var path string
 	serverPath := helper.GetServerStoragePath(user.UserID, parameter)
+
+	if serverPath != ".." { // If the path is not going back
+		err = validFileName(filepath.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
+		if errors.Is(err, &FileNotExistError{}) {                        // if FileNotExist error, convert it to PathNotExist error
+			return "", &PathNotExistError{}
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+
 	fmt.Println(serverPath)
 	switch serverPath {
 	case "\\", "/":
@@ -71,7 +83,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(path) {
-		path = filepath.Join(user.CurrentPath, path) // convert to an absolute path
+		path = filepath.Join(user.CurrentPath, path) // convert to an absolute-server side path
 	} else {
 		if !strings.HasPrefix(path, helper.RootDir) {
 			return &PremmisionError{path}
@@ -113,6 +125,10 @@ func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 
 // create a file in the given directory
 func createAbsFile(filePath string) error {
+	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath))
+	if err != nil {
+		return err
+	}
 	file, err := os.Create(filePath)
 	if err != nil {
 		if os.IsExist(err) {

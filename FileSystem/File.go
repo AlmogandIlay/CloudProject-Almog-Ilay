@@ -56,7 +56,7 @@ func validFileName(name, path string) error {
 	if !validFileNameLength(name) {
 		return &FileLengthError{name}
 	}
-	if regexp.MustCompile(invalidFileCharacters).MatchString(name) {
+	if !regexp.MustCompile(invalidFileCharacters).MatchString(name) {
 		return &CharactersError{}
 	}
 	return isFileInDirectory(name, path)
@@ -91,5 +91,5 @@ func isFileInDirectory(fileName, pathOfDir string) error {
 		}
 	}
 
-	return &FileExistError{fileName, pathOfDir}
+	return &FileNotExistError{fileName, pathOfDir}
 }

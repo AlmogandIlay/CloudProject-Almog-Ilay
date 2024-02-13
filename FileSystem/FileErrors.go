@@ -13,6 +13,7 @@ type PathNotExistError struct{ Path string }
 type OpenDirError struct{ Path string }
 type ReadDirError struct{ Path string }
 type FileExistError struct{ Name, Path string }
+type FileNotExistError struct{ Name, Path string }
 type FileLengthError struct{ Name string }
 type CharactersError struct{}
 
@@ -46,11 +47,15 @@ func (fileError *FileExistError) Error() string {
 	return fmt.Sprintf("the File %s already exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
 }
 
+func (fileError *FileNotExistError) Error() string {
+	return fmt.Sprintf("the File %s not exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+}
+
 func (fileError *FileLengthError) Error() string {
 	return fmt.Sprintf("The file %s is not the appropriate length, should be under %d", fileError.Name, maxFileSize)
 }
 func (fileError *CharactersError) Error() string {
-	return fmt.Sprintf("Illegal letters such as: %s in the file", strings.Join(strings.Split(invalidFileCharacters, ""), " "))
+	return fmt.Sprintf("Cannot use Illegal letters such as: %s in the name", strings.Join(strings.Split(invalidFileCharacters, ""), " "))
 }
 
 func (fileError *PremmisionError) Error() string {

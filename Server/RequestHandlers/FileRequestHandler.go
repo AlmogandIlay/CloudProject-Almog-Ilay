@@ -53,7 +53,7 @@ func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInf
 	file := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.CreateFile(file)
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
@@ -65,7 +65,7 @@ func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestI
 	folderName := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.CreateFolder(folderName)
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
@@ -77,7 +77,7 @@ func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInf
 	file := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.RemoveFile(file)
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
@@ -89,7 +89,7 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 	folderName := helper.ConvertRawJsonToData(rawData)
 	err := loggedUser.RemoveFolder(folderName)
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
@@ -101,7 +101,7 @@ func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInf
 	arguments := strings.Fields(command)
 	err := loggedUser.RenameFile(arguments[fileName], arguments[newFileName])
 	if err != nil {
-		buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
