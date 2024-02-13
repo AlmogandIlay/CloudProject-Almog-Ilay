@@ -18,6 +18,8 @@ type CharactersError struct{}
 
 type PremmisionError struct{ Path string }
 
+type InitializeError struct{}
+
 // Creates custom errors for filesystem
 
 func (fileError *FileSizeError) Error() string {
@@ -53,4 +55,8 @@ func (fileError *CharactersError) Error() string {
 
 func (fileError *PremmisionError) Error() string {
 	return fmt.Sprintf("You have no permission to access out of your root%s", helper.GetVirtualStoragePath(fileError.Path))
+}
+
+func (fileError *InitializeError) Error() string {
+	return fmt.Sprintf("There has been an error when attempting to access the allocated memory")
 }

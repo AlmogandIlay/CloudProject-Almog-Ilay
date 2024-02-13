@@ -2,6 +2,8 @@ package FileSystem
 
 import (
 	helper "CloudDrive/Helper"
+	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,6 +21,9 @@ func NewLoggedUser(id uint32) (*LoggedUser, error) {
 	if !IsFileSystemExist(id) {     // Checks if the File System was not made before
 		err = BuildUserFileSystem(id)
 		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrExist) || errors.Is(err, fs.ErrPermission) || errors.Is(err, fs.ErrInvalid) { // If caught filesystem errors
+				return nil, &InitializeError{}
+			}
 			return nil, err
 		}
 	}
