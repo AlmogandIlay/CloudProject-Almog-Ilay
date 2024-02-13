@@ -22,7 +22,13 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		err = validFileName(filepath.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
 		switch err := err.(type) {
 		case *FileNotExistError:
-			return "", &PathNotExistError{path}
+			var dirPath string
+			if filepath.IsAbs(serverPath) { // If given path is absolute
+				dirPath = serverPath
+			} else {
+				dirPath = filepath.Join(user.CurrentPath, parameter) // Convert the non-absolute path (server side) to an absolute path
+			}
+			return "", &PathNotExistError{dirPath}
 		default:
 			if err != nil {
 				return "", err
