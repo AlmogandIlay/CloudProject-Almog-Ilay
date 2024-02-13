@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	addr = "192.168.50.220:12345"
+	addr = "127.0.0.1:12345"
 )
 
 //Prints the Remote IP:Port's client in the CLI server program.

@@ -16,6 +16,7 @@ import (
 func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	var err error
 	var path string
+	fmt.Println(parameter)
 	switch parameter {
 	case "\\", "/":
 		path, err = user.setBackRoot()
@@ -23,10 +24,8 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		path, err = user.setBackDirectory()
 	default:
 		if filepath.IsAbs(parameter) {
-			fmt.Println("abs path")
 			path, err = user.setAbsDir(parameter)
 		} else {
-			fmt.Println("relative path")
 			path, err = user.setForwardDir(parameter)
 		}
 	}
@@ -70,8 +69,12 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
-	if !filepath.IsAbs(user.CurrentPath) {
+	if !filepath.IsAbs(path) {
 		path = filepath.Join(user.CurrentPath, path) // convert to an absolute path
+	} else {
+		if !strings.HasPrefix(path, helper.RootDir) {
+			return &PremmisionError{path}
+		}
 	}
 	return operation(path)
 }

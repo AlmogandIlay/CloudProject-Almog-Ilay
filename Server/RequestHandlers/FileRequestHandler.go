@@ -18,6 +18,7 @@ type FileRequestHandler struct{}
 func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
+
 		return filehandler.handleChangeDirectory(info, loggedUser)
 	case Requests.CreateFileRequest:
 		return filehandler.handleCreateFile(info, loggedUser)
