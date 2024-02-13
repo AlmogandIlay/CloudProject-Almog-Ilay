@@ -58,5 +58,5 @@ func (fileError *PremmisionError) Error() string {
 }
 
 func (fileError *InitializeError) Error() string {
-	return fmt.Sprintf("There has been an error when attempting to access the allocated memory")
+	return "There has been an error when attempting to access the allocated memory"
 }
