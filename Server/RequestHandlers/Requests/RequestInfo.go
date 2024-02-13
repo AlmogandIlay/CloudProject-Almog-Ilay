@@ -4,6 +4,7 @@ import (
 	helper "CloudDrive/Helper"
 	"encoding/json"
 	"net"
+	"strings"
 )
 
 type RequestType int
@@ -57,5 +58,6 @@ func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
 
 // Convert raw json data to string
 func ParseDataToString(data json.RawMessage) string {
-	return string(data)
+	fixData := strings.Replace(string(data), `\\`, `\`, -1)
+	return fixData
 }
