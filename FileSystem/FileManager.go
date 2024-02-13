@@ -16,17 +16,18 @@ import (
 func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	var err error
 	var path string
-	fmt.Println(parameter)
-	switch parameter {
+	serverPath := helper.GetServerStoragePath(user.UserID, parameter)
+	fmt.Println(serverPath)
+	switch serverPath {
 	case "\\", "/":
 		path, err = user.setBackRoot()
 	case "..":
 		path, err = user.setBackDirectory()
 	default:
-		if filepath.IsAbs(parameter) {
-			path, err = user.setAbsDir(parameter)
+		if filepath.IsAbs(serverPath) {
+			path, err = user.setAbsDir(serverPath)
 		} else {
-			path, err = user.setForwardDir(parameter)
+			path, err = user.setForwardDir(serverPath)
 		}
 	}
 	if err != nil {

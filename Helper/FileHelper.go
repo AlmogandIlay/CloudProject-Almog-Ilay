@@ -21,8 +21,13 @@ root/file1/file2 -> C:/CloudDrive/id/file1/file2
 func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))
 }
-func GetUserStoragePath(userID uint32, clientPath string) string {
-	return filepath.Join(GetUserStorageRoot(userID), clientPath[4:])
+func GetServerStoragePath(userID uint32, clientPath string) string {
+	findAbsolute := strings.Index(clientPath, "\\")
+	if findAbsolute == -1 {
+		return clientPath
+	}
+	serverPath := DrivePath + "\\" + strconv.FormatUint(uint64(userID), 10) + clientPath[findAbsolute:]
+	return serverPath
 }
 
 // Converts server-side path to client-side path
