@@ -11,6 +11,7 @@ const (
 	CloudDrive = "CloudDrive"
 	DrivePath  = "D:\\CloudDrive"
 	RootDir    = "Root:\\"
+	noAbsolute = -1
 )
 
 /*
@@ -23,7 +24,7 @@ func GetUserStorageRoot(userID uint32) string {
 }
 func GetServerStoragePath(userID uint32, clientPath string) string {
 	findAbsolute := strings.Index(clientPath, "\\")
-	if findAbsolute == -1 {
+	if findAbsolute == noAbsolute || !strings.HasPrefix(clientPath, RootDir) { // If the path is not absolute or not starts with Root:\\
 		return clientPath
 	}
 	serverPath := DrivePath + "\\" + strconv.FormatUint(uint64(userID), 10) + clientPath[findAbsolute:]
