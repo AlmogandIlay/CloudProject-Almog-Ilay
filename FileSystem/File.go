@@ -59,7 +59,7 @@ func validFileName(name, path string) error {
 	if !regexp.MustCompile(invalidFileCharacters).MatchString(name) {
 		return &CharactersError{}
 	}
-	return isFileInDirectory(name, path)
+	return nil
 }
 
 // Valids File Name Length due to Windows OS NTFS File System
@@ -70,7 +70,7 @@ func validFileNameLength(fileName string) bool {
 // Input: File Name (string), Path (string)
 // Checks if the given file name exists in the given path. Returns error for invalid
 // Output: error for file name that does not exist, any potential problems
-func isFileInDirectory(fileName, pathOfDir string) error {
+func IsFileInDirectory(fileName, pathOfDir string) error {
 	dir, err := os.Open(pathOfDir)
 
 	if err != nil {

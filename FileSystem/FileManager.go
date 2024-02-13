@@ -20,23 +20,14 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 	if serverPath != ".." { // If the path is not going back
 		err = validFileName(filepath.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
-		switch err := err.(type) {
-		case *FileNotExistError:
-			var dirPath string
-			if filepath.IsAbs(serverPath) { // If given path is absolute
-				dirPath = serverPath
-			} else {
-				dirPath = filepath.Join(user.CurrentPath, parameter) // Convert the non-absolute path (server side) to an absolute path
-			}
-			return "", &PathNotExistError{dirPath}
-		default:
-			if err != nil {
-				return "", err
-			}
+		if err != nil {
+			return "", err
+		}
+		err = isFolderInDirectory(filepath.Base(serverPath), user.CurrentPath) // Checks for folder's existence
+		if err != nil {
+			return "", err
 		}
 	}
-
-	fmt.Println(serverPath)
 	switch serverPath {
 	case "\\", "/":
 		path, err = user.setBackRoot()
@@ -78,7 +69,7 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 // Renames a file
 func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 	if !filepath.IsAbs(filePath) {
-		err := isFileInDirectory(filePath, user.CurrentPath)
+		err := IsFileInDirectory(filePath, user.CurrentPath)
 		if err != nil {
 			return err
 		}
@@ -132,9 +123,13 @@ func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 
 // create a file in the given directory
 func createAbsFile(filePath string) error {
-	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath))
+	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath)) // Validate file name
 	if err != nil {
 		return err
+	}
+	err = IsFileInDirectory(filepath.Base(filePath), filepath.Dir(filePath))
+	if err == nil { // If file exists
+		return &FileExistError{filepath.Base(filePath), filepath.Dir(filePath)}
 	}
 	file, err := os.Create(filePath)
 	if err != nil {
@@ -149,13 +144,15 @@ func createAbsFile(filePath string) error {
 
 // Create an absolute directory with the parameter folder name
 func createAbsDir(absDir string) error {
-	err := os.Mkdir(absDir, os.ModePerm) // Create a folder
+	err := validFileName(filepath.Base(absDir), filepath.Dir(absDir)) // Validate folder name
 	if err != nil {
-		if os.IsExist(err) { // If folder exists
-			return &FileExistError{absDir, filepath.Dir(absDir)}
-		}
 		return err
 	}
+	err = isFolderInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
+	if err == nil { // If folder exists
+		return &FolderExistError{filepath.Base(absDir), filepath.Dir(absDir)}
+	}
+	os.Mkdir(absDir, os.ModePerm) // Create a folder
 	return nil
 }
 
