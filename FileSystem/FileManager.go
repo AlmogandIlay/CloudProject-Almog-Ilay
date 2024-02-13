@@ -2,7 +2,6 @@ package FileSystem
 
 import (
 	helper "CloudDrive/Helper"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -21,11 +20,13 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 	if serverPath != ".." { // If the path is not going back
 		err = validFileName(filepath.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
-		if errors.Is(err, &FileNotExistError{}) {                        // if FileNotExist error, convert it to PathNotExist error
-			return "", &PathNotExistError{}
-		}
-		if err != nil {
-			return "", err
+		switch err := err.(type) {
+		case *FileNotExistError:
+			return "", &PathNotExistError{path}
+		default:
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 
