@@ -15,6 +15,7 @@ type ReadDirError struct{ Path string }
 type FileExistError struct{ Name, Path string }
 type FolderExistError struct{ Name, Path string }
 type FileNotExistError struct{ Name, Path string }
+type FolderNotExistError struct{ Name, Path string }
 type FileLengthError struct{ Name string }
 type CharactersError struct{}
 
@@ -53,7 +54,11 @@ func (fileError *FolderExistError) Error() string {
 }
 
 func (fileError *FileNotExistError) Error() string {
-	return fmt.Sprintf("the File %s not exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+	return fmt.Sprintf("The file %s not exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+}
+
+func (fileError *FolderNotExistError) Error() string {
+	return fmt.Sprintf("The folder %s not exist in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *FileLengthError) Error() string {

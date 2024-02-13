@@ -152,31 +152,35 @@ func createAbsDir(absDir string) error {
 	if err == nil { // If folder exists
 		return &FolderExistError{filepath.Base(absDir), filepath.Dir(absDir)}
 	}
-	os.Mkdir(absDir, os.ModePerm) // Create a folder
+	os.Mkdir(absDir, os.ModePerm) // Creates a folder
 	return nil
 }
 
 // Remove an absolute file with the parameter file name
 func removeAbsFile(filePath string) error {
-	err := os.Remove(filePath)
+	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath)) // Validate file name
 	if err != nil {
-		if os.IsNotExist(err) {
-			return &PathNotExistError{filePath}
-		}
 		return err
 	}
+	err = IsFileInDirectory(filepath.Base(filePath), filepath.Dir(filePath))
+	if err != nil { // If file is not in directory
+		return err
+	}
+	os.Remove(filePath)
 	return nil
 }
 
 // Remove an absolute directory with the parameter folder name
-func removeAbsFolder(filePath string) error {
-	err := os.RemoveAll(filePath)
+func removeAbsFolder(absDir string) error {
+	err := validFileName(filepath.Base(absDir), filepath.Dir(absDir)) // Validate folder name
 	if err != nil {
-		if os.IsNotExist(err) {
-			return &PathNotExistError{filePath}
-		}
 		return err
 	}
+	err = isFolderInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
+	if err != nil { // If folder is not in directory
+		return err
+	}
+	os.RemoveAll(absDir)
 	return nil
 }
 
