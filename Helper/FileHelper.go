@@ -53,3 +53,8 @@ func GetVirtualStoragePath(storagePath string) string {
 	return clientPath
 
 }
+
+// convert to an absolute-server side path
+func ConvertToAbsolute(fullpath, filePath string) string {
+	return filepath.Join(fullpath, filePath)
+}

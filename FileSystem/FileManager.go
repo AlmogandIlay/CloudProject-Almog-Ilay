@@ -73,7 +73,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 		if err != nil {
 			return err
 		}
-		filePath = filepath.Join(user.CurrentPath, filePath) // if the file not abs -> file.* -> patn/file.*
+		filePath = helper.ConvertToAbsolute(user.CurrentPath, filePath) // if the file not abs -> file.* -> patn/file.*
 	}
 	return renameAbsFile(filePath, newFileName)
 }
@@ -81,7 +81,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(path) {
-		path = filepath.Join(user.CurrentPath, path) // convert to an absolute-server side path
+		path = helper.ConvertToAbsolute(user.CurrentPath, path) // convert to an absolute-server side path
 	} else {
 		if !strings.HasPrefix(path, helper.RootDir) {
 			return &PremmisionError{path}
