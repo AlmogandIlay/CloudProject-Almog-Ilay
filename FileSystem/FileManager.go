@@ -23,7 +23,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		err = isFolderInDirectory(helper.Base(serverPath), user.CurrentPath) // Checks for folder's existence
+		err = isFolderInDirectory(serverPath, user.CurrentPath) // Checks for folder's existence
 		if err != nil {
 			return "", err
 		}
