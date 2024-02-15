@@ -19,7 +19,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	serverPath := helper.GetServerStoragePath(user.UserID, parameter)
 
 	if serverPath != ".." && serverPath != "\\" && serverPath != "/" { // If the path is not going back or forward
-		err = validFileName(filepath.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
+		err = validFileName(helper.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
 		if err != nil {
 			return "", err
 		}
