@@ -23,7 +23,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		err = isFolderInDirectory(filepath.Base(serverPath), user.CurrentPath) // Checks for folder's existence
+		err = isFolderInDirectory(helper.Base(serverPath), user.CurrentPath) // Checks for folder's existence
 		if err != nil {
 			return "", err
 		}
@@ -127,13 +127,13 @@ func (user *LoggedUser) ListContents() (string, error) {
 
 // create a file in the given directory
 func createAbsFile(filePath string) error {
-	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath)) // Validate file name
+	err := validFileName(helper.Base(filePath), filepath.Dir(filePath)) // Validate file name
 	if err != nil {
 		return err
 	}
-	err = IsFileInDirectory(filepath.Base(filePath), filepath.Dir(filePath))
+	err = IsFileInDirectory(helper.Base(filePath), filepath.Dir(filePath))
 	if err == nil { // If file exists
-		return &FileExistError{filepath.Base(filePath), filepath.Dir(filePath)}
+		return &FileExistError{helper.Base(filePath), filepath.Dir(filePath)}
 	}
 	file, err := os.Create(filePath)
 	if err != nil {
@@ -148,13 +148,13 @@ func createAbsFile(filePath string) error {
 
 // Create an absolute directory with the parameter folder name
 func createAbsDir(absDir string) error {
-	err := validFileName(filepath.Base(absDir), filepath.Dir(absDir)) // Validate folder name
+	err := validFileName(helper.Base(absDir), filepath.Dir(absDir)) // Validate folder name
 	if err != nil {
 		return err
 	}
-	err = isFolderInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
+	err = isFolderInDirectory(helper.Base(absDir), filepath.Dir(absDir))
 	if err == nil { // If folder exists
-		return &FolderExistError{filepath.Base(absDir), filepath.Dir(absDir)}
+		return &FolderExistError{helper.Base(absDir), filepath.Dir(absDir)}
 	}
 	os.Mkdir(absDir, os.ModePerm) // Creates a folder
 	return nil
@@ -162,11 +162,11 @@ func createAbsDir(absDir string) error {
 
 // Remove an absolute file with the parameter file name
 func removeAbsFile(filePath string) error {
-	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath)) // Validate file name
+	err := validFileName(helper.Base(filePath), filepath.Dir(filePath)) // Validate file name
 	if err != nil {
 		return err
 	}
-	err = IsFileInDirectory(filepath.Base(filePath), filepath.Dir(filePath))
+	err = IsFileInDirectory(helper.Base(filePath), filepath.Dir(filePath))
 	if err != nil { // If file is not in directory
 		return err
 	}
@@ -176,7 +176,7 @@ func removeAbsFile(filePath string) error {
 
 // Remove an absolute directory with the parameter folder name
 func removeAbsFolder(absDir string) error {
-	err := validFileName(filepath.Base(absDir), filepath.Dir(absDir)) // Validate folder name
+	err := validFileName(helper.Base(absDir), filepath.Dir(absDir)) // Validate folder name
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -57,4 +58,38 @@ func GetVirtualStoragePath(storagePath string) string {
 // convert to an absolute-server side path
 func ConvertToAbsolute(fullpath, filePath string) string {
 	return filepath.Join(fullpath, filePath)
+}
+
+// IsPathSeparator reports whether c is a directory separator character.
+func isPathSeparator(c uint8) bool {
+	return c == '\\'
+}
+
+// Base returns the last element of path.
+// Trailing path separators are removed before extracting the last element.
+// If the path is empty, Base returns ".".
+// If the path consists entirely of separators, Base returns a single separator.
+func Base(path string) string {
+	if path == "" {
+		return "."
+	}
+	// Strip trailing slashes.
+	for len(path) > 0 && os.IsPathSeparator(path[len(path)-1]) {
+		path = path[0 : len(path)-1]
+	}
+	// Throw away volume name
+	path = path[len(filepath.VolumeName(path)):]
+	// Find the last element
+	i := len(path) - 1
+	for i >= 0 && !isPathSeparator(path[i]) {
+		i--
+	}
+	if i >= 0 {
+		path = path[i+1:]
+	}
+	// If empty now, it had only slashes.
+	if path == "" {
+		return string(filepath.Separator)
+	}
+	return path
 }
