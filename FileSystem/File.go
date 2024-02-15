@@ -1,6 +1,7 @@
 package FileSystem
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -56,9 +57,12 @@ func validFileName(name, path string) error {
 	if !validFileNameLength(name) {
 		return &FileLengthError{name}
 	}
-	if !regexp.MustCompile(invalidFileCharacters).MatchString(name) {
+
+	r := regexp.MustCompile(fmt.Sprintf("[^%s]+$", invalidFileCharacters))
+	if r.MatchString(name) {
 		return &CharactersError{}
 	}
+
 	return nil
 }
 
