@@ -23,6 +23,8 @@ root/file1/file2 -> C:/CloudDrive/id/file1/file2
 func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))
 }
+
+// Convert to a full server-side path for cd requests
 func GetServerStoragePath(userID uint32, clientPath string) string {
 	findAbsolute := strings.Index(clientPath, "\\")
 	if findAbsolute == noAbsolute || !strings.HasPrefix(clientPath, RootDir) { // If the path is not absolute or not starts with Root:\\
@@ -32,7 +34,7 @@ func GetServerStoragePath(userID uint32, clientPath string) string {
 	return serverPath
 }
 
-// Converts server-side path to client-side path
+// Converts server-side path to client-side path for client respone
 func GetVirtualStoragePath(storagePath string) string {
 	var clientPath string
 
