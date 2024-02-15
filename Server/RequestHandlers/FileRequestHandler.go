@@ -107,6 +107,7 @@ func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInf
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
+// Handle List Contents (ls) requests from client
 func (filehandler *FileRequestHandler) handleListContents(loggeduser *FileSystem.LoggedUser) ResponeInfo {
 	list, err := loggeduser.ListContents()
 	if err != nil {
