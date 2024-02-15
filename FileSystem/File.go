@@ -58,8 +58,8 @@ func validFileName(name, path string) error {
 		return &FileLengthError{name}
 	}
 
-	r := regexp.MustCompile(fmt.Sprintf("[%s]", regexp.QuoteMeta(invalidFileCharacters)))
-	if r.MatchString(name) {
+	r := regexp.MustCompile(fmt.Sprintf("[%s]", regexp.QuoteMeta(invalidFileCharacters))) // regex check for specific file chars
+	if r.MatchString(name) {                                                              // If filename has any chars from the blacklist file characters
 		return &CharactersError{}
 	}
 
