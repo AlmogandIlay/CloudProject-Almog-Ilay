@@ -30,6 +30,8 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleDeleteFolder(info, loggedUser)
 	case Requests.RenameFileRequest:
 		return filehandler.handleRenameFile(info, loggedUser)
+	case Requests.ListContentsRequest:
+		return filehandler.handleListContents(loggedUser)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
