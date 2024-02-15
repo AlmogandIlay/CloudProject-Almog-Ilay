@@ -121,6 +121,10 @@ func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 	return user.CurrentPath, err
 }
 
+func (user *LoggedUser) ListContents() (string, error) {
+	return getFolderContent(user.GetPath())
+}
+
 // create a file in the given directory
 func createAbsFile(filePath string) error {
 	err := validFileName(filepath.Base(filePath), filepath.Dir(filePath)) // Validate file name
@@ -204,7 +208,7 @@ func getFolderContent(folderPath string) (string, error) {
 
 	folder, err := os.Open(folderPath)
 	if err != nil {
-		return "", err
+		return "", &OpenDirError{folderPath}
 	}
 	defer folder.Close()
 

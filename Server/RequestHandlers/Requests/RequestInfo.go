@@ -21,6 +21,7 @@ const (
 	DeleteFileRequest      RequestType = 304
 	DeleteFolderRequest    RequestType = 305
 	RenameFileRequest      RequestType = 306
+	ListContentsRequest    RequestType = 307
 
 	ErrorRequest RequestType = 999
 )

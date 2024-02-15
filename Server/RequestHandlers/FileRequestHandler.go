@@ -106,3 +106,12 @@ func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInf
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
+
+func (filehandler *FileRequestHandler) handleListContents(loggeduser *FileSystem.LoggedUser) ResponeInfo {
+	list, err := loggeduser.ListContents()
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(list, CreateFileRequestHandler())
+}
