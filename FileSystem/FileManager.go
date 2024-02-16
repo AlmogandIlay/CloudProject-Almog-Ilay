@@ -225,19 +225,19 @@ func getFolderContent(folderPath string) (string, error) {
 		// "dd/mm/yyyy HH:mm:ss <DIR|FILE> <filename>      at the end i need count file and folder"
 		if entry.IsDir() { // If the entry is a directory
 			dirCounter++
-			WriteString(&builder, " <DIR> ", entry.Name(), "\n")
+			writeString(&builder, " <DIR> ", entry.Name(), "\n")
 		} else { // Else if the entry is a file
 			fileCounter++
-			WriteString(&builder, " <FILE> ", entry.Name(), "\n")
+			writeString(&builder, " <FILE> ", entry.Name(), "\n")
 		}
 	}
-	WriteString(&builder, fmt.Sprint((dirCounter)), "Dir(s), ", fmt.Sprint((fileCounter)), "File(s)")
+	writeString(&builder, fmt.Sprint((dirCounter)), "Dir(s), ", fmt.Sprint((fileCounter)), "File(s)")
 
 	return builder.String(), nil
 }
 
 // Append entry to the builder.string object contains all the entries of the directory
-func WriteString(builder *strings.Builder, fileParameter ...string) {
+func writeString(builder *strings.Builder, fileParameter ...string) {
 	for _, stringObject := range fileParameter {
 		builder.WriteString(stringObject)
 	}
