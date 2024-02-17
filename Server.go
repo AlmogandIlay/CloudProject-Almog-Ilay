@@ -1,16 +1,20 @@
 package main
 
 import (
-	helper "CloudDrive/Helper"
+	"CloudDrive/FileSystem"
 	"CloudDrive/Server/RequestHandlers"
+	"CloudDrive/Server/RequestHandlers/Requests"
 	"fmt"
 	"log"
 	"net"
 )
 
-/*
-Prints the Remote IP:Port's client in the CLI server program.
-*/
+const (
+	addr = "192.168.50.220:12345"
+)
+
+//Prints the Remote IP:Port's client in the CLI server program.
+
 func printNewRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is connected")
 }
@@ -19,48 +23,53 @@ func printDisconnectedRemoteAddr(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr(), "is disconnected")
 }
 
-/*
-Initializes RequestHandler variable
-*/
-func initializeRequestHandler() *RequestHandlers.AuthenticationRequestHandler {
-	return &RequestHandlers.AuthenticationRequestHandler{}
+//Initializes RequestHandler variable
+
+func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
+	return RequestHandlers.AuthenticationRequestHandler{}
 }
 
-/*
-Handles new client connection
-*/
+//Handles new client connection
+
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	// Initialize setup
 	printNewRemoteAddr(conn)
-	userHandler := initializeRequestHandler()
+	var userHandler RequestHandlers.IRequestHandler = initializeRequestHandler() // Initialize handler interface for requests
+	var loggedUser FileSystem.LoggedUser                                         // Logged User initialize
 	closeConnection := false
 
 	for !closeConnection {
 
-		requestInfo, err := helper.ReciveRequestInfo(&conn)
+		request_Info, err := Requests.ReciveRequestInfo(&conn) // Recive request info from client
 		if err != nil {
 			closeConnection = true
 		}
-		err = helper.SendResponseInfo(&conn, userHandler.HandleRequest(requestInfo))
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser) // Handle request processing
 
-		if err != nil { // If sending request info was unsucessful
+		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
+		if err != nil {                                              // If sending request info was unsucessful
 			closeConnection = true
 		}
+		userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
+
 	}
 
+	err := RequestHandlers.RemoveOnlineUser(loggedUser) // Remove the current user from the online users array
+	if err != nil {
+		return
+	}
 	printDisconnectedRemoteAddr(conn)
 }
 
 func main() {
-	_, err := RequestHandlers.InitializeIdentifyManagerFactory()
+	_, err := RequestHandlers.InitializeAuthenticationManagerFactory()
 	if err != nil {
 		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return
 	}
 
-	addr := "192.168.50.191:12345"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println("Error:", err)

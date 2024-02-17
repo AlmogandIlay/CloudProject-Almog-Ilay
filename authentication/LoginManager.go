@@ -1,10 +1,12 @@
 package authentication
 
-import "strings"
+import (
+	"strings"
+)
 
-type IdentityManager struct {
+type AuthenticationManager struct {
 	*Database
-	loggedUsers []User
+	onlineUsers []User
 }
 
 const (
@@ -12,11 +14,11 @@ const (
 )
 
 // Constructor function of Login Manager
-func InitializeIdentifyManager() (*IdentityManager, error) {
-	var manager IdentityManager
+func InitializeAuthenticationManager() (*AuthenticationManager, error) {
+	var manager AuthenticationManager
 	var err error
 
-	manager.loggedUsers = make([]User, 0)
+	manager.onlineUsers = make([]User, 0)
 	manager.Database, err = openDatabase()
 
 	if err != nil {
@@ -26,7 +28,7 @@ func InitializeIdentifyManager() (*IdentityManager, error) {
 }
 
 // Add comment
-func (manager *IdentityManager) Login(username, password string) error {
+func (manager *AuthenticationManager) Login(username, password string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -35,7 +37,7 @@ func (manager *IdentityManager) Login(username, password string) error {
 		return &UsernameNotExistsError{username}
 	}
 
-	match, err := manager.doesPasswordMatch(username, password)
+	match, err := manager.doesPasswordMatch(username, Hash(password)) // check if the password match after encryption
 	if err != nil {
 		return err
 	}
@@ -46,12 +48,12 @@ func (manager *IdentityManager) Login(username, password string) error {
 	if err != nil {
 		return err
 	}
-	manager.loggedUsers = append(manager.loggedUsers, *user)
+	manager.onlineUsers = append(manager.onlineUsers, *user)
 	return nil
 }
 
 // Add comment
-func (manager *IdentityManager) Signup(username, password, email string) []error {
+func (manager *AuthenticationManager) Signup(username, password, email string) []error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return []error{err}
@@ -73,19 +75,19 @@ func (manager *IdentityManager) Signup(username, password, email string) []error
 		}
 		return []error{err}
 	}
-	manager.loggedUsers = append(manager.loggedUsers, *user) // add to the loggedUser slice
+	manager.onlineUsers = append(manager.onlineUsers, *user) // add to the onlineUsers slice
 	return nil
 }
 
 // Add comment
-func (manager *IdentityManager) Logout(username string) error {
+func (manager *AuthenticationManager) Logout(username string) error {
 	_, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
 	}
-	for index, user := range manager.loggedUsers {
+	for index, user := range manager.onlineUsers {
 		if user.Username == username {
-			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
+			manager.onlineUsers = append(manager.onlineUsers[:index], manager.onlineUsers[index+1:]...) // remove the user
 			return nil
 		}
 	}
@@ -93,7 +95,7 @@ func (manager *IdentityManager) Logout(username string) error {
 }
 
 // Add comment
-func (manager *IdentityManager) DeleteUser(username string) error {
+func (manager *AuthenticationManager) DeleteUser(username string) error {
 	userExist, err := manager.doesUserExist(username)
 	if err != nil {
 		return err
@@ -101,9 +103,9 @@ func (manager *IdentityManager) DeleteUser(username string) error {
 	if !userExist {
 		return &UsernameNotExistsError{username}
 	}
-	for index, user := range manager.loggedUsers { // look for the index of the user
+	for index, user := range manager.onlineUsers { // look for the index of the user
 		if user.Username == username {
-			manager.loggedUsers = append(manager.loggedUsers[:index], manager.loggedUsers[index+1:]...) // remove the user
+			manager.onlineUsers = append(manager.onlineUsers[:index], manager.onlineUsers[index+1:]...) // remove the user
 			return nil
 		}
 	}
@@ -114,6 +116,14 @@ func (manager *IdentityManager) DeleteUser(username string) error {
 	return nil
 }
 
-func (manager *IdentityManager) GetLoggedUsers() []User {
-	return manager.loggedUsers
+func (manager *AuthenticationManager) GetOnlineUsers() []User {
+	return manager.onlineUsers
+}
+
+func (manager *AuthenticationManager) GetUserID(username string) (uint32, error) {
+	return manager.getUserID(username)
+}
+
+func (manager *AuthenticationManager) GetUserName(id uint32) (string, error) {
+	return manager.getUserName(id)
 }

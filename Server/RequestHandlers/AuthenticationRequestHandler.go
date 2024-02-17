@@ -1,60 +1,51 @@
 package RequestHandlers
 
 import (
+	"CloudDrive/FileSystem"
+	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
-	"CloudDrive/authentication"
-	"encoding/json"
+	"fmt"
 )
 
 type AuthenticationRequestHandler struct{}
 
-func (loginHandler *AuthenticationRequestHandler) ValidRequest(info Requests.RequestInfo) bool {
-	return info.Type == Requests.LoginRequest || info.Type == Requests.SignupRequest
-}
-
-func (loginHandler *AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo) ResponeInfo {
+// Handle Authentication type requests
+func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
-		return loginHandler.HandleLogin(info)
+		return loginHandler.handleLogin(info, loggedUser)
 	case Requests.SignupRequest:
-		return loginHandler.HandleSignup(info)
+		return loginHandler.handleSignup(info, loggedUser)
 	default:
-		return loginHandler.HandleError(info)
+		return Error(info, IRequestHandler(&loginHandler))
 	}
-
-}
-
-func (loginHandler *AuthenticationRequestHandler) HandleError(info Requests.RequestInfo) ResponeInfo {
-	if info.Type == Requests.ErrorRequest { // If error request caught
-		return buildError(string(info.RequestData))
-	}
-
-	return buildError("Error: Not Exist.") // Invalid request type
 
 }
 
 /*
 Handle Login requests from client
 */
-func (loginHandler *AuthenticationRequestHandler) HandleLogin(info Requests.RequestInfo) ResponeInfo {
-	var user authentication.User
-
-	json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
+func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
 	err := login_manager.Login(user.Username, user.Password) // Attempt to perform a login request
 	if err != nil {
-		return buildError(err.Error())
+		return buildError(err.Error(), loginHandler)
 	}
 
-	return buildRespone("200: Okay", nil) // Login request success (tdl: add handler)
+	*loggedUser, err = GetLoggedUser(info)
+	if err != nil {
+		return buildError(err.Error(), loginHandler)
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Login request success (tdl: add handler)
 
 }
 
-func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.RequestInfo) ResponeInfo {
-	var user authentication.User
-
-	json.Unmarshal([]byte(info.RequestData), &user) // Json decoding
+// Handle Signup requests from client
+func (loginHandler *AuthenticationRequestHandler) handleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	user := helper.GetEncodedUser(info.RequestData)
 	login_manager := GetManager()
 
 	errs := login_manager.Signup(user.Username, user.Password, user.Email) // Attempt to perform a signup request
@@ -63,9 +54,15 @@ func (loginHandler *AuthenticationRequestHandler) HandleSignup(info Requests.Req
 		for _, err := range errs { // Save all errors in string
 			errors += "* " + err.Error() + "\n"
 		}
-		return buildError(errors)
+		return buildError(errors, loginHandler)
 	}
 
-	return buildRespone("200: Okay", nil) // Signup request success (tdl: add handler)
+	var err error
+	*loggedUser, err = GetLoggedUser(info)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Signup request success
 
 }

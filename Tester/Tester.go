@@ -1,6 +1,6 @@
-package main
+package Tester
 
-import (
+/*import (
 	"fmt"
 	"net"
 	"os"
@@ -191,3 +191,4 @@ func main() {
 	fmt.Println("Client 12 disconnected")
 
 }
+*/

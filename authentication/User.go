@@ -1,9 +1,9 @@
 package authentication
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"regexp"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 // for Valid interface
@@ -50,10 +50,7 @@ func NewUser(username, password, email string) (*User, []error) {
 		return nil, validationErrors
 	}
 
-	hashedPassword, err := Hash(password)
-	if err != nil {
-		return nil, []error{err}
-	}
+	hashedPassword := Hash(password)
 
 	return &User{Username: username, Password: hashedPassword, Email: email}, nil
 }
@@ -82,7 +79,7 @@ func (user *User) setName(newName string) error {
 func (user *User) setPassword(newPassword string) error {
 	var err error = nil
 	if Password(newPassword).Valid() {
-		user.Password, err = Hash(newPassword)
+		user.Password = Hash(newPassword)
 	} else {
 		err = &PasswordError{newPassword}
 	}
@@ -113,7 +110,15 @@ func (email Email) Valid() bool {
 	return match
 }
 
-func Hash(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
+// Hash sha256 encrypts the password
+func Hash(password string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(password))
+	hash := hex.EncodeToString(hasher.Sum(nil))
+	return hash
+}
+
+// Compares between two users
+func (user *User) IsEquals(other *User) bool {
+	return user.username() == other.username() && user.password() == Hash(other.password())
 }
