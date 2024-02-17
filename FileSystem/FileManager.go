@@ -68,6 +68,7 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 
 // Renames a file
 func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
+	// Converting contentPath to absolute if it isn't
 	if !filepath.IsAbs(contentPath) {
 		err := IsFileInDirectory(contentPath, user.GetPath())
 		if err != nil {
@@ -78,7 +79,9 @@ func (user *LoggedUser) RenameContent(contentPath string, newContentPath string)
 	return renameAbsContent(contentPath, newContentPath)
 }
 
+// Moves a content's path (files and folders)
 func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
+	// Converting both contentPath and newContentPath to absolute paths if they aren't
 	if !filepath.IsAbs(contentPath) {
 		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)
 	}
