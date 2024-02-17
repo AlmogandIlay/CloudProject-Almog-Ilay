@@ -103,7 +103,7 @@ func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInf
 	arguments := strings.Fields(command)
 	err := loggedUser.RenameFile(arguments[pathFileName], arguments[newPathFileName])
 	if err != nil {
-		return buildError(err.Error(), IRequestHanndler(filehandler))
+		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
