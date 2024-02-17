@@ -19,11 +19,11 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	serverPath := helper.GetServerStoragePath(user.UserID, parameter)
 
 	if serverPath != ".." && serverPath != "\\" && serverPath != "/" { // If the path is not going back or forward
-		err = validFileName(helper.Base(serverPath), user.CurrentPath) // Valid for files and folders are equals. calling the validFileName
+		err = validFileName(helper.Base(serverPath), user.GetPath()) // Valid for files and folders are equals. calling the validFileName
 		if err != nil {
 			return "", err
 		}
-		err = isFolderInDirectory(serverPath, user.CurrentPath) // Checks for folder's existence
+		err = isFolderInDirectory(serverPath, user.GetPath()) // Checks for folder's existence
 		if err != nil {
 			return "", err
 		}
@@ -69,11 +69,11 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 // Renames a file
 func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 	if !filepath.IsAbs(filePath) {
-		err := IsFileInDirectory(filePath, user.CurrentPath)
+		err := IsFileInDirectory(filePath, user.GetPath())
 		if err != nil {
 			return err
 		}
-		filePath = helper.ConvertToAbsolute(user.CurrentPath, filePath) // if the file not abs -> file.* -> patn/file.*
+		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // if the file not abs -> file.* -> patn/file.*
 	}
 	return renameAbsFile(filePath, newFileName)
 }
@@ -91,7 +91,7 @@ func (user *LoggedUser) MoveFile(filePath, newFilePath string) error {
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(path) {
-		path = helper.ConvertToAbsolute(user.CurrentPath, path) // convert to an absolute-server side path
+		path = helper.ConvertToAbsolute(user.GetPath(), path) // convert to an absolute-server side path
 	} else {
 		if !strings.HasPrefix(path, helper.RootDir) {
 			return &PremmisionError{path}
@@ -103,32 +103,32 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 // go back to the CloudDrive user root: Root/
 func (user *LoggedUser) setBackRoot() (string, error) {
 	err := user.SetPath(helper.GetUserStorageRoot(user.UserID))
-	return user.CurrentPath, err
+	return user.GetPath(), err
 }
 
 // Go back to the previous folder in the CloudDrive path user root
 func (user *LoggedUser) setBackDirectory() (string, error) {
-	newPath := filepath.Dir(user.CurrentPath)
+	newPath := filepath.Dir(user.GetPath())
 	if newPath == "." {
 		return "", &PremmisionError{newPath}
 	}
 	err := user.SetPath(newPath)
-	return user.CurrentPath, err
+	return user.GetPath(), err
 }
 
 // forward to next given dir, for example: cd homework11
 func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
-	err := isFolderInDirectory(forwardDir, user.CurrentPath)
+	err := isFolderInDirectory(forwardDir, user.GetPath())
 	if err != nil {
 		return "", err
 	}
-	err = user.SetPath(filepath.Join(user.CurrentPath, forwardDir))
-	return user.CurrentPath, err
+	err = user.SetPath(filepath.Join(user.GetPath(), forwardDir))
+	return user.GetPath(), err
 }
 
 func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 	err := user.SetPath(absDir)
-	return user.CurrentPath, err
+	return user.GetPath(), err
 }
 
 func (user *LoggedUser) ListContents() (string, error) {
