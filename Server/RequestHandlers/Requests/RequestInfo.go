@@ -20,9 +20,9 @@ const (
 	CreateFolderRequest    RequestType = 303
 	DeleteFileRequest      RequestType = 304
 	DeleteFolderRequest    RequestType = 305
-	RenameFileRequest      RequestType = 306
+	RenameContentRequest   RequestType = 306
 	ListContentsRequest    RequestType = 307
-	MoveFileRequest        RequestType = 308
+	MoveContentRequest     RequestType = 308
 
 	ErrorRequest RequestType = 999
 )

@@ -75,7 +75,7 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 		}
 		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // if the file not abs -> file.* -> patn/file.*
 	}
-	return renameAbsFile(filePath, newFileName)
+	return renameAbsContent(filePath, newFileName)
 }
 
 func (user *LoggedUser) MoveFile(filePath, newFilePath string) error {
@@ -85,7 +85,7 @@ func (user *LoggedUser) MoveFile(filePath, newFilePath string) error {
 	if !filepath.IsAbs(newFilePath) {
 		newFilePath = helper.ConvertToAbsolute(user.GetPath(), filePath)
 	}
-	return moveFile(filePath, newFilePath)
+	return moveContent(filePath, newFilePath)
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
@@ -199,18 +199,18 @@ func removeAbsFolder(absDir string) error {
 }
 
 // Rename a file name in the current directory, gets full file path and new filename
-func renameAbsFile(currentFilePath, newFileName string) error {
-	newFileName = filepath.Join(filepath.Dir(currentFilePath), newFileName)
+func renameAbsContent(currentContentPath, newContentName string) error {
+	newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get path
 	// Use os.Rename to rename the file
-	err := os.Rename(currentFilePath, newFileName)
+	err := os.Rename(currentContentPath, newContentName)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func moveFile(currentAbsFilePath, newFileName string) error {
-	return renameAbsFile(currentAbsFilePath, newFileName)
+func moveContent(currentAbsFilePath, newFileName string) error {
+	return renameAbsContent(currentAbsFilePath, newFileName)
 }
 
 // Returns folder's content including its files and folders in a string variable. Return error if it fails

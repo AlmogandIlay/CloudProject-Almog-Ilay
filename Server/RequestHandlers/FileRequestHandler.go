@@ -28,12 +28,12 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleDeleteFile(info, loggedUser)
 	case Requests.DeleteFolderRequest:
 		return filehandler.handleDeleteFolder(info, loggedUser)
-	case Requests.RenameFileRequest:
-		return filehandler.handleRenameFile(info, loggedUser)
+	case Requests.RenameContentRequest:
+		return filehandler.handleRenameContent(info, loggedUser)
 	case Requests.ListContentsRequest:
 		return filehandler.handleListContents(loggedUser)
-	case Requests.MoveFileRequest:
-		return filehandler.handleMoveFile(info, loggedUser)
+	case Requests.MoveContentRequest:
+		return filehandler.handleMoveContent(info, loggedUser)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
@@ -100,7 +100,7 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 }
 
 // Handle Rename File requests from client
-func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
 	err := loggedUser.RenameFile(arguments[pathFileName], arguments[newPathFileName])
@@ -121,7 +121,7 @@ func (filehandler *FileRequestHandler) handleListContents(loggedUser *FileSystem
 	return buildRespone(list, CreateFileRequestHandler())
 }
 
-func (filehandler *FileRequestHandler) handleMoveFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
 	err := loggedUser.MoveFile(arguments[pathFileName], arguments[newPathFileName])
