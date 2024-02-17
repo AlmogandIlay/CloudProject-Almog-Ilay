@@ -67,25 +67,25 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 }
 
 // Renames a file
-func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
-	if !filepath.IsAbs(filePath) {
-		err := IsFileInDirectory(filePath, user.GetPath())
+func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
+	if !filepath.IsAbs(contentPath) {
+		err := IsFileInDirectory(contentPath, user.GetPath())
 		if err != nil {
 			return err
 		}
-		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // if the file not abs -> file.* -> patn/file.*
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath) // if the file not abs -> file.* -> patn/file.*
 	}
-	return renameAbsContent(filePath, newFileName)
+	return renameAbsContent(contentPath, newContentPath)
 }
 
-func (user *LoggedUser) MoveFile(filePath, newFilePath string) error {
-	if !filepath.IsAbs(filePath) {
-		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath)
+func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
+	if !filepath.IsAbs(contentPath) {
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)
 	}
-	if !filepath.IsAbs(newFilePath) {
-		newFilePath = helper.ConvertToAbsolute(user.GetPath(), filePath)
+	if !filepath.IsAbs(newContentPath) {
+		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
-	return moveContent(filePath, newFilePath)
+	return moveContent(contentPath, newContentPath)
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for

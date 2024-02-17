@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	pathFileName    = 0
-	newPathFileName = 1
+	pathContentName    = 0
+	newPathContentName = 1
 )
 
 type FileRequestHandler struct{}
@@ -99,11 +99,11 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-// Handle Rename File requests from client
+// Handle Rename contents (file and folders) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
-	err := loggedUser.RenameFile(arguments[pathFileName], arguments[newPathFileName])
+	err := loggedUser.RenameContent(arguments[pathContentName], arguments[newPathContentName])
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
@@ -121,10 +121,11 @@ func (filehandler *FileRequestHandler) handleListContents(loggedUser *FileSystem
 	return buildRespone(list, CreateFileRequestHandler())
 }
 
+// Handle Move contents (files and folders) requests from client
 func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
-	err := loggedUser.MoveFile(arguments[pathFileName], arguments[newPathFileName])
+	err := loggedUser.MoveContent(arguments[pathContentName], arguments[newPathContentName])
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
