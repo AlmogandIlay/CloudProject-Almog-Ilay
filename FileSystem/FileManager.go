@@ -78,6 +78,16 @@ func (user *LoggedUser) RenameFile(filePath string, newFileName string) error {
 	return renameAbsFile(filePath, newFileName)
 }
 
+func (user *LoggedUser) MoveFile(filePath, newFilePath string) error {
+	if !filepath.IsAbs(filePath) {
+		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath)
+	}
+	if !filepath.IsAbs(newFilePath) {
+		newFilePath = helper.ConvertToAbsolute(user.GetPath(), filePath)
+	}
+	return moveFile(filePath, newFilePath)
+}
+
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(path) {

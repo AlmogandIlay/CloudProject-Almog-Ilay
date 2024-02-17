@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	fileName    = 0
-	newFileName = 1
+	pathFileName    = 0
+	newPathFileName = 1
 )
 
 type FileRequestHandler struct{}
@@ -101,20 +101,31 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 func (filehandler *FileRequestHandler) handleRenameFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
-	err := loggedUser.RenameFile(arguments[fileName], arguments[newFileName])
+	err := loggedUser.RenameFile(arguments[pathFileName], arguments[newPathFileName])
 	if err != nil {
-		return buildError(err.Error(), IRequestHandler(filehandler))
+		return buildError(err.Error(), IRequestHanndler(filehandler))
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
 // Handle List Contents (ls) requests from client
-func (filehandler *FileRequestHandler) handleListContents(loggeduser *FileSystem.LoggedUser) ResponeInfo {
-	list, err := loggeduser.ListContents()
+func (filehandler *FileRequestHandler) handleListContents(loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	list, err := loggedUser.ListContents()
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(list, CreateFileRequestHandler())
+}
+
+func (filehandler *FileRequestHandler) handleMoveFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	command := Requests.ParseDataToString(info.RequestData)
+	arguments := strings.Fields(command)
+	err := loggedUser.MoveFile(arguments[pathFileName], arguments[newPathFileName])
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
