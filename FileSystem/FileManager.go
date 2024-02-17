@@ -235,7 +235,7 @@ func getFolderContent(folderPath string) (string, error) {
 	var fileCounter, dirCounter uint
 
 	for _, entry := range entries {
-		// "dd/mm/yyyy HH:mm:ss <DIR|FILE> <filename>      at the end i need count file and folder"
+		// <DIR|FILE> <filename>
 		if entry.IsDir() { // If the entry is a directory
 			dirCounter++
 			writeString(&builder, " <DIR> ", entry.Name(), "\n")
