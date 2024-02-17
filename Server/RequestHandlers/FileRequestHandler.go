@@ -99,7 +99,7 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-// Handle Rename contents (file and folders) requests from client
+// Handle Rename content (file and folders) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
@@ -121,7 +121,7 @@ func (filehandler *FileRequestHandler) handleListContents(loggedUser *FileSystem
 	return buildRespone(list, CreateFileRequestHandler())
 }
 
-// Handle Move contents (files and folders) requests from client
+// Handle Move content (files and folders) requests from client
 func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	arguments := strings.Fields(command)
@@ -131,4 +131,9 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
+}
+
+func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	rawData := string(info.RequestData) //Convert raw json to string
+
 }

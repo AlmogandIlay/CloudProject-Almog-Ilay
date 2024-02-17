@@ -23,6 +23,8 @@ const (
 	RenameContentRequest   RequestType = 306
 	ListContentsRequest    RequestType = 307
 	MoveContentRequest     RequestType = 308
+	UploadFileRequest      RequestType = 401
+	DownloadFileRequest    RequestType = 402
 
 	ErrorRequest RequestType = 999
 )
