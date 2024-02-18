@@ -5,12 +5,13 @@ import (
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"fmt"
+	"net"
 )
 
 type AuthenticationRequestHandler struct{}
 
 // Handle Authentication type requests
-func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
 		return loginHandler.handleLogin(info, loggedUser)

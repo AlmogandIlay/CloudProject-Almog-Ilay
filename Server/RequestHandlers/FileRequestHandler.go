@@ -5,6 +5,7 @@ import (
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
+	"net"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ const (
 type FileRequestHandler struct{}
 
 // Handle the file system type requests
-func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
 
@@ -134,7 +135,7 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
 	var file FileSystem.File
 	err := json.Unmarshal(info.RequestData, &file)
 	if err != nil {

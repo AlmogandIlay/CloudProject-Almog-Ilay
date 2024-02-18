@@ -1,8 +1,10 @@
 package FileSystem
 
 import (
+	filetransmission "CloudDrive/FileTransmission"
 	helper "CloudDrive/Helper"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,7 +93,7 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	return moveContent(contentPath, newContentPath)
 }
 
-func (user *LoggedUser) UploadFile(file *File) error {
+func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) error {
 	if file.Path == "" { // if path wasn't decleared
 		file.setPath(user.GetPath())
 	}
@@ -109,7 +111,7 @@ func (user *LoggedUser) UploadFile(file *File) error {
 		return &FileExistError{file.Name, file.Path}
 	}
 
-	go uploadAbsFile(file)
+	go uploadAbsFile(file, conn)
 
 	return nil
 }
@@ -279,9 +281,9 @@ func writeString(builder *strings.Builder, fileParameter ...string) {
 	}
 }
 
-func uploadAbsFile(file *File) {
+func uploadAbsFile(file *File, conn *net.Conn) {
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
 	dirFile, _ := os.Create(fullPath)
 	defer dirFile.Close()
-
+	filetransmission.SendFile(conn, file.Size, file.Path, file.Name)
 }

@@ -3,10 +3,11 @@ package RequestHandlers
 import (
 	"CloudDrive/FileSystem"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"net"
 )
 
 type IRequestHandler interface {
-	HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo
+	HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo
 }
 
 func UpdateRequestHandler(response ResponeInfo) IRequestHandler {

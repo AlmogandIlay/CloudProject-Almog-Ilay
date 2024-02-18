@@ -1,7 +1,6 @@
 package filetransmission
 
 import (
-	"CloudDrive/FileSystem"
 	helper "CloudDrive/Helper"
 	"io"
 	"net"
@@ -19,7 +18,7 @@ const (
 )
 
 // Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
-func GetChunkSize(fileSize uint32) uint {
+func getChunkSize(fileSize uint32) uint {
 
 	switch {
 	case fileSize < 10*MB:
@@ -30,7 +29,7 @@ func GetChunkSize(fileSize uint32) uint {
 		return 768
 	case fileSize < 700*MB:
 		return 1024
-	case fileSize < 900*MB:
+	case fileSize < 1*GB:
 		return 2048
 	default:
 		return 0
@@ -38,8 +37,8 @@ func GetChunkSize(fileSize uint32) uint {
 }
 
 // Upload a file to the client
-func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
-	file, err := os.Open(DrivePath + uploadedFile.Path)
+func SendFile(conn *net.Conn, size uint32, path string, name string) error {
+	file, err := os.Open(DrivePath + path)
 
 	if err != nil {
 		return err
@@ -48,7 +47,7 @@ func SendFile(conn *net.Conn, uploadedFile *FileSystem.File) error {
 	defer file.Close()
 
 	// Recieve the chunksize for the uploaded file size
-	chunkSize := GetChunkSize(uploadedFile.Size)
+	chunkSize := getChunkSize(size)
 	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
 
 	for { // Reads the file
