@@ -106,7 +106,8 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 // Handle Rename content (file and folders) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
-	arguments := strings.Fields(command)
+	data := helper.ConvertRawJsonToData(command)
+	arguments := strings.Split(data, " ")
 	err := loggedUser.RenameContent(arguments[pathContentName], arguments[newPathContentName])
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))

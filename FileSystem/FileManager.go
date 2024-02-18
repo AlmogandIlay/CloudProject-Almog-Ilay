@@ -77,14 +77,19 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 // Renames a file
 func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
 	// Converting contentPath to absolute if it isn't
-	if !filepath.IsAbs(contentPath) {
-		err := IsFileInDirectory(contentPath, user.GetPath())
+	if !filepath.IsAbs(contentPath) { // Converting the file to an absolute path if it doesn
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath) // if the file not abs -> file.* -> patn/file.*
+		err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath))
 		if err != nil {
 			return err
 		}
-		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath) // if the file not abs -> file.* -> patn/file.*
 	}
-	return renameAbsContent(contentPath, newContentPath)
+	err := user.ValidateFile(newFile(filepath.Base(newContentPath), filepath.Dir(contentPath), 0))
+	if err != nil {
+		return err
+	}
+	renameAbsContent(contentPath, newContentPath)
+	return nil
 }
 
 // Moves a content's path (files and folders)
@@ -96,7 +101,8 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if !filepath.IsAbs(newContentPath) {
 		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
-	return moveContent(contentPath, newContentPath)
+	moveContent(contentPath, newContentPath)
+	return nil
 }
 
 // Upload a file to the Cloud
@@ -113,8 +119,8 @@ func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
 		file.setPath(helper.ConvertToAbsolute(user.GetPath(), file.Path))
 	}
 
-	err = IsFileInDirectory(file.Name, file.Path) // Check if file exists
-	if err == nil {                               // If file exists
+	err = IsContentInDirectory(file.Name, file.Path)
+	if err == nil { // If file exists
 		return emptyChunks, &FileExistError{file.Name, file.Path}
 	}
 
@@ -185,7 +191,7 @@ func createAbsFile(filePath string) error {
 	if err != nil {
 		return err
 	}
-	err = IsFileInDirectory(helper.Base(filePath), filepath.Dir(filePath))
+	err = IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath))
 	if err == nil { // If file exists
 		return &FileExistError{helper.Base(filePath), filepath.Dir(filePath)}
 	}
@@ -220,7 +226,7 @@ func removeAbsFile(filePath string) error {
 	if err != nil {
 		return err
 	}
-	err = IsFileInDirectory(helper.Base(filePath), filepath.Dir(filePath))
+	err = IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath))
 	if err != nil { // If file is not in directory
 		return err
 	}
@@ -243,18 +249,14 @@ func removeAbsFolder(absDir string) error {
 }
 
 // Rename a file name in the current directory, gets full file path and new filename
-func renameAbsContent(currentContentPath, newContentName string) error {
-	newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get path
+func renameAbsContent(currentContentPath, newContentName string) {
+	newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get new Content name full path
 	// Use os.Rename to rename the file
-	err := os.Rename(currentContentPath, newContentName)
-	if err != nil {
-		return err
-	}
-	return nil
+	os.Rename(currentContentPath, newContentName)
 }
 
-func moveContent(currentAbsFilePath, newFileName string) error {
-	return renameAbsContent(currentAbsFilePath, newFileName)
+func moveContent(currentAbsFilePath, newFileName string) {
+	renameAbsContent(currentAbsFilePath, newFileName)
 }
 
 // Returns folder's content including its files and folders in a string variable. Return error if it fails

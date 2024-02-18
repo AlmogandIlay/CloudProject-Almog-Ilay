@@ -26,6 +26,14 @@ type File struct {
 	Size uint32 // File's size in bytes
 }
 
+func newFile(name string, path string, size uint32) File {
+	return File{
+		Name: name,
+		Path: path,
+		Size: size,
+	}
+}
+
 func (file *File) setPath(path string) {
 	file.Path = path
 }
@@ -78,7 +86,7 @@ func validFileNameLength(fileName string) bool {
 // Input: File Name (string), Path (string)
 // Checks if the given file name exists in the given path. Returns error for invalid
 // Output: error for file name that does not exist, any potential problems
-func IsFileInDirectory(fileName, pathOfDir string) error {
+func IsContentInDirectory(contentName, pathOfDir string) error {
 	dir, err := os.Open(pathOfDir)
 
 	if err != nil {
@@ -94,10 +102,10 @@ func IsFileInDirectory(fileName, pathOfDir string) error {
 
 	// check for files with same name while ignoring case sensitivity
 	for _, file := range files {
-		if strings.EqualFold(file.Name(), fileName) {
+		if strings.EqualFold(file.Name(), contentName) {
 			return nil
 		}
 	}
+	return &ContentNotExistError{contentName, pathOfDir}
 
-	return &FileNotExistError{fileName, pathOfDir}
 }
