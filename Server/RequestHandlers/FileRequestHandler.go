@@ -133,7 +133,7 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := string(info.RequestData) //Convert raw json to string
+// func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+// 	rawData := string(info.RequestData) //Convert raw json to string
 
-}
+// }

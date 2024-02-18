@@ -12,9 +12,9 @@ var (
 )
 
 // Initialize Authentication Manager instance
-func InitializeIdentifyManagerFactory() (*authentication.IdentityManager, error) {
+func InitializeAuthenticationManagerFactory() (*authentication.AuthenticationManager, error) {
 	var err error
-	Manager, err = authentication.InitializeIdentifyManager()
+	Manager, err = authentication.InitializeAuthenticationManager()
 	if err != nil {
 		Manager = &authentication.AuthenticationManager{}
 		return Manager, err
