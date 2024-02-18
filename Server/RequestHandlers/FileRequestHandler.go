@@ -33,7 +33,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	case Requests.RenameContentRequest:
 		return filehandler.handleRenameContent(info, loggedUser)
 	case Requests.ListContentsRequest:
-		return filehandler.handleListContents(loggedUser)
+		return filehandler.handleListContents(info, loggedUser)
 	case Requests.MoveContentRequest:
 		return filehandler.handleMoveContent(info, loggedUser)
 	case Requests.UploadFileRequest:
@@ -116,8 +116,12 @@ func (filehandler *FileRequestHandler) handleRenameContent(info Requests.Request
 }
 
 // Handle List Contents (ls) requests from client
-func (filehandler *FileRequestHandler) handleListContents(loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	list, err := loggedUser.ListContents()
+func (filehandler *FileRequestHandler) handleListContents(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	path := ""
+	if string(info.RequestData) != "null" { // If given path has been specified
+		path = helper.ConvertRawJsonToData(string(info.RequestData))
+	}
+	list, err := loggedUser.ListContents(path)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}

@@ -166,8 +166,17 @@ func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 	return user.GetPath(), err
 }
 
-func (user *LoggedUser) ListContents() (string, error) {
-	return getFolderContent(user.GetPath())
+// list all the files in the given (or not given) path
+func (user *LoggedUser) ListContents(path string) (string, error) {
+	var dirPath string
+	if path == "" { // If path hasn't been specified
+		dirPath = user.GetPath() // put current directory as default
+	} else { // If path has been specified
+		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
+			dirPath = helper.ConvertToAbsolute(user.GetPath(), path)
+		}
+	}
+	return getFolderContent(dirPath)
 }
 
 // create a file in the given directory
@@ -276,7 +285,7 @@ func getFolderContent(folderPath string) (string, error) {
 			writeString(&builder, " <FILE> ", entry.Name(), "\n")
 		}
 	}
-	writeString(&builder, fmt.Sprint((dirCounter)), "Dir(s), ", fmt.Sprint((fileCounter)), "File(s)")
+	writeString(&builder, fmt.Sprint((dirCounter)), " Dir(s), ", fmt.Sprint((fileCounter)), " File(s)")
 
 	return builder.String(), nil
 }
