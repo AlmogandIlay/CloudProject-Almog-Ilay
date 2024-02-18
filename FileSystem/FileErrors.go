@@ -23,6 +23,8 @@ type PremmisionError struct{ Path string }
 
 type InitializeError struct{}
 
+type UnmarshalError struct{}
+
 // Creates custom errors for filesystem
 
 func (fileError *FileSizeError) Error() string {
@@ -74,4 +76,8 @@ func (fileError *PremmisionError) Error() string {
 
 func (fileError *InitializeError) Error() string {
 	return "There has been an error when attempting to access the allocated memory"
+}
+
+func (fileError *UnmarshalError) Error() string {
+	return "There has been an error when attempting to encode the requested file."
 }

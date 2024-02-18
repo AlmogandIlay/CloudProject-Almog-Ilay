@@ -91,6 +91,23 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	return moveContent(contentPath, newContentPath)
 }
 
+func (user *LoggedUser) UploadFile(file *File) error {
+	if file.Path == "" { // if path wasn't decleared
+		file.setPath(user.GetPath())
+	}
+	err := user.ValidateFile(*file)
+	if err != nil {
+		return err
+	}
+	if !filepath.IsAbs(file.Path) {
+		file.setPath(helper.ConvertToAbsolute(user.GetPath(), file.Path))
+	}
+
+	go uploadAbsFile(file)
+
+	return nil
+}
+
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
 	if !filepath.IsAbs(path) {
@@ -254,4 +271,8 @@ func writeString(builder *strings.Builder, fileParameter ...string) {
 	for _, stringObject := range fileParameter {
 		builder.WriteString(stringObject)
 	}
+}
+
+func uploadAbsFile(file *File) {
+
 }

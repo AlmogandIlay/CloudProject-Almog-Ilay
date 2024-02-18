@@ -4,6 +4,7 @@ import (
 	"CloudDrive/FileSystem"
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
+	"encoding/json"
 	"strings"
 )
 
@@ -133,7 +134,12 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-// func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-// 	rawData := string(info.RequestData) //Convert raw json to string
+func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	var file FileSystem.File
+	err := json.Unmarshal(info.RequestData, &file)
+	if err != nil {
+		err = &FileSystem.UnmarshalError{} // Convert the error to our custom made error.
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
 
-// }
+}

@@ -26,18 +26,21 @@ type File struct {
 	Size uint32 // File's size in bytes
 }
 
-// Creates a new file struct (Struct Builder)
-func (user *LoggedUser) NewFile(name string, size uint32) (*File, error) {
+func (file File) setPath(path string) {
+	file.Path = path
+}
 
-	err := validFileName(name, user.CurrentPath)
+func (user *LoggedUser) ValidateFile(file File) error {
+	err := validFileName(file.Name, file.Path)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	err = validFileSize(size)
+	err = validFileSize(file.Size)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &File{name, user.CurrentPath, size}, nil
+
+	return nil
 }
 
 // Valids file size in terms of Cloud storage limitiations
@@ -45,6 +48,7 @@ func validFileSize(fileSize uint32) error {
 	if fileSize > maxFileSize {
 		return &FileSizeError{fileSize}
 	}
+	// TDL: add check for user root folder total storage + fileSize > maxFileSize {return &FileSizeError{fileSize}}
 	return nil
 }
 
