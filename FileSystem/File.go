@@ -26,7 +26,7 @@ type File struct {
 	Size uint32 // File's size in bytes
 }
 
-func (file File) setPath(path string) {
+func (file *File) setPath(path string) {
 	file.Path = path
 }
 
