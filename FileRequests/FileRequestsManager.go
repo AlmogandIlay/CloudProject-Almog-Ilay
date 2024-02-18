@@ -9,9 +9,12 @@ import (
 )
 
 const (
-	minimum_arguments = 1
-	path_argument     = 0
-	path_index        = 1
+	path_argument      = 0
+	minimum_arguments  = 1
+	rename_arguments   = 2
+	move_arguments     = 2
+	show_abs_arguments = 1
+	path_index         = 1
 )
 
 func convertResponeToPath(data string) string {
@@ -64,5 +67,70 @@ func handleCreateFile(data []byte, socket net.Conn) error {
 
 func handleCreateFolder(data []byte, socket net.Conn) error {
 	_, err := Requests.SendRequest(Requests.CreateFolderRequest, data, socket)
+	return err
+}
+
+func HandleRemove(command_arguments []string, request string, socket net.Conn) error {
+	if len(command_arguments) != minimum_arguments {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
+
+	switch request {
+	case "removeFile":
+		return handleRemoveFile(data, socket)
+	case "removeFolder":
+		return handleRemoveFolder(data, socket)
+	}
+
+	return fmt.Errorf("wrong remove request")
+}
+
+func handleRemoveFile(data []byte, socket net.Conn) error {
+	_, err := Requests.SendRequest(Requests.DeleteFileRequest, data, socket)
+	return err
+}
+
+func handleRemoveFolder(data []byte, socket net.Conn) error {
+	_, err := Requests.SendRequest(Requests.DeleteFolderRequest, data, socket)
+	return err
+}
+
+func HandleRename(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) != rename_arguments {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
+	_, err = Requests.SendRequest(Requests.RenameRequest, data, socket)
+	return err
+}
+
+func HandleMove(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) != move_arguments {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
+	_, err = Requests.SendRequest(Requests.MoveRequest, data, socket)
+	return err
+}
+
+func HandleShow(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) != show_abs_arguments && len(command_arguments) != 0 {
+		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	}
+	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if err != nil {
+		return err
+	}
+	_, err = Requests.SendRequest(Requests.ShowRequest, data, socket)
 	return err
 }

@@ -42,9 +42,8 @@ NEWDIR		Creates a new directory.
 	return help_command
 }
 
-/*
-Gets user input and handles its command request.
-*/
+//Gets user input and handles its command request.
+
 func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 	var err error
 	command := strings.Fields(inputBuffer.readInput())
@@ -95,8 +94,42 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			}
 			return "Folder created successfully"
 
+		case "rm file":
+			err = FileRequestsManager.HandleRemove(command[command_arguments:], "removeFile", socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "File deleted successfully!\n"
+
+		case "rm folder":
+			err = FileRequestsManager.HandleRemove(command[command_arguments:], "removeFolder", socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "Folder deleted successfully!\n"
+
+		case "rename":
+			err = FileRequestsManager.HandleRename(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+		case "move":
+			err = FileRequestsManager.HandleMove(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+
+		case "ls":
+			err = FileRequestsManager.HandleShow(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+
 		default:
-			return "Invalid command.\nPlease try a different command"
+			return "Invalid command.\nPlease try a different command or \"help\"\n"
 
 		}
 	}
