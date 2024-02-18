@@ -99,8 +99,14 @@ func (user *LoggedUser) UploadFile(file *File) error {
 	if err != nil {
 		return err
 	}
-	if !filepath.IsAbs(file.Path) {
+
+	if !filepath.IsAbs(file.Path) { // Convert file's path to absolute if it doesn't
 		file.setPath(helper.ConvertToAbsolute(user.GetPath(), file.Path))
+	}
+
+	err = IsFileInDirectory(file.Name, file.Path) // Check if file exists
+	if err == nil {                               // If file exists
+		return &FileExistError{file.Name, file.Path}
 	}
 
 	go uploadAbsFile(file)
@@ -274,5 +280,8 @@ func writeString(builder *strings.Builder, fileParameter ...string) {
 }
 
 func uploadAbsFile(file *File) {
+	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
+	dirFile, _ := os.Create(fullPath)
+	defer dirFile.Close()
 
 }
