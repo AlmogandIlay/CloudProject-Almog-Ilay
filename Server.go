@@ -46,7 +46,7 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, &loggedUser) // Handle request processing
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &conn) // Handle request processing
 
 		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
 		if err != nil {                                              // If sending request info was unsucessful

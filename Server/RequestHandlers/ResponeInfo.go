@@ -9,10 +9,11 @@ import (
 type ResponeType int
 
 const (
-	ErrorRespone ResponeType = 999
-	ValidRespone ResponeType = 200
-	OkayRespone  string      = "200: Okay" // Valid Response default data
-	CDRespone    string      = "200: CurrentDirectory:"
+	ErrorRespone  ResponeType = 999
+	ValidRespone  ResponeType = 200
+	OkayRespone   string      = "200: Okay" // Valid Response default data
+	CDRespone     string      = "200: CurrentDirectory:"
+	ChunksRespone string      = "200: ChunksSize:"
 )
 
 type ResponeInfo struct {
@@ -33,7 +34,7 @@ func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
 }
 
 // Create an error response info
-func BuildError(response string, irequest IRequestHandler) ResponeInfo {
+func buildError(response string, irequest IRequestHandler) ResponeInfo {
 	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: &irequest}
 }
 
