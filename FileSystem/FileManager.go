@@ -93,6 +93,7 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	return moveContent(contentPath, newContentPath)
 }
 
+// Upload a file to the Cloud
 func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) error {
 	if file.Path == "" { // if path wasn't decleared
 		file.setPath(user.GetPath())
@@ -111,7 +112,7 @@ func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) error {
 		return &FileExistError{file.Name, file.Path}
 	}
 
-	go uploadAbsFile(file, conn)
+	go uploadAbsFile(file, conn) // Start uploading file
 
 	return nil
 }
