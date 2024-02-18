@@ -282,11 +282,12 @@ func writeString(builder *strings.Builder, fileParameter ...string) {
 	}
 }
 
+// Uploading file proccess
 func uploadAbsFile(file *File, conn *net.Conn) {
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
 	dirFile, _ := os.Create(fullPath)
 	defer dirFile.Close()
 
 	err := filetransmission.SendFile(conn, file.Size, file.Path, file.Name)
-	// TDL: Catch errors
+	// TDL: Catch errors (PathError type)
 }
