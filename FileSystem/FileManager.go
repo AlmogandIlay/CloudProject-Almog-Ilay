@@ -285,5 +285,7 @@ func uploadAbsFile(file *File, conn *net.Conn) {
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
 	dirFile, _ := os.Create(fullPath)
 	defer dirFile.Close()
-	filetransmission.SendFile(conn, file.Size, file.Path, file.Name)
+
+	err := filetransmission.SendFile(conn, file.Size, file.Path, file.Name)
+	// TDL: Catch errors
 }
