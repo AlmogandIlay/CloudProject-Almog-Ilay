@@ -3,11 +3,17 @@ package FileSystem
 import (
 	filetransmission "CloudDrive/FileTransmission"
 	helper "CloudDrive/Helper"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
+)
+
+const (
+	emptyChunks  = 0
+	errorRespone = 999
 )
 
 // FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
@@ -94,13 +100,13 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 }
 
 // Upload a file to the Cloud
-func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) error {
+func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
 	if file.Path == "" { // if path wasn't decleared
 		file.setPath(user.GetPath())
 	}
 	err := user.ValidateFile(*file)
 	if err != nil {
-		return err
+		return emptyChunks, err
 	}
 
 	if !filepath.IsAbs(file.Path) { // Convert file's path to absolute if it doesn't
@@ -109,12 +115,12 @@ func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) error {
 
 	err = IsFileInDirectory(file.Name, file.Path) // Check if file exists
 	if err == nil {                               // If file exists
-		return &FileExistError{file.Name, file.Path}
+		return emptyChunks, &FileExistError{file.Name, file.Path}
 	}
 
 	go uploadAbsFile(file, conn) // Start uploading file
 
-	return nil
+	return filetransmission.GetChunkSize(file.Size), nil
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
@@ -282,12 +288,34 @@ func writeString(builder *strings.Builder, fileParameter ...string) {
 	}
 }
 
+// Duplicate from ResponeInfo to avoid import cycle. build an error responeInfo struct.
+func buildError(response string) interface{} {
+	return struct {
+		Type    int    `json:"Type"`
+		Respone string `json:"Data"`
+	}{
+		Type:    errorRespone,
+		Respone: response,
+	}
+}
+
+// Duplicate from ResponeInfo to avoid import cycble. send Respone info.
+func sendResponseInfo(conn *net.Conn, responseInfo interface{}) error {
+	message, _ := json.Marshal(responseInfo)
+	return helper.SendData(conn, message)
+}
+
 // Uploading file proccess
 func uploadAbsFile(file *File, conn *net.Conn) {
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
-	dirFile, _ := os.Create(fullPath)
-	defer dirFile.Close()
+	dirFile, _ := os.Create(fullPath)        // Creates the file
+	dirFile.Close()
 
-	err := filetransmission.SendFile(conn, file.Size, file.Path, file.Name)
-	// TDL: Catch errors (PathError type)
+	err := filetransmission.ReceiveFile(*conn, file.Path, file.Name, int(file.Size))
+	if err != nil { // If upload process has failed
+		err = sendResponseInfo(conn, buildError(err.Error())) // Send error respone
+		if err != nil {
+			return // Exit upload
+		}
+	}
 }

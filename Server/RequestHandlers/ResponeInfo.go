@@ -33,7 +33,7 @@ func buildRespone(respone string, handler *IRequestHandler) ResponeInfo {
 }
 
 // Create an error response info
-func buildError(response string, irequest IRequestHandler) ResponeInfo {
+func BuildError(response string, irequest IRequestHandler) ResponeInfo {
 	return ResponeInfo{Type: ErrorRespone, Respone: response, NewHandler: &irequest}
 }
 

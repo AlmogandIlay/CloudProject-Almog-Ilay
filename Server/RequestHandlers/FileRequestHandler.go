@@ -143,10 +143,10 @@ func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInf
 		err = &FileSystem.UnmarshalError{} // Convert the error to our custom made error.
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	err = loggedUser.UploadFile(&file, conn)
+	chunksSize, err := loggedUser.UploadFile(&file, conn)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	return buildRespone(OkayRespone, CreateFileRequestHandler())
+	return buildRespone(ChunksRespone+string(rune(chunksSize)), CreateFileRequestHandler()) // Send chunks size
 }

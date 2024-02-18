@@ -2,6 +2,8 @@ package filetransmission
 
 import (
 	helper "CloudDrive/Helper"
+	"bufio"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -18,7 +20,7 @@ const (
 )
 
 // Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
-func getChunkSize(fileSize uint32) uint {
+func GetChunkSize(fileSize uint32) uint {
 
 	switch {
 	case fileSize < 10*MB:
@@ -47,7 +49,7 @@ func SendFile(conn *net.Conn, size uint32, path string, name string) error {
 	defer file.Close()
 
 	// Recieve the chunksize for the uploaded file size
-	chunkSize := getChunkSize(size)
+	chunkSize := GetChunkSize(size)
 	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
 
 	for { // Reads the file
@@ -63,5 +65,44 @@ func SendFile(conn *net.Conn, size uint32, path string, name string) error {
 			return err
 		}
 	}
+	return nil
+}
+
+// Reccive file from the client, read the data in chunks and then write in chunks into the file.
+func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) error {
+	fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
+	bytesRead := 0
+	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
+		read, err := conn.Read(fileBytes[bytesRead:])
+		if err != nil {
+			return fmt.Errorf("error reading the file.\nplease try again")
+		}
+		bytesRead += read
+	}
+	fullPath := filePath + "\\" + fileName
+	file, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE, 0644) // Open file for writing
+	if err != nil {
+		return fmt.Errorf("error opening the file: %v", fileName)
+	}
+	defer file.Close()
+
+	// Create a buffered writer for efficient writes
+	writer := bufio.NewWriter(file)
+
+	// Write the data to the file in chunks
+	bytesWritten := 0
+	for bytesWritten < len(fileBytes) {
+		n, err := writer.Write(fileBytes[bytesWritten:])
+		if err != nil {
+			return fmt.Errorf("error writing to file: %v", fileName)
+		}
+		bytesWritten += n
+	}
+
+	err = writer.Flush() // Flush any remaining data in the buffer to the file
+	if err != nil {
+		return fmt.Errorf("error flushing data to the file: %v", fileName)
+	}
+
 	return nil
 }
