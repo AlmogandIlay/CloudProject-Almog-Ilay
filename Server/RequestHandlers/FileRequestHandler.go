@@ -135,10 +135,11 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
+// Handle Upload file requests from client
 func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
 	var file FileSystem.File
-	err := json.Unmarshal(info.RequestData, &file)
-	if err != nil {
+	err := json.Unmarshal(info.RequestData, &file) // Convert json request to file struct
+	if err != nil {                                // If conversion failed
 		err = &FileSystem.UnmarshalError{} // Convert the error to our custom made error.
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
