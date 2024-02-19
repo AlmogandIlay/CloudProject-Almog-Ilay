@@ -49,7 +49,7 @@ LS		List all the current files in the current or given path.
 
 //Gets user input and handles its command request.
 
-func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
+func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 	var err error
 	command := strings.Fields(inputBuffer.readInput())
 	if len(command) > 0 { // If command is not empty

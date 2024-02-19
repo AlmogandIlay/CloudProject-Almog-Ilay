@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 )
 
 const (
-	DefaultBufferSize = 1024
+	DefaultBufferSize   = 1024
+	FirstNameParameter  = 0
+	SecondNameParameter = 2
 )
 
 // bufferSize is usually 1024
@@ -55,4 +58,36 @@ func ConvertStringToBytes(data string) ([]byte, error) {
 		return nil, fmt.Errorf("error encoding requested path to be sent to the server")
 	}
 	return bytes, nil
+}
+
+// Find if the parameters are closed with ' (for example: 'filename1' 'filename2')
+func IsQuoted(command_arguments []string) bool {
+	arguments := strings.Join(command_arguments, " ")
+	counter := 0
+	for _, char := range arguments {
+		if char == '\'' {
+			counter++
+		}
+	}
+	return counter == 4
+}
+
+// Find the path of a file if it's closed with '
+func FindPath(command_arguments []string, index int) string {
+	arguments := strings.Join(command_arguments, " ") // Convert to string
+	var name string
+	var counter int // counting the amount of '
+	for _, char := range arguments {
+		if char == '\'' { // If close ' char found
+			counter++
+		}
+		name += string(char)    // append char to string
+		if counter >= index+2 { // If 2/4 ' close chars have been found
+			break // Stop searching
+		}
+	}
+	if counter == 4 { // If the second path has been specifed
+		name = "'" + strings.Split(name, "'")[3] + "'" // save the second path only
+	}
+	return name
 }

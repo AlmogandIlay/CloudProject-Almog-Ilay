@@ -100,11 +100,23 @@ func handleRemoveFolder(data []byte, socket net.Conn) error {
 	_, err := Requests.SendRequest(Requests.DeleteFolderRequest, data, socket)
 	return err
 }
+
+// Handle Rename request
 func HandleRename(command_arguments []string, socket net.Conn) error {
-	if len(command_arguments) != rename_arguments {
+	if len(command_arguments) < rename_arguments {
 		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
 	}
-	data, err := Helper.ConvertStringToBytes((command_arguments[oldFileName] + " " + command_arguments[newFileName]))
+	var oldcontentName string
+	var newcontentName string
+	if Helper.IsQuoted(command_arguments) { // Check if the command arguments are enclosed within a quotation (') marks
+		oldcontentName = Helper.FindPath(command_arguments, Helper.FirstNameParameter)
+		newcontentName = Helper.FindPath(command_arguments, Helper.SecondNameParameter)
+	} else {
+		oldcontentName = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
+		newcontentName = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
+	}
+	paths := oldcontentName + newcontentName // Append to a string
+	data, err := Helper.ConvertStringToBytes(paths)
 	if err != nil {
 		return err
 	}
@@ -113,10 +125,20 @@ func HandleRename(command_arguments []string, socket net.Conn) error {
 }
 
 func HandleMove(command_arguments []string, socket net.Conn) error {
-	if len(command_arguments) != move_arguments {
+	if len(command_arguments) < move_arguments {
 		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
 	}
-	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	var currentFilePath string
+	var newPath string
+	if Helper.IsQuoted(command_arguments) { // Check if the command arguments are enclosed within a quotation (') marks
+		currentFilePath = Helper.FindPath(command_arguments, Helper.FirstNameParameter) // Save the first path
+		newPath = Helper.FindPath(command_arguments, Helper.SecondNameParameter)        // Save the second path
+	} else {
+		currentFilePath = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
+		newPath = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
+	}
+	paths := currentFilePath + newPath // Appened to one string
+	data, err := Helper.ConvertStringToBytes(paths)
 	if err != nil {
 		return err
 	}
