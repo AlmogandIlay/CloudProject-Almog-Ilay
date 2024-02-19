@@ -18,8 +18,8 @@ const (
 	DeleteFileRequest      RequestType = 304
 	DeleteFolderRequest    RequestType = 305
 	RenameRequest          RequestType = 306
-	MoveRequest            RequestType = 307
-	ShowRequest            RequestType = 308
+	ShowRequest            RequestType = 307
+	MoveRequest            RequestType = 308
 )
 
 type RequestInfo struct {

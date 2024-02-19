@@ -38,6 +38,11 @@ SIGNIN		Sign in to an existing CloudDrive account.
 CD		Displays/Changes the current working directory.
 NEWFILE		Creates a new file.
 NEWDIR		Creates a new directory.
+RMFILE		Removes a file.
+RMFOLDER		Removes a folder.	
+RENAME		Renames a folder or a directory.
+MOVE		Moves a file/folder to a different location.
+LS		List all the current files in the current or given path.
 `
 	return help_command
 }
@@ -107,13 +112,12 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 				return err.Error()
 			}
 			return "Folder deleted successfully!\n"
-
 		case "rename":
 			err = FileRequestsManager.HandleRename(command[command_arguments:], socket)
 			if err != nil {
 				return err.Error()
 			}
-			return ""
+			return "The content has been renamed!\n"
 		case "move":
 			err = FileRequestsManager.HandleMove(command[command_arguments:], socket)
 			if err != nil {
@@ -122,11 +126,11 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			return ""
 
 		case "ls":
-			err = FileRequestsManager.HandleShow(command[command_arguments:], socket)
+			dir, err := FileRequestsManager.HandleShow(command[command_arguments:], socket)
 			if err != nil {
 				return err.Error()
 			}
-			return ""
+			return dir
 
 		default:
 			return "Invalid command.\nPlease try a different command or \"help\"\n"
