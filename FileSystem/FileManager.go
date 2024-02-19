@@ -102,23 +102,24 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if !filepath.IsAbs(newContentPath) {
 		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
-	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath))
+
+	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file's path exists
 	if err != nil {
 		return err
 	}
-	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath))
+	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the provided directory exists
 	if err != nil {
 		return err
 	}
-	err = validFileName(filepath.Base(contentPath), filepath.Dir(contentPath))
+	err = validFileName(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file name is valid
 	if err != nil {
 		return err
 	}
-	err = validFileName(filepath.Base(newContentPath), filepath.Dir(newContentPath))
+	err = validFileName(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the provided directory is valid
 	if err != nil {
 		return err
 	}
-	newContentPath += "\\" + filepath.Base(contentPath) // Add the content file/path name extension
+	newContentPath += "\\" + filepath.Base(contentPath) // Add the content (file/path)'s name extension to the new directory
 	moveContent(contentPath, newContentPath)
 	return nil
 }
@@ -128,7 +129,12 @@ func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
 	if file.Path == "" { // if path wasn't decleared
 		file.setPath(user.GetPath())
 	}
-	err := user.ValidateFile(*file)
+	err := user.ValidateFile(*file) // validate file content
+	if err != nil {
+		return emptyChunks, err
+	}
+
+	err = user.validNewFileSize(file.Size) // validate new file size. Checks if the current storage space can handle the file
 	if err != nil {
 		return emptyChunks, err
 	}

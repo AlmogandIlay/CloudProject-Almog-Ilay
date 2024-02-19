@@ -19,6 +19,7 @@ type FolderNotExistError struct{ Name, Path string }
 type ContentNotExistError struct{ Name, Path string }
 type FileLengthError struct{ Name string }
 type CharactersError struct{}
+type SizeCalculationError struct{}
 
 type PremmisionError struct{ Path string }
 
@@ -73,6 +74,9 @@ func (fileError *FileLengthError) Error() string {
 }
 func (fileError *CharactersError) Error() string {
 	return fmt.Sprintf("Cannot use Illegal letters such as: %s in the name", strings.Join(strings.Split(invalidFileCharacters, ""), " "))
+}
+func (fileError *SizeCalculationError) Error() string {
+	return "There has been an error when calculating the root path"
 }
 
 func (fileError *PremmisionError) Error() string {

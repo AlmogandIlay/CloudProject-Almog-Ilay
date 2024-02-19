@@ -38,12 +38,13 @@ func (file *File) setPath(path string) {
 	file.Path = path
 }
 
+// Validate file by its name and the file's size itself
 func (user *LoggedUser) ValidateFile(file File) error {
-	err := validFileName(file.Name, file.Path)
+	err := validFileName(file.Name, file.Path) // Check file name validation
 	if err != nil {
 		return err
 	}
-	err = validFileSize(file.Size)
+	err = validFileSize(file.Size) // Check file size validation
 	if err != nil {
 		return err
 	}
@@ -57,6 +58,18 @@ func validFileSize(fileSize uint32) error {
 		return &FileSizeError{fileSize}
 	}
 	// TDL: add check for user root folder total storage + fileSize > maxFileSize {return &FileSizeError{fileSize}}
+	return nil
+}
+
+// Valids file size when creating a new file scenario
+func (user *LoggedUser) validNewFileSize(fileSize uint32) error {
+	rootSize, err := user.GetRootSize() // Get total amount of storage in usage
+	if err != nil {
+		return err
+	}
+	if fileSize+rootSize > maxFileSize { // If the new file size exceeds beyond the current storage space
+		return &FileSizeError{fileSize}
+	}
 	return nil
 }
 

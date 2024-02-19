@@ -72,6 +72,30 @@ func (user *LoggedUser) GetPath() string {
 	return user.CurrentPath
 }
 
+// Returns the root total size
+func (user *LoggedUser) GetRootSize() (uint32, error) {
+	var totalSize uint32 = 0
+	rootPath := helper.GetUserStorageRoot(user.UserID)
+
+	// Traverses the root directory and calls the provided function for each file or directory encountered.
+	err := filepath.Walk(rootPath, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() { // If the current item is a file, add its size to the total.
+			totalSize += uint32(info.Size())
+		}
+		// Continue the traversal.
+
+		return nil
+	})
+	if err != nil {
+		return 0, &SizeCalculationError{}
+	}
+	return totalSize, nil
+
+}
+
 func isFolderInDirectory(path, pathOfDir string) error {
 	userPath := filepath.Join(pathOfDir, path)
 	_, err := os.Stat(userPath)
