@@ -57,7 +57,6 @@ func validFileSize(fileSize uint32) error {
 	if fileSize > maxFileSize {
 		return &FileSizeError{fileSize}
 	}
-	// TDL: add check for user root folder total storage + fileSize > maxFileSize {return &FileSizeError{fileSize}}
 	return nil
 }
 
