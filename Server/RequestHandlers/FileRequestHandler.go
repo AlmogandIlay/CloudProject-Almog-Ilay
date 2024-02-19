@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	pathContentName    = 0
-	newPathContentName = 1
+	pathContentName    = 1
+	newPathContentName = 3
 )
 
 type FileRequestHandler struct{}
@@ -107,7 +107,7 @@ func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestI
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
 	data := helper.ConvertRawJsonToData(command)
-	arguments := strings.Split(data, " ")
+	arguments := strings.Split(data, "'")
 	err := loggedUser.RenameContent(arguments[pathContentName], arguments[newPathContentName])
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
