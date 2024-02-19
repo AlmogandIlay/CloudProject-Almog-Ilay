@@ -5,6 +5,7 @@ import (
 	helper "CloudDrive/Helper"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"path/filepath"
@@ -101,6 +102,23 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if !filepath.IsAbs(newContentPath) {
 		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
+	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath))
+	if err != nil {
+		return err
+	}
+	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath))
+	if err != nil {
+		return err
+	}
+	err = validFileName(filepath.Base(contentPath), filepath.Dir(contentPath))
+	if err != nil {
+		return err
+	}
+	err = validFileName(filepath.Base(newContentPath), filepath.Dir(newContentPath))
+	if err != nil {
+		return err
+	}
+	newContentPath += "\\" + filepath.Base(contentPath) // Add the content file/path name extension
 	moveContent(contentPath, newContentPath)
 	return nil
 }
@@ -250,9 +268,14 @@ func removeAbsFolder(absDir string) error {
 
 // Rename a file name in the current directory, gets full file path and new filename
 func renameAbsContent(currentContentPath, newContentName string) {
-	newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get new Content name full path
+	if !filepath.IsAbs(newContentName) {
+		newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get new Content name full path
+	}
 	// Use os.Rename to rename the file
-	os.Rename(currentContentPath, newContentName)
+	err := os.Rename(currentContentPath, newContentName)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }
 
 func moveContent(currentAbsFilePath, newFileName string) {
@@ -261,7 +284,6 @@ func moveContent(currentAbsFilePath, newFileName string) {
 
 // Returns folder's content including its files and folders in a string variable. Return error if it fails
 func getFolderContent(folderPath string) (string, error) {
-
 	folder, err := os.Open(folderPath)
 	if err != nil {
 		return "", &OpenDirError{folderPath}

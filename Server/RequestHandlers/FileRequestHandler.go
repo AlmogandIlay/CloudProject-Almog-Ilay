@@ -133,7 +133,8 @@ func (filehandler *FileRequestHandler) handleListContents(info Requests.RequestI
 // Handle Move content (files and folders) requests from client
 func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)
-	arguments := strings.Fields(command)
+	data := helper.ConvertRawJsonToData(command)
+	arguments := strings.Split(data, "'")
 	err := loggedUser.MoveContent(arguments[pathContentName], arguments[newPathContentName])
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
