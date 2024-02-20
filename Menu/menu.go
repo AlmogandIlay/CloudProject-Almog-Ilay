@@ -1,6 +1,7 @@
 package Menu
 
 import (
+	"client/ClientErrors"
 	FileRequestsManager "client/FileRequests"
 	HandleInput "client/HandleInput"
 	"fmt"
@@ -22,7 +23,7 @@ func NewCLI() (*CLI, error) {
 
 	sock, err := net.Dial("tcp", ip_addr)
 	if err != nil {
-		return nil, fmt.Errorf(fmt.Sprintf("There has been an error connecting to the server.\nPlease check your connection and try again.\nIf it doesn't work contact the developers and send them this error message:\n%s", err.Error()))
+		return nil, &ClientErrors.ServerConnectionError{Err: err}
 	}
 	return &CLI{socket: sock, prompt: prompt, input: HandleInput.NewUserInput()}, nil
 }
@@ -42,7 +43,7 @@ func (cli *CLI) PrintStartup() {
 }
 
 func (cli *CLI) printPrompt() {
-	if FileRequestsManager.IsCurrentPathInitialized() {
+	if FileRequestsManager.IsCurrentPathInitialized() { // If client has authenticated already
 		FileRequestsManager.PrintCurrentPath()
 	}
 	fmt.Print(cli.prompt)

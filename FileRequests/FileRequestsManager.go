@@ -1,6 +1,7 @@
 package FileRequestsManager
 
 import (
+	"client/ClientErrors"
 	"client/Helper"
 	"client/Requests"
 	"fmt"
@@ -9,14 +10,25 @@ import (
 )
 
 const (
-	path_argument      = 0
-	minimum_arguments  = 1
-	rename_arguments   = 2
-	oldFileName        = 0
-	newFileName        = 1
-	move_arguments     = 2
-	show_abs_arguments = 1
-	path_index         = 1
+	commandArgumentIndex = 0
+	pathArgumentIndex    = 0
+	minimumArguments     = 1
+	operationArguments   = 2
+	oldFileName          = 0
+	newFileName          = 1
+	contentNameIndex     = 1
+
+	rename_arguments = 2
+	move_arguments   = 2
+
+	showFolderArguments = 1
+	path_index          = 1
+
+	CreateFileCommand   = "newfile"
+	CreateFolderCommand = "newdir"
+
+	RemoveFileCommand   = "rmfile"
+	RemoveFolderCommand = "rmdir"
 )
 
 func convertResponeToPath(data string) string {
@@ -25,11 +37,11 @@ func convertResponeToPath(data string) string {
 }
 
 func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
-	if len(command_arguments) < minimum_arguments {
-		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	if len(command_arguments) < minimumArguments { // If argument was not given
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
 
-	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	data, err := Helper.ConvertStringToBytes(command_arguments[pathArgumentIndex])
 	if err != nil {
 		return err
 	}
@@ -43,68 +55,57 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 	return nil
 }
 
-func HandleCreate(command_arguments []string, request string, socket net.Conn) error {
-	if len(command_arguments) != minimum_arguments {
-		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+// Handle create content (file or directory) requests
+func HandleCreate(command []string, socket net.Conn) error {
+	if len(command) != operationArguments {
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
-	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
+	data, err := Helper.ConvertStringToBytes(command[contentNameIndex])
+	if err != nil {
+		return err
+	}
+	var createType Requests.RequestType
+
+	switch command[commandArgumentIndex] {
+	case CreateFileCommand:
+		createType = Requests.CreateFileRequest
+	case CreateFolderCommand:
+		createType = Requests.CreateFolderRequest
+	default:
+		return fmt.Errorf("wrong create request")
+	}
+	_, err = Requests.SendRequest(createType, data, socket)
+	return err
+}
+
+// Handle remove content (file or directory) requests
+func HandleRemove(command []string, socket net.Conn) error {
+	if len(command) != operationArguments {
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
+	}
+	data, err := Helper.ConvertStringToBytes(command[contentNameIndex]) // Convert content name to raw json bytes
 	if err != nil {
 		return err
 	}
 
-	switch request {
-	case "createFile":
-		return handleCreateFile(data, socket)
-	case "createFolder":
-		return handleCreateFolder(data, socket)
+	var removeType Requests.RequestType
+
+	switch command[commandArgumentIndex] {
+	case RemoveFileCommand:
+		removeType = Requests.DeleteFileRequest
+	case RemoveFolderCommand:
+		removeType = Requests.DeleteFolderRequest
+	default:
+		return fmt.Errorf("wrong remove request")
 	}
-
-	return fmt.Errorf("wrong create request")
-}
-
-func handleCreateFile(data []byte, socket net.Conn) error {
-	_, err := Requests.SendRequest(Requests.CreateFileRequest, data, socket)
-	return err
-}
-
-func handleCreateFolder(data []byte, socket net.Conn) error {
-	_, err := Requests.SendRequest(Requests.CreateFolderRequest, data, socket)
-	return err
-}
-
-func HandleRemove(command_arguments []string, request string, socket net.Conn) error {
-	if len(command_arguments) != minimum_arguments {
-		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
-	}
-	data, err := Helper.ConvertStringToBytes(command_arguments[path_argument])
-	if err != nil {
-		return err
-	}
-
-	switch request {
-	case "removeFile":
-		return handleRemoveFile(data, socket)
-	case "removeFolder":
-		return handleRemoveFolder(data, socket)
-	}
-
-	return fmt.Errorf("wrong remove request")
-}
-
-func handleRemoveFile(data []byte, socket net.Conn) error {
-	_, err := Requests.SendRequest(Requests.DeleteFileRequest, data, socket)
-	return err
-}
-
-func handleRemoveFolder(data []byte, socket net.Conn) error {
-	_, err := Requests.SendRequest(Requests.DeleteFolderRequest, data, socket)
+	_, err = Requests.SendRequest(removeType, data, socket)
 	return err
 }
 
 // Handle Rename request
 func HandleRename(command_arguments []string, socket net.Conn) error {
-	if len(command_arguments) < rename_arguments {
-		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	if len(command_arguments) < rename_arguments { // If argument was not given
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(rename_arguments)}
 	}
 	var oldcontentName string
 	var newcontentName string
@@ -124,9 +125,10 @@ func HandleRename(command_arguments []string, socket net.Conn) error {
 	return err
 }
 
+// Handle Move request
 func HandleMove(command_arguments []string, socket net.Conn) error {
 	if len(command_arguments) < move_arguments {
-		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(move_arguments)}
 	}
 	var currentFilePath string
 	var newPath string
@@ -146,14 +148,15 @@ func HandleMove(command_arguments []string, socket net.Conn) error {
 	return err
 }
 
+// Handle ls command (List contents command)
 func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
-	if len(command_arguments) != show_abs_arguments && len(command_arguments) != 0 { // check for amount of arguments
-		return "", fmt.Errorf("incorrect number of arguments.\nPlease try again")
+	if !(len(command_arguments) == showFolderArguments || len(command_arguments) == 0) { // check for amount of arguments
+		return "", &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
 	var data []byte
 	var err error
-	if len(command_arguments) == show_abs_arguments { // If specific path has been specified
-		data, err = Helper.ConvertStringToBytes(command_arguments[path_argument])
+	if len(command_arguments) == showFolderArguments { // If specific path has been specified
+		data, err = Helper.ConvertStringToBytes(command_arguments[pathArgumentIndex])
 		if err != nil {
 			return "", err
 		}
