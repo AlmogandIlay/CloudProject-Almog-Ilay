@@ -1,8 +1,8 @@
 package Requests
 
 import (
+	"client/ClientErrors"
 	"encoding/json"
-	"fmt"
 )
 
 type ResponeType int
@@ -17,11 +17,11 @@ type ResponeInfo struct {
 	Respone string      `json:"Data"`
 }
 
-func GetResponseInfo(data []byte) (ResponeInfo, error) {
+func getResponseInfo(data []byte) (ResponeInfo, error) {
 	var response_info ResponeInfo
 	err := json.Unmarshal(data, &response_info)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to encode the response from the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, &ClientErrors.JsonDecodeError{Err: err}
 	}
 	return response_info, nil
 }

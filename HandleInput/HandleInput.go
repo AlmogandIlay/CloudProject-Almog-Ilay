@@ -3,6 +3,7 @@ package Handleinput
 import (
 	"bufio"
 	"client/Authentication"
+	FileRequestsManager "client/FileRequests"
 	"net"
 	"os"
 	"strings"
@@ -29,10 +30,24 @@ func (inputBuffer UserInput) readInput() string {
 	return command
 }
 
-/*
-Gets user input and handles its command request.
-*/
-func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
+func helpScreen() string {
+	return `
+SIGNUP		Create an account in CloudDrive service.
+SIGNIN		Sign in to an existing CloudDrive account.
+CD		Displays/Changes the current working directory.
+NEWFILE		Creates a new file.
+NEWDIR		Creates a new directory.
+RMFILE		Removes a file.
+RMDIR		Removes a folder.	
+RENAME		Renames a folder or a directory.
+MOVE		Moves a file/folder to a different location.
+LS		List all the current files in the current or given path.
+		`
+}
+
+//Gets user input and handles its command request.
+
+func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 	var err error
 	command := strings.Fields(inputBuffer.readInput())
 	if len(command) > 0 { // If command is not empty
@@ -40,11 +55,16 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 
 		switch command_prefix {
 
+		case "help":
+			return helpScreen()
+
 		case "signup":
 			err = Authentication.HandleSignup(command[command_arguments:], socket)
 			if err != nil {
 				return err.Error()
 			}
+
+			FileRequestsManager.InitializeCurrentPath()
 			return "Successfully signed up!\n"
 
 		case "signin":
@@ -52,15 +72,57 @@ func (inputBuffer UserInput) Handleinput(socket net.Conn) string {
 			if err != nil {
 				return err.Error()
 			}
+
+			FileRequestsManager.InitializeCurrentPath()
 			return "Successfully signed in!\n"
 
-		case "help":
-
 		case "cd":
+			err = FileRequestsManager.HandleChangeDirectory(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+
+		case FileRequestsManager.CreateFileCommand, FileRequestsManager.CreateFolderCommand:
+			err = FileRequestsManager.HandleCreate(command, socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "Created successfully!\n"
+
+		case FileRequestsManager.RemoveFileCommand, FileRequestsManager.RemoveFolderCommand:
+			err = FileRequestsManager.HandleRemove(command, socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "Deleted successfully!\n"
+
+		case "rename":
+			err = FileRequestsManager.HandleRename(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "The content has been renamed!\n"
+
+		case "move":
+			err = FileRequestsManager.HandleMove(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "The content has sucessfully moved!\n"
+
+		case "ls":
+			dir, err := FileRequestsManager.HandleShow(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return dir
+
+		default:
+			return "Invalid command.\nPlease try a different command or use \"help\"\n"
 
 		}
-		return ""
-
 	}
 	return ""
+
 }

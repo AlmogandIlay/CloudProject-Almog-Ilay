@@ -1,6 +1,7 @@
 package Requests
 
 import (
+	"client/ClientErrors"
 	"client/Helper"
 	"encoding/json"
 	"fmt"
@@ -10,9 +11,16 @@ import (
 type RequestType int
 
 const (
-	LoginRequest  RequestType = 101
-	SignupRequest RequestType = 102
-	// ...
+	LoginRequest           RequestType = 101
+	SignupRequest          RequestType = 102
+	ChangeDirectoryRequest RequestType = 301
+	CreateFileRequest      RequestType = 302
+	CreateFolderRequest    RequestType = 303
+	DeleteFileRequest      RequestType = 304
+	DeleteFolderRequest    RequestType = 305
+	RenameRequest          RequestType = 306
+	ShowRequest            RequestType = 307
+	MoveRequest            RequestType = 308
 )
 
 type RequestInfo struct {
@@ -35,7 +43,7 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, error) {
 	requestBytes, err := json.Marshal(request_info)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error())
+		return ResponeInfo{}, &ClientErrors.JsonEncodeError{Err: err}
 	}
 
 	err = Helper.SendData(&socket, requestBytes)
@@ -47,8 +55,7 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	if err != nil {
 		return ResponeInfo{}, err
 	}
-
-	response_info, err := GetResponseInfo(data)
+	response_info, err := getResponseInfo(data)
 	if err != nil {
 		return ResponeInfo{}, err
 	}
@@ -57,16 +64,15 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 }
 
 // Handles the entire request-response cycle.
-func SendRequest(request_type RequestType, request_data []byte, socket net.Conn) error {
+func SendRequest(request_type RequestType, request_data []byte, socket net.Conn) (string, error) {
 	request_info := BuildRequestInfo(request_type, request_data)
 	response_info, err := SendRequestInfo(request_info, socket) // sends a request and receives a response
 	if err != nil {
-		return err
+		return "", err
 	}
-	if response_info.Type == ErrorRespone { // If error caught in server side
-		return fmt.Errorf(response_info.Respone)
-	} else if response_info.Type == ValidRespone {
-		return nil
+	if response_info.Type == ValidRespone { // If error caught in server side
+		return response_info.Respone, nil
+	} else {
+		return "", fmt.Errorf(response_info.Respone)
 	}
-	return fmt.Errorf(response_info.Respone)
 }
