@@ -41,7 +41,7 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
 
-	data, err := Helper.ConvertStringToBytes(command_arguments[pathArgumentIndex])
+	data, err := Helper.ConvertStringToBytes(strings.Join(command_arguments, " "))
 	if err != nil {
 		return err
 	}
@@ -57,10 +57,10 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 
 // Handle create content (file or directory) requests
 func HandleCreate(command []string, socket net.Conn) error {
-	if len(command) != operationArguments {
+	if len(command) < operationArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
-	data, err := Helper.ConvertStringToBytes(command[contentNameIndex])
+	data, err := Helper.ConvertStringToBytes(strings.Join(command[contentNameIndex:], " "))
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func HandleRemove(command []string, socket net.Conn) error {
 	if len(command) != operationArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
-	data, err := Helper.ConvertStringToBytes(command[contentNameIndex]) // Convert content name to raw json bytes
+	data, err := Helper.ConvertStringToBytes(strings.Join(command[contentNameIndex:], " ")) // Convert content name to raw json bytes
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
 	var data []byte
 	var err error
 	if len(command_arguments) == showFolderArguments { // If specific path has been specified
-		data, err = Helper.ConvertStringToBytes(command_arguments[pathArgumentIndex])
+		data, err = Helper.ConvertStringToBytes(strings.Join(command_arguments[pathArgumentIndex:], " "))
 		if err != nil {
 			return "", err
 		}

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	ip_addr = "192.168.50.220:12345"
+	ip_addr = "clouddriveserver.duckdns.org:12345"
 	prompt  = ">> "
 )
 
