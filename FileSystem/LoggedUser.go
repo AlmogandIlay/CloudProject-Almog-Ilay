@@ -98,8 +98,8 @@ func (user *LoggedUser) GetRootSize() (uint32, error) {
 
 func isFolderInDirectory(path, pathOfDir string) error {
 	userPath := path
-	if !strings.Contains(path, helper.DrivePath) {
-		userPath = filepath.Join(pathOfDir, path)
+	if !strings.Contains(path, helper.DrivePath) { // If path is not fully absolute
+		userPath = filepath.Join(pathOfDir, path) // Convert path to fully absolute
 	}
 	_, err := os.Stat(userPath)
 
