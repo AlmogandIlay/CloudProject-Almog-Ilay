@@ -97,7 +97,10 @@ func (user *LoggedUser) GetRootSize() (uint32, error) {
 }
 
 func isFolderInDirectory(path, pathOfDir string) error {
-	userPath := filepath.Join(pathOfDir, path)
+	userPath := path
+	if !strings.Contains(path, helper.DrivePath) {
+		userPath = filepath.Join(pathOfDir, path)
+	}
 	_, err := os.Stat(userPath)
 
 	if os.IsNotExist(err) {

@@ -166,11 +166,7 @@ func (user *LoggedUser) setBackDirectory() (string, error) {
 
 // forward to next given dir, for example: cd homework11
 func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
-	err := isFolderInDirectory(forwardDir, user.GetPath())
-	if err != nil {
-		return "", err
-	}
-	err = user.SetPath(filepath.Join(user.GetPath(), forwardDir))
+	err := user.SetPath(filepath.Join(user.GetPath(), forwardDir))
 	return user.GetPath(), err
 }
 
@@ -206,7 +202,7 @@ func createAbsDir(absDir string) error {
 	if err != nil {
 		return err
 	}
-	err = isFolderInDirectory(helper.Base(absDir), filepath.Dir(absDir))
+	err = IsContentInDirectory(helper.Base(absDir), filepath.Dir(absDir))
 	if err == nil { // If folder exists
 		return &FolderExistError{helper.Base(absDir), filepath.Dir(absDir)}
 	}
@@ -234,7 +230,7 @@ func removeAbsFolder(absDir string) error {
 	if err != nil {
 		return err
 	}
-	err = isFolderInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
+	err = IsContentInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
 	if err != nil { // If folder is not in directory
 		return err
 	}
