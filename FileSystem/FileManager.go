@@ -1,7 +1,6 @@
 package FileSystem
 
 import (
-	filetransmission "CloudDrive/FileTransmission"
 	helper "CloudDrive/Helper"
 	"encoding/json"
 	"fmt"
@@ -124,33 +123,17 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	return nil
 }
 
-// Upload a file to the Cloud
-func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
-	if file.Path == "" { // if path wasn't decleared
-		file.setPath(user.GetPath())
+// list all the files in the given (or not given) path
+func (user *LoggedUser) ListContents(path string) (string, error) {
+	var dirPath string
+	if path == "" { // If path hasn't been specified
+		dirPath = user.GetPath() // put current directory as default
+	} else { // If path has been specified
+		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
+			dirPath = helper.ConvertToAbsolute(user.GetPath(), path)
+		}
 	}
-	err := user.ValidateFile(*file) // validate file content
-	if err != nil {
-		return emptyChunks, err
-	}
-
-	err = user.validNewFileSize(file.Size) // validate new file size. Checks if the current storage space can handle the file
-	if err != nil {
-		return emptyChunks, err
-	}
-
-	if !filepath.IsAbs(file.Path) { // Convert file's path to absolute if it doesn't
-		file.setPath(helper.ConvertToAbsolute(user.GetPath(), file.Path))
-	}
-
-	err = IsContentInDirectory(file.Name, file.Path)
-	if err == nil { // If file exists
-		return emptyChunks, &FileExistError{file.Name, file.Path}
-	}
-
-	go uploadAbsFile(file, conn) // Start uploading file
-
-	return filetransmission.GetChunkSize(file.Size), nil
+	return getFolderContent(dirPath)
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
@@ -194,19 +177,6 @@ func (user *LoggedUser) setForwardDir(forwardDir string) (string, error) {
 func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 	err := user.SetPath(absDir)
 	return user.GetPath(), err
-}
-
-// list all the files in the given (or not given) path
-func (user *LoggedUser) ListContents(path string) (string, error) {
-	var dirPath string
-	if path == "" { // If path hasn't been specified
-		dirPath = user.GetPath() // put current directory as default
-	} else { // If path has been specified
-		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
-			dirPath = helper.ConvertToAbsolute(user.GetPath(), path)
-		}
-	}
-	return getFolderContent(dirPath)
 }
 
 // create a file in the given directory
@@ -342,19 +312,4 @@ func buildError(response string) interface{} {
 func sendResponseInfo(conn *net.Conn, responseInfo interface{}) error {
 	message, _ := json.Marshal(responseInfo)
 	return helper.SendData(conn, message)
-}
-
-// Uploading file proccess
-func uploadAbsFile(file *File, conn *net.Conn) {
-	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
-	dirFile, _ := os.Create(fullPath)        // Creates the file
-	dirFile.Close()
-
-	err := filetransmission.ReceiveFile(*conn, file.Path, file.Name, int(file.Size))
-	if err != nil { // If upload process has failed
-		err = sendResponseInfo(conn, buildError(err.Error())) // Send error respone
-		if err != nil {
-			return // Exit upload
-		}
-	}
 }
