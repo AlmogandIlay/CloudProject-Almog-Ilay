@@ -27,10 +27,6 @@ const (
 	showFolderArguments = 1
 	path_index          = 1
 
-	uploadFileArguments = 2
-	uploadFileNameIndex = 0
-	uploadFilePathIndex = 1
-
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
 
