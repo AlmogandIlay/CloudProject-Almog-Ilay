@@ -182,7 +182,7 @@ func HandleUpload(command_arguments []string, socket net.Conn) (string, error) {
 	}
 	fileinfo, err := os.Stat(command_arguments[pathArgumentIndex])
 	if err != nil {
-		if os.IsNotExist(err) {
+		if os.IsNotExist(err) { // If file not exists
 			return "", &ClientErrors.FileNotExistError{Filename: command_arguments[pathArgumentIndex]}
 		} else {
 			return "", &ClientErrors.ReadFileInfoError{Filename: command_arguments[pathArgumentIndex]}
