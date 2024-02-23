@@ -118,6 +118,13 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			}
 			return dir
 
+		case "uploadfile":
+			err = FileRequestsManager.HandleUploadFile(command[command_arguments:], socket)
+			if err != nil {
+				return err.Error()
+			}
+			return "File has been uploaded succesfully!"
+
 		default:
 			return "Invalid command.\nPlease try a different command or use \"help\"\n"
 

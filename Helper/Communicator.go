@@ -7,10 +7,16 @@ import (
 	"strings"
 )
 
+type AmountOfPaths int
+
 const (
-	DefaultBufferSize   = 1024
-	FirstNameParameter  = 0
-	SecondNameParameter = 2
+	DefaultBufferSize                 = 1024
+	RemoveAll                         = -1
+	FirstNameParameter                = 0
+	SecondNameParameter               = 2
+	OneClosedPath       AmountOfPaths = 2 // Specifcy that looking for one filename argument that is closed with ''
+	TwoCloudPaths       AmountOfPaths = 4 // Specifcy that looking for two filename arguments that is closed with '' ''
+	secondPathIndex                   = 3
 )
 
 // bufferSize is usually 1024
@@ -60,20 +66,20 @@ func ConvertStringToBytes(data string) ([]byte, error) {
 	return bytes, nil
 }
 
-// Find if the parameters are closed with ' (for example: 'filename1' 'filename2')
-func IsQuoted(command_arguments []string) bool {
+// Find if the parameters are closed with ' in the amount of the given closedCount (for example, given TwoClosedPath: 'filename1' 'filename2')
+func IsQuoted(command_arguments []string, closedCount AmountOfPaths) bool {
 	arguments := strings.Join(command_arguments, " ")
-	counter := 0
+	var counter AmountOfPaths = 0
 	for _, char := range arguments {
 		if char == '\'' {
 			counter++
 		}
 	}
-	return counter == 4
+	return counter == closedCount
 }
 
-// Find the path of a file if it's closed with '
-func FindPath(command_arguments []string, index int) string {
+// Find the path of a file if it's closed with ' with the given amount of closed paths and specific filename index
+func FindPath(command_arguments []string, index int, closedCount AmountOfPaths) string {
 	arguments := strings.Join(command_arguments, " ") // Convert to string
 	var name string
 	var counter int // counting the amount of '
@@ -86,8 +92,15 @@ func FindPath(command_arguments []string, index int) string {
 			break // Stop searching
 		}
 	}
-	if counter == 4 { // If the second path has been specifed
-		name = "'" + strings.Split(name, "'")[3] + "'" // save the second path only
+	if index == SecondNameParameter { // If the second path has been chosen
+		parts := strings.Split(name, "'")
+		// If the client provided 2 paths (two single quotes), save the second part
+		if len(parts) >= int(TwoCloudPaths) {
+			name = parts[secondPathIndex]
+		} else {
+			name = ""
+		}
+		//name = "'" + strings.Join((strings.Split(name, "'")[1])) + "'" // save the second path only. (int[closedCount]-1) to access the last index of the closedCount path
 	}
 	return name
 }

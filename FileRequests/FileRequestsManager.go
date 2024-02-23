@@ -4,9 +4,11 @@ import (
 	"client/ClientErrors"
 	"client/Helper"
 	"client/Requests"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -114,9 +116,9 @@ func HandleRename(command_arguments []string, socket net.Conn) error {
 	}
 	var oldcontentName string
 	var newcontentName string
-	if Helper.IsQuoted(command_arguments) { // Check if the command arguments are enclosed within a quotation (') marks
-		oldcontentName = Helper.FindPath(command_arguments, Helper.FirstNameParameter)
-		newcontentName = Helper.FindPath(command_arguments, Helper.SecondNameParameter)
+	if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) { // Check if the command arguments are enclosed within a quotation (') marks
+		oldcontentName = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.TwoCloudPaths)
+		newcontentName = fmt.Sprintf(" '" + Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) + "'")
 	} else {
 		oldcontentName = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
 		newcontentName = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
@@ -137,9 +139,9 @@ func HandleMove(command_arguments []string, socket net.Conn) error {
 	}
 	var currentFilePath string
 	var newPath string
-	if Helper.IsQuoted(command_arguments) { // Check if the command arguments are enclosed within a quotation (') marks
-		currentFilePath = Helper.FindPath(command_arguments, Helper.FirstNameParameter) // Save the first path
-		newPath = Helper.FindPath(command_arguments, Helper.SecondNameParameter)        // Save the second path
+	if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) { // Check if the command arguments are enclosed within a quotation (') marks
+		currentFilePath = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.TwoCloudPaths)                    // Save the first path
+		newPath = fmt.Sprintf(" '" + Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) + "'") // Save the second path
 	} else {
 		currentFilePath = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
 		newPath = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
@@ -176,24 +178,41 @@ func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
 }
 
 // Handle upload command
-func HandleUpload(command_arguments []string, socket net.Conn) (string, error) {
-	if len(command_arguments) < minimumArguments || len(command_arguments) > uploadFileArguments { // If file name was not provided or more parameters have been given
-		return "", &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
+func HandleUploadFile(command_arguments []string, socket net.Conn) error {
+	if len(command_arguments) < minimumArguments { // If file name was not provided
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
-	fileinfo, err := os.Stat(command_arguments[pathArgumentIndex])
+	var filename string
+	var cloudpath string
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the command arguments are enclosed within a quotation (') marks
+		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath)   // Save the first path (filename to upload)
+		cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+	} else { // If command arguments are not enclosed within a quotation (') marks
+		// relay on argument indexes
+		filename = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
+		cloudpath = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
+	}
+	fileinfo, err := os.Stat(strings.Replace(filename, "'", "", Helper.RemoveAll)) // Check file (Access file path without enclosed quotation)
 	if err != nil {
 		if os.IsNotExist(err) { // If file not exists
-			return "", &ClientErrors.FileNotExistError{Filename: command_arguments[pathArgumentIndex]}
+			return &ClientErrors.FileNotExistError{Filename: command_arguments[pathArgumentIndex]}
 		} else {
-			return "", &ClientErrors.ReadFileInfoError{Filename: command_arguments[pathArgumentIndex]}
+			return &ClientErrors.ReadFileInfoError{Filename: command_arguments[pathArgumentIndex]}
 		}
 	}
-	var path = ""                                      // Default path is empty (Relies on the server to pick the current directory as the path)
-	if len(command_arguments) == uploadFileArguments { // If path has been specified
-		path = command_arguments[uploadFilePathIndex]
-	}
+	// var path = ""                                      // Default path is empty (Relies on the server to pick the current directory as the path)
+	// if len(command_arguments) == uploadFileArguments { // If path has been specified
+	// 	path = strings.Join(command_arguments[uploadFilePathIndex:], " ")
+	// }
 	fileSize := uint32(fileinfo.Size())
-	file := newFile(command_arguments[uploadFileNameIndex], path, fileSize)
+	file := newFile(filepath.Base(strings.Replace(filename, "'", "", Helper.RemoveAll)), cloudpath, fileSize)
+	file_data, err := json.Marshal(file)
+	if err != nil {
+		return &ClientErrors.JsonEncodeError{}
+	}
 
-	//uploadFile almog.txt {optional: path}
+	respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, socket) // Sends sign in request
+	fmt.Println(respone)
+
+	return err
 }

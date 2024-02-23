@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ip_addr = "clouddriveserver.duckdns.org:12345"
-	prompt  = ">> "
+	conn_addr = "clouddriveserver.duckdns.org:12345"
+	prompt    = ">> "
 )
 
 type CLI struct {
@@ -21,7 +21,7 @@ type CLI struct {
 
 func NewCLI() (*CLI, error) {
 
-	sock, err := net.Dial("tcp", ip_addr)
+	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
 	}
