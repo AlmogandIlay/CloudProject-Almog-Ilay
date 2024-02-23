@@ -7,6 +7,8 @@ type ReciveDataError struct{ Err error }
 type ServerConnectionError struct{ Err error }
 type JsonEncodeError struct{ Err error }
 type JsonDecodeError struct{ Err error }
+type FileNotExistError struct{ Filename string }
+type ReadFileInfoError struct{ Filename string }
 
 type InvalidArgumentCountError struct {
 	Arguments uint8
@@ -35,4 +37,12 @@ func (error *JsonEncodeError) Error() string {
 
 func (error *InvalidArgumentCountError) Error() string {
 	return fmt.Sprintf("Incorrect number of arguments. got %d, expected %d arguments\nPlease try again", error.Arguments, error.Expected)
+}
+
+func (error *FileNotExistError) Error() string {
+	return fmt.Sprintf("File %s does not eixst on your local machine.", error.Filename)
+}
+
+func (error *ReadFileInfoError) Error() string {
+	return fmt.Sprintf("Cannot read file %s info.", error.Filename)
 }

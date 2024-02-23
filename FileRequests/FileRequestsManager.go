@@ -6,6 +6,7 @@ import (
 	"client/Requests"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -23,6 +24,10 @@ const (
 
 	showFolderArguments = 1
 	path_index          = 1
+
+	uploadFileArguments = 2
+	uploadFileNameIndex = 0
+	uploadFilePathIndex = 1
 
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
@@ -168,4 +173,27 @@ func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
 		return "", err
 	}
 	return respone, nil
+}
+
+// Handle upload command
+func HandleUpload(command_arguments []string, socket net.Conn) (string, error) {
+	if len(command_arguments) < minimumArguments || len(command_arguments) > uploadFileArguments { // If file name was not provided or more parameters have been given
+		return "", &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
+	}
+	fileinfo, err := os.Stat(command_arguments[pathArgumentIndex])
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", &ClientErrors.FileNotExistError{Filename: command_arguments[pathArgumentIndex]}
+		} else {
+			return "", &ClientErrors.ReadFileInfoError{Filename: command_arguments[pathArgumentIndex]}
+		}
+	}
+	var path = ""                                      // Default path is empty (Relies on the server to pick the current directory as the path)
+	if len(command_arguments) == uploadFileArguments { // If path has been specified
+		path = command_arguments[uploadFilePathIndex]
+	}
+	fileSize := uint32(fileinfo.Size())
+	file := newFile(command_arguments[uploadFileNameIndex], path, fileSize)
+
+	//uploadFile almog.txt {optional: path}
 }
