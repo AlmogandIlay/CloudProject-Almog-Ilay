@@ -1,6 +1,7 @@
 package Helper
 
 import (
+	"client/ClientErrors"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -17,6 +18,8 @@ const (
 	OneClosedPath       AmountOfPaths = 2 // Specifcy that looking for one filename argument that is closed with ''
 	TwoCloudPaths       AmountOfPaths = 4 // Specifcy that looking for two filename arguments that is closed with '' ''
 	secondPathIndex                   = 3
+
+	uploadAddr = "clouddriveserver.duckdns.org:12346"
 )
 
 // bufferSize is usually 1024
@@ -103,4 +106,13 @@ func FindPath(command_arguments []string, index int, closedCount AmountOfPaths) 
 		//name = "'" + strings.Join((strings.Split(name, "'")[1])) + "'" // save the second path only. (int[closedCount]-1) to access the last index of the closedCount path
 	}
 	return name
+}
+
+func CreatePrivateSocket() (*net.Conn, error) {
+	sock, err := net.Dial("tcp", uploadAddr)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, &ClientErrors.ServerConnectionError{Err: err}
+	}
+	return &sock, nil
 }

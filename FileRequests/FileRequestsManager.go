@@ -209,7 +209,14 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	if err != nil {                                                           // If chunks size was returned from the server in a wrong type
 		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
-	go uploadFile(int64(fileSize), chunksSize, filename, *socket)
+
+	uploadSocket, err := Helper.CreatePrivateSocket()
+
+	if err != nil {
+		return err
+	}
+
+	go uploadFile(int64(fileSize), chunksSize, filename, *uploadSocket)
 
 	return nil
 }
