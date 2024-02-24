@@ -43,7 +43,7 @@ func uploadAbsFile(file *File, conn *net.Conn) {
 	dirFile, _ := os.Create(fullPath)        // Creates the file
 	dirFile.Close()
 
-	err := filetransmission.ReceiveFile(*conn, file.Path, file.Name, int(file.Size))
+	err := filetransmission.ReceiveFile(*conn, file.Path, file.Name, int(file.Size), filetransmission.GetChunkSize(file.Size))
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(conn, buildError(err.Error())) // Send error respone
 		if err != nil {
