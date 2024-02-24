@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	addr = "192.168.50.220:12345"
+	addr       = "192.168.50.220:12345"
+	uploadAddr = "192.168.50.220:12346"
 )
 
 //Prints the Remote IP:Port's client in the CLI server program.
@@ -31,7 +32,10 @@ func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
 
 //Handles new client connection
 
-func handleConnection(conn net.Conn) {
+func handleUploadFile(conn net.Conn) {
+	defer conn.Close()
+}
+func handleConnection(conn net.Conn, uploadListner net.Listener) {
 	defer conn.Close()
 
 	// Initialize setup
@@ -46,13 +50,32 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &conn) // Handle request processing
+		if request_Info.Type == Requests.UploadFileRequest {
+			uploadConn, err := uploadListner.Accept()
+			if err != nil {
+				fmt.Println("Error accepting connection:", err)
+				continue
+			}
+			go handleUploadFile(uploadConn)
 
-		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
-		if err != nil {                                              // If sending request info was unsucessful
-			closeConnection = true
+			response_info := userHandler.HandleRequest(request_Info, &loggedUser, &uploadConn) // Handle request processing
+
+			err = RequestHandlers.SendResponseInfo(&uploadConn, response_info) // Send Response Info to client
+			if err != nil {                                                    // If sending request info was unsucessful
+				closeConnection = true
+			}
+			userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
+
+		} else {
+			response_info := userHandler.HandleRequest(request_Info, &loggedUser, &conn) // Handle request processing
+
+			err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
+			if err != nil {                                              // If sending request info was unsucessful
+				closeConnection = true
+			}
+			userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
+
 		}
-		userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
 
 	}
 
@@ -77,6 +100,13 @@ func main() {
 	}
 	defer listener.Close()
 
+	uploadListener, err := net.Listen("tcp", uploadAddr)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer uploadListener.Close()
+
 	fmt.Printf("Server is listening on %s...\n", addr)
 
 	for {
@@ -85,7 +115,7 @@ func main() {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, uploadListener)
 	}
 
 }
