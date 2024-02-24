@@ -40,7 +40,7 @@ func convertResponeToPath(data string) string {
 	return parts[path_index]
 }
 
-func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
+func HandleChangeDirectory(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumArguments { // If argument was not given
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
@@ -60,7 +60,7 @@ func HandleChangeDirectory(command_arguments []string, socket net.Conn) error {
 }
 
 // Handle create content (file or directory) requests
-func HandleCreate(command []string, socket net.Conn) error {
+func HandleCreate(command []string, socket *net.Conn) error {
 	if len(command) < operationArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
@@ -83,7 +83,7 @@ func HandleCreate(command []string, socket net.Conn) error {
 }
 
 // Handle remove content (file or directory) requests
-func HandleRemove(command []string, socket net.Conn) error {
+func HandleRemove(command []string, socket *net.Conn) error {
 	if len(command) != operationArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
@@ -107,7 +107,7 @@ func HandleRemove(command []string, socket net.Conn) error {
 }
 
 // Handle Rename request
-func HandleRename(command_arguments []string, socket net.Conn) error {
+func HandleRename(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < rename_arguments { // If argument was not given
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(rename_arguments)}
 	}
@@ -130,7 +130,7 @@ func HandleRename(command_arguments []string, socket net.Conn) error {
 }
 
 // Handle Move request
-func HandleMove(command_arguments []string, socket net.Conn) error {
+func HandleMove(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < move_arguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(move_arguments)}
 	}
@@ -153,7 +153,7 @@ func HandleMove(command_arguments []string, socket net.Conn) error {
 }
 
 // Handle ls command (List contents command)
-func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
+func HandleShow(command_arguments []string, socket *net.Conn) (string, error) {
 	if !(len(command_arguments) == showFolderArguments || len(command_arguments) == 0) { // check for amount of arguments
 		return "", &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
@@ -175,7 +175,7 @@ func HandleShow(command_arguments []string, socket net.Conn) (string, error) {
 }
 
 // Handle upload command
-func HandleUploadFile(command_arguments []string, socket net.Conn) error {
+func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumArguments { // If file name was not provided
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
@@ -209,7 +209,7 @@ func HandleUploadFile(command_arguments []string, socket net.Conn) error {
 	if err != nil {                                                           // If chunks size was returned from the server in a wrong type
 		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
-	go uploadFile(int64(fileSize), chunksSize, filename, socket)
+	go uploadFile(int64(fileSize), chunksSize, filename, *socket)
 
 	return nil
 }

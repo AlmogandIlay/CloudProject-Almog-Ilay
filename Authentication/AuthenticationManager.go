@@ -20,7 +20,7 @@ const (
 // function, argumentCount, arguments,
 
 // Handles the sign up request
-func HandleSignup(commandArguments []string, socket net.Conn) error {
+func HandleSignup(commandArguments []string, socket *net.Conn) error {
 	if len(commandArguments) != signupArguments { // if Signup fields was not provided
 		return &(ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(commandArguments)), Expected: uint8(signupArguments)})
 	}
@@ -36,7 +36,7 @@ func HandleSignup(commandArguments []string, socket net.Conn) error {
 }
 
 // Handles the sign in request
-func HandleSignIn(command_arguments []string, socket net.Conn) error {
+func HandleSignIn(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) != 2 { // If username and password was not provided
 		return fmt.Errorf("incorrect number of arguments.\nPlease try again")
 	}
