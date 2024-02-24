@@ -66,7 +66,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 				}
 				return bar
 			}
-			fmt.Printf("\r%v    Upload Progress: %% - %s", precentage, printer(int(precentage), "-"))
+			fmt.Printf("\rUpload Progress: %v%% - %s", precentage, printer(int(precentage), "-"))
 		}
 	}
 	if validUpload {
