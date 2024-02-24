@@ -309,7 +309,7 @@ func buildError(response string) interface{} {
 	}
 }
 
-// Duplicate from ResponeInfo to avoid import cycble. send Respone info.
+// Duplicate from ResponeInfo to avoid import cycle. send Respone info.
 func sendResponseInfo(conn *net.Conn, responseInfo interface{}) error {
 	message, _ := json.Marshal(responseInfo)
 	return helper.SendData(conn, message)

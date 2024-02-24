@@ -18,7 +18,7 @@ const (
 type FileRequestHandler struct{}
 
 // Handle the file system type requests
-func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
+func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
 
@@ -38,7 +38,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	case Requests.MoveContentRequest:
 		return filehandler.handleMoveContent(info, loggedUser)
 	case Requests.UploadFileRequest:
-		return filehandler.handleUploadFile(info, loggedUser, conn)
+		return filehandler.handleUploadFile(info, loggedUser, uploadListener)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
@@ -145,7 +145,7 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 }
 
 // Handle Upload file requests from client
-func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
+func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
 	var file FileSystem.File
 
 	err := json.Unmarshal(info.RequestData, &file) // Convert json request to file struct
@@ -153,7 +153,7 @@ func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInf
 		err = &FileSystem.UnmarshalError{} // Convert the error to our custom made error.
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	chunksSize, err := loggedUser.UploadFile(&file, conn)
+	chunksSize, err := loggedUser.UploadFile(&file, uploadListener)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}

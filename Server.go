@@ -32,9 +32,6 @@ func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
 
 //Handles new client connection
 
-func handleUploadFile(conn net.Conn) {
-	defer conn.Close()
-}
 func handleConnection(conn net.Conn, uploadListner net.Listener) {
 	defer conn.Close()
 
@@ -50,33 +47,13 @@ func handleConnection(conn net.Conn, uploadListner net.Listener) {
 		if err != nil {
 			closeConnection = true
 		}
-		if request_Info.Type == Requests.UploadFileRequest {
-			uploadConn, err := uploadListner.Accept()
-			if err != nil {
-				fmt.Println("Error accepting connection:", err)
-				continue
-			}
-			go handleUploadFile(uploadConn)
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &uploadListner) // Handle request processing
 
-			response_info := userHandler.HandleRequest(request_Info, &loggedUser, &uploadConn) // Handle request processing
-
-			err = RequestHandlers.SendResponseInfo(&uploadConn, response_info) // Send Response Info to client
-			if err != nil {                                                    // If sending request info was unsucessful
-				closeConnection = true
-			}
-			userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
-
-		} else {
-			response_info := userHandler.HandleRequest(request_Info, &loggedUser, &conn) // Handle request processing
-
-			err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
-			if err != nil {                                              // If sending request info was unsucessful
-				closeConnection = true
-			}
-			userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
-
+		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
+		if err != nil {                                              // If sending request info was unsucessful
+			closeConnection = true
 		}
-
+		userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
 	}
 
 	err := RequestHandlers.RemoveOnlineUser(loggedUser) // Remove the current user from the online users array

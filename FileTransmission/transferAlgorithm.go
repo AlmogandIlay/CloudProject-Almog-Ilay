@@ -86,11 +86,16 @@ func ReceiveFile(conn net.Conn, filePath, fileName string, fileSize int, chuckSi
 
 	fileChunk := make([]byte, chuckSize)
 
+	fmt.Println("Before loop")
+	// Send to client that I'm ready
 	for bytesRead < fileSize {
+		fmt.Println("In the loop")
 		read, err := conn.Read(fileChunk)
 		if err != nil {
+			fmt.Printf("There is an error. %v\n", err)
 			return fmt.Errorf("error reading the file.\nplease try again")
 		}
+		fmt.Println(string(fileChunk))
 
 		_, err = writer.Write(fileChunk)
 

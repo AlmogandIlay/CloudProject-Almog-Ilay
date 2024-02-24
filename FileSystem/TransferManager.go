@@ -8,8 +8,17 @@ import (
 	"path/filepath"
 )
 
+// Create private socket and ready to accept the client connection
+func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
+	conn, err := uploadListener.Accept()
+	if err != nil {
+		return nil, &CreatePrivateSocketError{}
+	}
+	return &conn, nil
+}
+
 // Upload a file to the Cloud
-func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
+func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (uint, error) {
 	if file.Path == "" { // if path wasn't decleared
 		file.setPath(user.GetPath())
 	}
@@ -32,20 +41,26 @@ func (user *LoggedUser) UploadFile(file *File, conn *net.Conn) (uint, error) {
 		return emptyChunks, &FileExistError{file.Name, file.Path}
 	}
 
-	go uploadAbsFile(file, conn) // Start uploading file
+	go uploadAbsFile(file, uploadListener) // Start uploading file
 
 	return filetransmission.GetChunkSize(file.Size), nil
 }
 
 // Uploading file proccess
-func uploadAbsFile(file *File, conn *net.Conn) {
+func uploadAbsFile(file *File, uploadListener *net.Listener) {
+	// Create private socket with the client for the upload file
+	uploadSocket, err := createPrivateSocket(*uploadListener)
+	if err != nil {
+		return
+	}
+
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
 	dirFile, _ := os.Create(fullPath)        // Creates the file
 	dirFile.Close()
 
-	err := filetransmission.ReceiveFile(*conn, file.Path, file.Name, int(file.Size), filetransmission.GetChunkSize(file.Size))
+	err = filetransmission.ReceiveFile(*uploadSocket, file.Path, file.Name, int(file.Size), filetransmission.GetChunkSize(file.Size))
 	if err != nil { // If upload process has failed
-		err = sendResponseInfo(conn, buildError(err.Error())) // Send error respone
+		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {
 			return // Exit upload
 		}

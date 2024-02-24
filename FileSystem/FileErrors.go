@@ -28,6 +28,8 @@ type InitializeError struct{}
 
 type UnmarshalError struct{}
 
+type CreatePrivateSocketError struct{}
+
 // Creates custom errors for filesystem
 
 func (fileError *FileSizeError) Error() string {
@@ -94,4 +96,8 @@ func (fileError *InitializeError) Error() string {
 
 func (fileError *UnmarshalError) Error() string {
 	return "There has been an error when attempting to encode the requested file."
+}
+
+func (fileError *CreatePrivateSocketError) Error() string {
+	return "Couldn't create a private socket for the file upload."
 }

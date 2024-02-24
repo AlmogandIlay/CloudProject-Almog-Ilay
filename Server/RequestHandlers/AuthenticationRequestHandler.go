@@ -11,7 +11,7 @@ import (
 type AuthenticationRequestHandler struct{}
 
 // Handle Authentication type requests
-func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo {
+func (loginHandler AuthenticationRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
 	switch info.Type {
 	case Requests.LoginRequest:
 		return loginHandler.handleLogin(info, loggedUser)

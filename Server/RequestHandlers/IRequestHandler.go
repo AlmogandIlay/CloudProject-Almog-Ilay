@@ -7,7 +7,7 @@ import (
 )
 
 type IRequestHandler interface {
-	HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Conn) ResponeInfo
+	HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, conn *net.Listener) ResponeInfo
 }
 
 func UpdateRequestHandler(response ResponeInfo) IRequestHandler {
