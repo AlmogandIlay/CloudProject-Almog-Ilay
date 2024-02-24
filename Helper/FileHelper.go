@@ -12,6 +12,7 @@ const (
 	CloudDrive = "CloudDrive"
 	DrivePath  = "D:\\CloudDrive"
 	RootDir    = "Root:\\"
+	Garbage    = "Garbage"
 	noAbsolute = -1
 )
 
@@ -19,6 +20,10 @@ const (
 from the user observation he see and write the encapsulate path(root/filesys/etc...) but the server validate the literal path(C:/CloudDrive)
 root/file1/file2 -> C:/CloudDrive/id/file1/file2
 */
+
+func GetGarbagePath(userID uint32) string {
+	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10), Garbage)
+}
 
 func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))

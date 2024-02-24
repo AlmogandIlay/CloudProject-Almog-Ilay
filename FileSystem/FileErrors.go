@@ -12,9 +12,11 @@ type PathNotExistError struct{ Path string }
 
 type OpenDirError struct{ Path string }
 type ReadDirError struct{ Path string }
+type AbsFileError struct{ Path string }
 type FileExistError struct{ Name, Path string }
 type FolderExistError struct{ Name, Path string }
 type FileNotExistError struct{ Name, Path string }
+type RenameError struct{ Name, NewName string }
 type FolderNotExistError struct{ Name, Path string }
 type ContentNotExistError struct{ Name, Path string }
 type ContentExistError struct{ Name, Path string }
@@ -76,6 +78,10 @@ func (fileError *ContentExistError) Error() string {
 	return fmt.Sprintf("The content '%s' is already exists in '%s' path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
 }
 
+func (fileError *RenameError) Error() string {
+	return fmt.Sprintf("Connot rename the file: %s to %s", fileError.Name, fileError.NewName)
+}
+
 func (fileError *FileLengthError) Error() string {
 	return fmt.Sprintf("The file '%s' is not the appropriate length, should be under '%d'", fileError.Name, maxFileSize)
 }
@@ -87,7 +93,7 @@ func (fileError *SizeCalculationError) Error() string {
 }
 
 func (fileError *PremmisionError) Error() string {
-	return fmt.Sprintf("You have no permission to access out of your root%s", helper.GetVirtualStoragePath(fileError.Path))
+	return fmt.Sprintf("You have no permission to access out of your root %s", helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *InitializeError) Error() string {
@@ -100,4 +106,8 @@ func (fileError *UnmarshalError) Error() string {
 
 func (fileError *CreatePrivateSocketError) Error() string {
 	return "Couldn't create a private socket for the file upload."
+}
+
+func (fileError *AbsFileError) Error() string {
+	return fmt.Sprintf("The argument %s should be pure name of file not abs path", fileError.Path)
 }
