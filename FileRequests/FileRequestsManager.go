@@ -195,7 +195,7 @@ func HandleUploadFile(command_arguments []string, socket net.Conn) error {
 		return err
 	}
 	fileSize := uint32(fileInfo.Size())
-	file := newFile(filepath.Base(filename), cloudpath, fileSize) // Create a new file struct for server communication
+	file := newFile(filepath.Base(strings.Replace(filename, "'", "", Helper.RemoveAll)), cloudpath, fileSize) // Create a new file struct for server communication
 	file_data, err := json.Marshal(file)
 	if err != nil {
 		return &ClientErrors.JsonEncodeError{}
