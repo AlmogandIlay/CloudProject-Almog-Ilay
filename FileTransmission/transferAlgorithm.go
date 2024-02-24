@@ -69,44 +69,35 @@ func SendFile(conn *net.Conn, size uint32, path string, name string) error {
 }
 
 // Reccive file from the client, read the data in chunks and then write in chunks into the file.
-func ReceiveFile(conn net.Conn, filePath, fileName string, fileSize int, chuckSize uint) error {
-
+func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) error {
+	fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
+	bytesRead := 0
+	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
+		// Reading file
+		read, err := conn.Read(fileBytes[bytesRead:])
+		if err != nil {
+			return fmt.Errorf("error reading the file.\nplease try again")
+		}
+		bytesRead += read
+	}
 	fullPath := filePath + "\\" + fileName
 	file, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE, 0644) // Open file for writing
 	if err != nil {
 		return fmt.Errorf("error opening the file: %v", fileName)
 	}
-	defer file.Close()
-
 	// Create a buffered writer for efficient writes
 	writer := bufio.NewWriter(file)
 
 	//fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
-	bytesRead := 0
-
-	fileChunk := make([]byte, chuckSize)
-
-	fmt.Println("Before loop")
-	// Send to client that I'm ready
-	for bytesRead < fileSize {
-		fmt.Println("In the loop")
-		read, err := conn.Read(fileChunk)
-		if err != nil {
-			fmt.Printf("There is an error. %v\n", err)
-			return fmt.Errorf("error reading the file.\nplease try again")
-		}
-		fmt.Println(string(fileChunk))
-
-		_, err = writer.Write(fileChunk)
-
+	bytesWritten := 0
+	for bytesWritten < len(fileBytes) {
+		n, err := writer.Write(fileBytes[bytesWritten:])
 		if err != nil {
 			return fmt.Errorf("error writing to file: %v", fileName)
 		}
-
-		fileChunk = fileChunk[:0]
-
-		bytesRead += read
+		bytesWritten += n
 	}
+	fmt.Println("Finished writing file")
 
 	err = writer.Flush() // Flush any remaining data in the buffer to the file
 	if err != nil {
@@ -114,32 +105,32 @@ func ReceiveFile(conn net.Conn, filePath, fileName string, fileSize int, chuckSi
 	}
 
 	return nil
-
-	/*
-
-		for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
-			read, err := conn.Read(fileBytes[bytesRead:])
-			if err != nil {
-				return fmt.Errorf("error reading the file.\nplease try again")
-			}
-
-			bytesRead += read
-		}
-
-		// Write the data to the file in chunks
-		bytesWritten := 0
-		for bytesWritten < len(fileBytes) {
-			n, err := writer.Write(fileBytes[bytesWritten:])
-			if err != nil {
-				return fmt.Errorf("error writing to file: %v", fileName)
-			}
-			bytesWritten += n
-		}
-
-		err = writer.Flush() // Flush any remaining data in the buffer to the file
-		if err != nil {
-			return fmt.Errorf("error flushing data to the file: %v", fileName)
-		}
-
-		return nil*/
 }
+
+/*
+
+	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
+		read, err := conn.Read(fileBytes[bytesRead:])
+		if err != nil {
+			return fmt.Errorf("error reading the file.\nplease try again")
+		}
+
+		bytesRead += read
+	}
+
+	// Write the data to the file in chunks
+	bytesWritten := 0
+	for bytesWritten < len(fileBytes) {
+		n, err := writer.Write(fileBytes[bytesWritten:])
+		if err != nil {
+			return fmt.Errorf("error writing to file: %v", fileName)
+		}
+		bytesWritten += n
+	}
+
+	err = writer.Flush() // Flush any remaining data in the buffer to the file
+	if err != nil {
+		return fmt.Errorf("error flushing data to the file: %v", fileName)
+	}
+
+	return nil*/
