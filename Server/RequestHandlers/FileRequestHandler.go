@@ -6,6 +6,7 @@ import (
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -156,5 +157,5 @@ func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInf
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	return buildRespone(ChunksRespone+string(rune(chunksSize)), CreateFileRequestHandler()) // Send chunks size
+	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler()) // Send chunks size
 }
