@@ -78,11 +78,16 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
 	// Converting contentPath to absolute if it isn't
 	if !filepath.IsAbs(contentPath) { // Converting the file to an absolute path if it doesn
-		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath) // if the file not abs -> file.* -> patn/file.*
-		err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath))
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)                // if the file not abs -> file.* -> patn/file.*
+		err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Check if the filename to rename exists
 		if err != nil {
 			return err
 		}
+		err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(contentPath)) // Check if the new filename does not exist already
+		if err == nil {
+			return &ContentExistError{Name: filepath.Base(newContentPath), Path: filepath.Dir(contentPath)}
+		}
+
 	}
 	err := user.ValidateFile(newFile(filepath.Base(newContentPath), filepath.Dir(contentPath), 0))
 	if err != nil {
