@@ -27,7 +27,7 @@ func HandleSignup(commandArguments []string, socket net.Conn) error {
 	user := Signup(commandArguments[username_index], commandArguments[password_index], commandArguments[email_index]) // Signup a user struct
 	request_data, err := json.Marshal(user)                                                                           // Convert user struct
 	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("Error when attempting to encode the data to be sent to the server.\nPlease send this info to the developers: %s", err.Error()))
+		return &ClientErrors.JsonEncodeError{}
 	}
 	_, err = Requests.SendRequest(Requests.SignupRequest, request_data, socket) // Sends sign up request
 

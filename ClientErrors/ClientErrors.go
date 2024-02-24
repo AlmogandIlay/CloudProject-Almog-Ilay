@@ -9,6 +9,8 @@ type JsonEncodeError struct{ Err error }
 type JsonDecodeError struct{ Err error }
 type FileNotExistError struct{ Filename string }
 type ReadFileInfoError struct{ Filename string }
+type ServerBadChunks struct{}
+type BadFileContent struct{ Filename string }
 
 type InvalidArgumentCountError struct {
 	Arguments uint8
@@ -20,7 +22,7 @@ func (error *ReciveDataError) Error() string {
 }
 
 func (error *SendDataError) Error() string {
-	return fmt.Sprintf("Error when attempting to send the request to the server.\n%s", error.Err)
+	return fmt.Sprintf("Error when attempting to send the data to the server.\n%s", error.Err)
 }
 
 func (error *ServerConnectionError) Error() string {
@@ -45,4 +47,12 @@ func (error *FileNotExistError) Error() string {
 
 func (error *ReadFileInfoError) Error() string {
 	return fmt.Sprintf("Cannot read file %s info.", error.Filename)
+}
+
+func (error *ServerBadChunks) Error() string {
+	return "Server has returned wrong type of chunks. Please contact the developers"
+}
+
+func (error *BadFileContent) Error() string {
+	return fmt.Sprintf("There is a problem uploading the file content of the provided file: %s", error.Filename)
 }

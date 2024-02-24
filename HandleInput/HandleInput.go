@@ -123,7 +123,7 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			if err != nil {
 				return err.Error()
 			}
-			return "File has been uploaded succesfully!"
+			return ""
 
 		default:
 			return "Invalid command.\nPlease try a different command or use \"help\"\n"

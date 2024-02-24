@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +26,7 @@ const (
 
 	showFolderArguments = 1
 	path_index          = 1
+	chunksIndex         = 2
 
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
@@ -185,30 +186,30 @@ func HandleUploadFile(command_arguments []string, socket net.Conn) error {
 		cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
-		filename = fmt.Sprintf("'" + command_arguments[oldFileName] + "'")
-		cloudpath = fmt.Sprintf(" '" + command_arguments[newFileName] + "'")
+		filename = fmt.Sprintf(command_arguments[oldFileName])
+		cloudpath = fmt.Sprintf(" '" + command_arguments[newFileName])
 	}
-	fileinfo, err := os.Stat(strings.Replace(filename, "'", "", Helper.RemoveAll)) // Check file (Access file path without enclosed quotation)
+
+	fileInfo, err := checkFile(filename) // Check if file exists, if it does returns file info api
 	if err != nil {
-		if os.IsNotExist(err) { // If file not exists
-			return &ClientErrors.FileNotExistError{Filename: command_arguments[pathArgumentIndex]}
-		} else {
-			return &ClientErrors.ReadFileInfoError{Filename: command_arguments[pathArgumentIndex]}
-		}
+		return err
 	}
-	// var path = ""                                      // Default path is empty (Relies on the server to pick the current directory as the path)
-	// if len(command_arguments) == uploadFileArguments { // If path has been specified
-	// 	path = strings.Join(command_arguments[uploadFilePathIndex:], " ")
-	// }
-	fileSize := uint32(fileinfo.Size())
-	file := newFile(filepath.Base(strings.Replace(filename, "'", "", Helper.RemoveAll)), cloudpath, fileSize)
+	fileSize := uint32(fileInfo.Size())
+	file := newFile(filepath.Base(filename), cloudpath, fileSize) // Create a new file struct for server communication
 	file_data, err := json.Marshal(file)
 	if err != nil {
 		return &ClientErrors.JsonEncodeError{}
 	}
 
-	respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, socket) // Sends sign in request
-	fmt.Println(respone)
+	respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, socket) // Sends upload file request
+	if err != nil {                                                                     // If upload file request was rejected
+		return err
+	}
+	chunksSize, err := strconv.Atoi(strings.Split(respone, ":")[chunksIndex]) // Convert respone to chunks size
+	if err != nil {                                                           // If chunks size was returned from the server in a wrong type
+		return &ClientErrors.ServerBadChunks{} // Blame the server
+	}
+	go uploadFile(int64(fileSize), chunksSize, filename, socket)
 
-	return err
+	return nil
 }
