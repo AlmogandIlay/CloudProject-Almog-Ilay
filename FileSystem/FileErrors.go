@@ -71,7 +71,7 @@ func (fileError *ContentNotExistError) Error() string {
 }
 
 func (fileError *ContentExistError) Error() string {
-	return fmt.Sprintf("The content '%s' is already exists in %s path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+	return fmt.Sprintf("The content '%s' is already exists in '%s' path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
 }
 
 func (fileError *FileLengthError) Error() string {
