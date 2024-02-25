@@ -169,7 +169,7 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 		}
 	}
 
-	return operation(path)
+	return operation(helper.GetServerStoragePath(user.UserID, path)) // Sends the real path file argument
 }
 
 // go back to the CloudDrive user root: Root/
