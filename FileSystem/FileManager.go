@@ -154,7 +154,7 @@ func (user *LoggedUser) ListContents(path string) (string, error) {
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
-	if !filepath.IsAbs(path) {
+	if !filepath.IsAbs(helper.GetServerStoragePath(user.UserID, path)) {
 		path = helper.ConvertToAbsolute(user.GetPath(), path) // convert to an absolute-server side path
 	} else {
 		if !strings.HasPrefix(path, helper.RootDir) {
@@ -163,7 +163,7 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 	}
 
 	garbagePath := helper.GetGarbagePath(user.UserID)
-	if strings.HasPrefix(path, garbagePath) {
+	if strings.HasPrefix(helper.GetServerStoragePath(user.UserID, path), garbagePath) {
 		switch reflect.TypeOf(operation) {
 		case reflect.TypeOf(createAbsFile), reflect.TypeOf(createAbsDir):
 			return &PremmisionError{garbagePath}
