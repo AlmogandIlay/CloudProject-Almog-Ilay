@@ -42,16 +42,24 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 		path, err = user.setBackRoot()
 	case "..":
 		path, err = user.setBackDirectory()
+
 	default:
 
+		// If path is absolute (starts with Root:\)
 		if filepath.IsAbs(serverPath) {
 			if helper.IsContainGarbage(serverPath, user.UserID) {
 				return "", &PremmisionError{serverPath}
 			}
 			path, err = user.setAbsDir(serverPath)
+
+			// If the relative path contains .. operation
+			// } else if helper.IsBackInRelativePath(serverPath) {
+			// 	if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) {
+			// 		return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
+			// 	}
 		} else {
-			if helper.IsContainGarbage(user.CurrentPath+serverPath, user.UserID) {
-				return "", &PremmisionError{serverPath}
+			if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) {
+				return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
 			}
 			path, err = user.setForwardDir(serverPath)
 		}
