@@ -4,10 +4,10 @@ import (
 	helper "CloudDrive/Helper"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 )
 
@@ -42,9 +42,9 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	case "..":
 		path, err = user.setBackDirectory()
 	default:
-		//check if the user try to cd to path in garbage, if their length is equal he just cd to the garbage
-		if strings.HasPrefix(serverPath, helper.GetGarbagePath(user.UserID)) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
-			return "", &PremmisionError{serverPath}
+		// check if the given path start with garbage, check if he trying to access in garbage directory
+		if strings.HasPrefix(helper.GetGarbagePath(user.UserID), path) && len(path) != len(helper.GetGarbagePath(user.UserID)) {
+			return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
 		}
 		if filepath.IsAbs(serverPath) {
 			path, err = user.setAbsDir(serverPath)
@@ -60,6 +60,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 // Creates a new file in the current directory
 func (user *LoggedUser) CreateFile(fileName string) error {
+
 	return user.fileOperation(fileName, createAbsFile)
 }
 
@@ -78,20 +79,71 @@ func (user *LoggedUser) RemoveFolder(folderName string) error {
 	return user.fileOperation(folderName, removeAbsFolder)
 }
 
+// Renames a file
+func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
+	// Converting contentPath to absolute if it isn't
+	if !filepath.IsAbs(contentPath) { // Converting the file to an absolute path if it doesn
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)                // if the file not abs -> file.* -> patn/file.*
+		err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Check if the filename to rename exists
+		if err != nil {
+			return err
+		}
+		err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(contentPath)) // Check if the new filename does not exist already
+		if err == nil {
+			return &ContentExistError{Name: filepath.Base(newContentPath), Path: filepath.Dir(contentPath)}
+		}
+
+	}
+	err := user.ValidateFile(newFile(filepath.Base(newContentPath), filepath.Dir(contentPath), 0))
+	if err != nil {
+		return err
+	}
+	renameAbsContent(contentPath, newContentPath)
+	return nil
+}
+
+// Moves a content's path (files and folders)
+func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
+	// Converting both contentPath and newContentPath to absolute paths if they aren't
+	if !filepath.IsAbs(contentPath) {
+		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)
+	}
+	if !filepath.IsAbs(newContentPath) {
+		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
+	}
+
+	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file's path exists
+	if err != nil {
+		return err
+	}
+	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the provided directory exists
+	if err != nil {
+		return err
+	}
+	err = validFileName(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file name is valid
+	if err != nil {
+		return err
+	}
+	err = validFileName(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the provided directory is valid
+	if err != nil {
+		return err
+	}
+	newContentPath += "\\" + filepath.Base(contentPath) // Add the content (file/path)'s name extension to the new directory
+	moveContent(contentPath, newContentPath)
+	return nil
+}
+
 // list all the files in the given (or not given) path
 func (user *LoggedUser) ListContents(path string) (string, error) {
-
+	var dirPath string
 	if path == "" { // If path hasn't been specified
-		path = user.GetPath() // put current directory as default
+		dirPath = user.GetPath() // put current directory as default
 	} else { // If path has been specified
 		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
-			path = helper.ConvertToAbsolute(user.GetPath(), path)
+			dirPath = helper.ConvertToAbsolute(user.GetPath(), path)
 		}
 	}
-	if strings.HasPrefix(path, helper.GetGarbagePath(user.UserID)) && len(path) != len(helper.GetGarbagePath(user.UserID)) {
-		return "", &PremmisionError{path}
-	}
-	return getFolderContent(path)
+	return getFolderContent(dirPath)
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
@@ -103,119 +155,7 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 			return &PremmisionError{path}
 		}
 	}
-
-	garbagePath := helper.GetGarbagePath(user.UserID)
-	if strings.HasPrefix(path, garbagePath) {
-		switch reflect.TypeOf(operation) {
-		case reflect.TypeOf(createAbsFile), reflect.TypeOf(createAbsDir):
-			return &PremmisionError{garbagePath}
-			//case reflect.TypeOf(removeAbsFile), reflect.TypeOf(removeAbsFolder):
-
-		}
-	}
-
 	return operation(path)
-}
-
-// Rename a file name in the current directory, gets full file path and new filename
-func renameAbsContent(currentContentPath, newContentName string) error {
-
-	// Use os.Rename to rename the file
-	err := os.Rename(currentContentPath, newContentName)
-	if err != nil {
-		return &RenameError{currentContentPath, newContentName}
-	}
-	return nil
-}
-
-// Renames a file
-func (user *LoggedUser) RenameContent(contentPath string, newContentName string) error {
-
-	// Converting contentPath to absolute if it isn't
-	if !filepath.IsAbs(contentPath) { // Converting the file to an absolute path if it doesn
-		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath) // if the file not abs -> file.* -> patn/file.*
-	}
-
-	if !filepath.IsAbs(newContentName) {
-		newContentName = helper.ConvertToAbsolute(filepath.Dir(contentPath), newContentName) // Get new Content name full path
-	} else {
-		return &AbsFileError{Path: newContentName}
-	}
-
-	err := validFileName(newContentName, filepath.Dir(contentPath))
-	if err != nil {
-		return err
-	}
-
-	if strings.HasPrefix(contentPath, helper.GetGarbagePath(user.UserID)) {
-		return &PremmisionError{contentPath}
-	}
-
-	err = IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Check if the filename to rename exists
-	if err != nil {
-		return err
-	}
-	err = IsContentInDirectory(newContentName, filepath.Dir(contentPath)) // Check if the new filename does not exist already
-	if err == nil {
-		return &ContentExistError{Name: newContentName, Path: filepath.Dir(contentPath)}
-	}
-
-	if strings.HasPrefix(contentPath, helper.GetGarbagePath(user.UserID)) {
-		return &PremmisionError{contentPath}
-	}
-	return renameAbsContent(contentPath, newContentName)
-}
-
-// Moves a content's path (files and folders)
-func (user *LoggedUser) MoveContent(contentPath, newPath string) error {
-	// Converting both contentPath and newContentPath to absolute paths if they aren't
-	if !filepath.IsAbs(contentPath) {
-		contentPath = helper.ConvertToAbsolute(user.GetPath(), contentPath)
-	}
-
-	if !filepath.IsAbs(newPath) {
-		newPath = helper.ConvertToAbsolute(user.CurrentPath, newPath) // Get new Content name full path
-	}
-
-	// need to check if the content exists in new path
-	err := validFileName(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file name is valid
-	if err != nil {
-		return err
-	}
-	err = validFileName(filepath.Base(newPath), filepath.Dir(newPath)) // Checks if the provided directory is valid
-	if err != nil {
-		return err
-	}
-
-	err = IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file's path exists
-	if err != nil {
-		return err
-	}
-
-	err = IsContentInDirectory(filepath.Base(newPath), filepath.Dir(newPath)) // Checks if the provided directory exists
-	if err != nil {
-		return err
-	}
-
-	err = IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(newPath)) // Checks if the provided directory exists
-	if err == nil {
-		return &ContentExistError{filepath.Base(contentPath), filepath.Dir(newPath)}
-	}
-
-	if strings.HasPrefix(contentPath, helper.GetGarbagePath(user.UserID)) {
-		return &PremmisionError{contentPath}
-	}
-	if strings.HasPrefix(newPath, helper.GetGarbagePath(user.UserID)) {
-		return &PremmisionError{newPath}
-	}
-
-	newPath = filepath.Join(newPath, filepath.Base(contentPath)) // Add the content (file/path)'s name extension to the new directory
-	return moveContent(contentPath, newPath)
-}
-
-func moveContent(currentAbsFilePath, newPath string) error {
-
-	return renameAbsContent(currentAbsFilePath, newPath)
 }
 
 // go back to the CloudDrive user root: Root/
@@ -306,6 +246,22 @@ func removeAbsFolder(absDir string) error {
 	}
 	os.RemoveAll(absDir)
 	return nil
+}
+
+// Rename a file name in the current directory, gets full file path and new filename
+func renameAbsContent(currentContentPath, newContentName string) {
+	if !filepath.IsAbs(newContentName) {
+		newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get new Content name full path
+	}
+	// Use os.Rename to rename the file
+	err := os.Rename(currentContentPath, newContentName)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func moveContent(currentAbsFilePath, newFileName string) {
+	renameAbsContent(currentAbsFilePath, newFileName)
 }
 
 // Returns folder's content including its files and folders in a string variable. Return error if it fails
