@@ -42,13 +42,18 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	case "..":
 		path, err = user.setBackDirectory()
 	default:
-		// check if the given path start with garbage, check if he trying to access in garbage directory
-		if strings.HasPrefix(helper.GetGarbagePath(user.UserID), path) && len(path) != len(helper.GetGarbagePath(user.UserID)) {
-			return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
-		}
+
 		if filepath.IsAbs(serverPath) {
+			// check if the given path start with garbage, check if he trying to access in garbage directory
+			if strings.HasPrefix(helper.GetGarbagePath(user.UserID), path) && len(path) != len(helper.GetGarbagePath(user.UserID)) {
+				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
+			}
 			path, err = user.setAbsDir(serverPath)
 		} else {
+			// check if the given path start with garbage, check if he trying to access in garbage directory
+			if user.CurrentPath == helper.Garbage {
+				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
+			}
 			path, err = user.setForwardDir(serverPath)
 		}
 	}
