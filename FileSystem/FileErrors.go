@@ -24,6 +24,7 @@ type FileLengthError struct{ Name string }
 type CharactersError struct{}
 type SizeCalculationError struct{}
 
+type PremmisionOutOfRootError struct{}
 type PremmisionError struct{ Path string }
 
 type InitializeError struct{}
@@ -93,7 +94,11 @@ func (fileError *SizeCalculationError) Error() string {
 }
 
 func (fileError *PremmisionError) Error() string {
-	return fmt.Sprintf("You have no permission to access out of your root %s", helper.GetVirtualStoragePath(fileError.Path))
+	return fmt.Sprintf("You have no permission to access the path: %s", helper.GetVirtualStoragePath(fileError.Path))
+}
+
+func (fileError *PremmisionOutOfRootError) Error() string {
+	return "You have no permission to access out of your root"
 }
 
 func (fileError *InitializeError) Error() string {

@@ -46,12 +46,12 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 		if filepath.IsAbs(serverPath) {
 			if helper.IsContainGarbage(serverPath, user.UserID) {
-				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
+				return "", &PremmisionError{serverPath}
 			}
 			path, err = user.setAbsDir(serverPath)
 		} else {
 			if helper.IsContainGarbage(user.CurrentPath+serverPath, user.UserID) {
-				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
+				return "", &PremmisionError{serverPath}
 			}
 			path, err = user.setForwardDir(serverPath)
 		}
@@ -139,15 +139,18 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 
 // list all the files in the given (or not given) path
 func (user *LoggedUser) ListContents(path string) (string, error) {
-	var dirPath string
 	if path == "" { // If path hasn't been specified
-		dirPath = user.GetPath() // put current directory as default
+		path = user.GetPath() // put current directory as default
 	} else { // If path has been specified
 		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
-			dirPath = helper.ConvertToAbsolute(user.GetPath(), path)
+			path = helper.ConvertToAbsolute(user.GetPath(), path)
 		}
 	}
-	return getFolderContent(dirPath)
+
+	if helper.IsContainGarbage(path, user.UserID) {
+		return "", &PremmisionError{path}
+	}
+	return getFolderContent(path)
 }
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
@@ -156,7 +159,7 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 		path = helper.ConvertToAbsolute(user.GetPath(), path) // convert to an absolute-server side path
 	} else {
 		if !strings.HasPrefix(path, helper.RootDir) {
-			return &PremmisionError{path}
+			return &PremmisionOutOfRootError{}
 		}
 	}
 
@@ -182,7 +185,7 @@ func (user *LoggedUser) setBackRoot() (string, error) {
 func (user *LoggedUser) setBackDirectory() (string, error) {
 	newPath := filepath.Dir(user.GetPath())
 	if newPath == "." {
-		return "", &PremmisionError{newPath}
+		return "", &PremmisionError{}
 	}
 	err := user.SetPath(newPath)
 	return user.GetPath(), err

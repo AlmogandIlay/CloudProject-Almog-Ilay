@@ -116,7 +116,7 @@ func isFolderInDirectory(path, pathOfDir string) error {
 // Valid the path that is given in the parameters of the client
 func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
-		return &PremmisionError{path}
+		return &PremmisionOutOfRootError{}
 	}
 	_, err := os.Stat(path)
 
