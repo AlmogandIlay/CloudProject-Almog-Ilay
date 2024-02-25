@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
@@ -45,7 +46,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 		if filepath.IsAbs(serverPath) {
 			// check if the given path start with garbage, check if he trying to access in garbage directory
-			if strings.HasPrefix(helper.GetGarbagePath(user.UserID), serverPath) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
+			if strings.HasPrefix(serverPath, helper.GetGarbagePath(user.UserID)) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
 			}
 			path, err = user.setAbsDir(serverPath)
@@ -63,7 +64,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	return helper.GetVirtualStoragePath(path), nil
 }
 
-// Creates a new file in the current directory
+// Creates a new file in the given path
 func (user *LoggedUser) CreateFile(fileName string) error {
 
 	return user.fileOperation(fileName, createAbsFile)
@@ -160,6 +161,17 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 			return &PremmisionError{path}
 		}
 	}
+
+	garbagePath := helper.GetGarbagePath(user.UserID)
+	if strings.HasPrefix(path, garbagePath) {
+		switch reflect.TypeOf(operation) {
+		case reflect.TypeOf(createAbsFile), reflect.TypeOf(createAbsDir):
+			return &PremmisionError{garbagePath}
+			//case reflect.TypeOf(removeAbsFile), reflect.TypeOf(removeAbsFolder):
+
+		}
+	}
+
 	return operation(path)
 }
 
@@ -207,6 +219,7 @@ func createAbsFile(filePath string) error {
 		}
 		return err
 	}
+
 	defer file.Close()
 	return nil
 }
