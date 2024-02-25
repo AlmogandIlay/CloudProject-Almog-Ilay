@@ -67,6 +67,16 @@ func ConvertToAbsolute(fullpath, filePath string) string {
 	return filepath.Join(fullpath, filePath)
 }
 
+// check whether the given path of the user owned the UserID contain Garbage
+func IsContainGarbage(path string, userID uint32) bool {
+	garbagePath := GetGarbagePath(userID)
+	// check if the path starts with the garbage path
+	if strings.HasPrefix(path, garbagePath) && len(path) != len(garbagePath) {
+		return true
+	}
+	return false
+}
+
 // IsPathSeparator reports whether c is a directory separator character.
 func isPathSeparator(c uint8) bool {
 	return c == '\\'

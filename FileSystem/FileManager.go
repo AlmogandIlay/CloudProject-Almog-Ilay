@@ -45,14 +45,12 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	default:
 
 		if filepath.IsAbs(serverPath) {
-			// check if the given path start with garbage, check if he trying to access in garbage directory
-			if strings.HasPrefix(serverPath, helper.GetGarbagePath(user.UserID)) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
+			if helper.IsContainGarbage(serverPath, user.UserID) {
 				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
 			}
 			path, err = user.setAbsDir(serverPath)
 		} else {
-			// check if the given path start with garbage, check if he trying to access in garbage directory
-			if strings.HasPrefix(user.CurrentPath+serverPath, helper.GetGarbagePath(user.UserID)) && len(user.CurrentPath+serverPath) != len(helper.GetGarbagePath(user.UserID)) {
+			if helper.IsContainGarbage(user.CurrentPath+serverPath, user.UserID) {
 				return "", &PremmisionError{helper.GetGarbagePath(user.UserID)}
 			}
 			path, err = user.setForwardDir(serverPath)
@@ -163,12 +161,11 @@ func (user *LoggedUser) fileOperation(path string, operation func(string) error)
 	}
 
 	garbagePath := helper.GetGarbagePath(user.UserID)
-	if strings.HasPrefix(helper.GetServerStoragePath(user.UserID, path), garbagePath) {
+	if helper.IsContainGarbage(helper.GetServerStoragePath(user.UserID, path), user.UserID) {
 		switch reflect.TypeOf(operation) {
 		case reflect.TypeOf(createAbsFile), reflect.TypeOf(createAbsDir):
 			return &PremmisionError{garbagePath}
 			//case reflect.TypeOf(removeAbsFile), reflect.TypeOf(removeAbsFolder):
-
 		}
 	}
 
