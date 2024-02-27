@@ -184,8 +184,8 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 		cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
-		filename = fmt.Sprintf(command_arguments[oldFileName])
-		cloudpath = fmt.Sprintf(" '" + command_arguments[newFileName])
+		filename = command_arguments[oldFileName]
+		cloudpath = command_arguments[newFileName]
 	}
 
 	fileInfo, err := checkFile(filename) // Check if file exists, if it does returns file info api

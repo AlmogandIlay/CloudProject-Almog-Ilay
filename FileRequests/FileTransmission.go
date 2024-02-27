@@ -61,7 +61,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 			precentage = (totalBytesRead * 100) / fileSize // Calculates total read bytes compared to the total file size in percentages
 			printer := func(length int, char string) string {
 				var bar string
-				for i := 0; i < int(precentage/2); i++ { // bar is 2 times smaller than the actual percentages
+				for i := 0; i < int(precentage/2); i++ {
 					bar += "-"
 				}
 				return bar
