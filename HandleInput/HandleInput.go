@@ -88,14 +88,14 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			if err != nil {
 				return err.Error()
 			}
-			return "Created successfully!\n"
+			return "The content has been created successfully!\n"
 
 		case FileRequestsManager.RemoveFileCommand, FileRequestsManager.RemoveFolderCommand:
 			err = FileRequestsManager.HandleRemove(command, &socket)
 			if err != nil {
 				return err.Error()
 			}
-			return "Deleted successfully!\n"
+			return "The content has been deleted successfully!\n"
 
 		case "rename":
 			err = FileRequestsManager.HandleRename(command[command_arguments:], &socket)
