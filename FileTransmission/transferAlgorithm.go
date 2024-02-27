@@ -85,6 +85,8 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 	if err != nil {
 		return fmt.Errorf("error opening the file: %v", fileName)
 	}
+	defer file.Close()
+	
 	// Create a buffered writer for efficient writes
 	writer := bufio.NewWriter(file)
 
