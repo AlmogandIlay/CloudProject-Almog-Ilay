@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-// Create private socket and ready to accept the client connection
+// Create private socket for file recieve and ready to accept the client connection
 func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
 	conn, err := uploadListener.Accept()
 	if err != nil {
