@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -18,6 +19,7 @@ const (
 	OneClosedPath       AmountOfPaths = 2 // Specifcy that looking for one filename argument that is closed with ''
 	TwoCloudPaths       AmountOfPaths = 4 // Specifcy that looking for two filename arguments that is closed with '' ''
 	secondPathIndex                   = 3
+	chunksIndex                       = 2
 
 	uploadAddr = "clouddriveserver.duckdns.org:12346"
 )
@@ -115,4 +117,8 @@ func CreatePrivateSocket() (*net.Conn, error) {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
 	}
 	return &sock, nil
+}
+
+func ConvertResponeToChunks(respone string) (int, error) {
+	return strconv.Atoi(strings.Split(respone, ":")[chunksIndex]) // Convert respone to chunks size
 }

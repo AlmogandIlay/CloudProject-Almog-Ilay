@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -26,7 +25,6 @@ const (
 
 	showFolderArguments = 1
 	path_index          = 1
-	chunksIndex         = 2
 
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
@@ -205,8 +203,8 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	if err != nil {                                                                     // If upload file request was rejected
 		return err
 	}
-	chunksSize, err := strconv.Atoi(strings.Split(respone, ":")[chunksIndex]) // Convert respone to chunks size
-	if err != nil {                                                           // If chunks size was returned from the server in a wrong type
+	chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
+	if err != nil {                                           // If chunks size was returned from the server in a wrong type
 		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
 
