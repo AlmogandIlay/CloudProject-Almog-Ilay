@@ -51,7 +51,7 @@ func uploadAbsFile(file *File, uploadListener *net.Listener) {
 	// Create private socket with the client for the upload file
 	uploadSocket, err := createPrivateSocket(*uploadListener)
 	if err != nil {
-		return // Exit upload proccess
+		return // Exit recieve proccess
 	}
 
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
