@@ -119,6 +119,7 @@ func CreatePrivateSocket() (*net.Conn, error) {
 	return &sock, nil
 }
 
+// Convert respone to chunks size
 func ConvertResponeToChunks(respone string) (int, error) {
-	return strconv.Atoi(strings.Split(respone, ":")[chunksIndex]) // Convert respone to chunks size
+	return strconv.Atoi(strings.Split(respone, ":")[chunksIndex])
 }
