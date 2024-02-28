@@ -46,12 +46,27 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 	return filetransmission.GetChunkSize(file.Size), nil
 }
 
+func (user *LoggedUser) DownloadFile(filename string, downloadListener *net.Listener) error {
+	if !filepath.IsAbs(filename) { // if file path is relative
+		filename = helper.ConvertToAbsolute(user.GetPath(), filename) // Convert filepath to absolute
+	}
+	realPath := helper.GetServerStoragePath(user.UserID, filename)
+	err := IsContentInDirectory(helper.Base(realPath), filepath.Dir(realPath))
+	if err != nil {
+		return err
+	}
+
+	go downloadAbsFile(realPath, downloadListener) // Start downloading file
+
+	return nil
+}
+
 // Uploading file proccess
 func uploadAbsFile(file *File, uploadListener *net.Listener) {
-	// Create private socket with the client for the upload file
+	// Creates a private socket with the client for the upload file
 	uploadSocket, err := createPrivateSocket(*uploadListener)
 	if err != nil {
-		return // Exit recieve proccess
+		return // Exit upload proccess
 	}
 
 	fullPath := file.Path + "\\" + file.Name // Saves the full path for the file to be created
@@ -62,7 +77,26 @@ func uploadAbsFile(file *File, uploadListener *net.Listener) {
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {
-			return // Exit upload
+			return // Exit upload process
 		}
+	}
+}
+
+// Downloading file process
+func downloadAbsFile(filepath string, downloadListener *net.Listener) {
+	fileInfo, err := os.Stat(filepath)
+	if err != nil { // Server-side error (very unlikely to happen)
+		return
+	}
+	fileSize := uint64(fileInfo.Size())
+	// Creates a private socket with the client for the download file
+	downloadSocket, err := createPrivateSocket(*downloadListener)
+	if err != nil {
+		return // Exit download proccess
+	}
+
+	err = filetransmission.SendFile(downloadSocket, fileSize, filepath) // Send file to client
+	if err != nil {
+		return // Exit download process
 	}
 }

@@ -39,26 +39,27 @@ func GetChunkSize(fileSize uint32) uint {
 }
 
 // Upload a file to the client
-func SendFile(conn *net.Conn, size uint32, path string, name string) error {
-	file, err := os.Open(DrivePath + path)
-
+func SendFile(conn *net.Conn, size uint64, path string) error {
+	file, err := os.Open(path) // Open file for reading
 	if err != nil {
 		return err
 	}
-
 	defer file.Close()
 
-	// Recieve the chunksize for the uploaded file size
-	chunkSize := GetChunkSize(size)
+	// Recieve the chunksize for the given file size
+	chunkSize := GetChunkSize(uint32(size))
 	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
 
 	for { // Reads the file
 		bytesRead, err := file.Read(chunk)
-		if err == io.EOF || bytesRead == 0 {
-			break
-		}
 		if err != nil {
+			if err == io.EOF { // If file was successfully done reading
+				break
+			}
 			return err
+		}
+		if bytesRead == 0 { // If file reading has done but for some reason io.EOF flag hasn't raised
+			break
 		}
 		err = helper.SendData(conn, chunk) // Sends the file data according to the chunk size
 		if err != nil {
@@ -86,7 +87,7 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 		return fmt.Errorf("error opening the file: %v", fileName)
 	}
 	defer file.Close()
-	
+
 	// Create a buffered writer for efficient writes
 	writer := bufio.NewWriter(file)
 

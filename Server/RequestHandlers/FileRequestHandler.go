@@ -4,7 +4,6 @@ import (
 	"CloudDrive/FileSystem"
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
-	"encoding/json"
 	"net"
 	"strconv"
 	"strings"
@@ -18,7 +17,7 @@ const (
 type FileRequestHandler struct{}
 
 // Handle the file system type requests
-func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
+func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, fileTransferListener *net.Listener) ResponeInfo {
 	switch info.Type {
 	case Requests.ChangeDirectoryRequest:
 
@@ -38,7 +37,9 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 	case Requests.MoveContentRequest:
 		return filehandler.handleMoveContent(info, loggedUser)
 	case Requests.UploadFileRequest:
-		return filehandler.handleUploadFile(info, loggedUser, uploadListener)
+		return filehandler.handleUploadFile(info, loggedUser, fileTransferListener)
+	case Requests.DownloadFileRequest:
+		return filehandler.handleDownloadFile(info, loggedUser, fileTransferListener)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
@@ -146,17 +147,26 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 
 // Handle Upload file requests from client
 func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
-	var file FileSystem.File
-
-	err := json.Unmarshal(info.RequestData, &file) // Convert json request to file struct
-	if err != nil {                                // If conversion failed
-		err = &FileSystem.UnmarshalError{} // Convert the error to our custom made error.
+	file, err := FileSystem.ParseDataToFile(info.RequestData)
+	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	chunksSize, err := loggedUser.UploadFile(&file, uploadListener)
+
+	chunksSize, err := loggedUser.UploadFile(file, uploadListener)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
 	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler()) // Send chunks size
+}
+
+func (filehandler *FileRequestHandler) handleDownloadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, downloadListener *net.Listener) ResponeInfo {
+	rawData := Requests.ParseDataToString(info.RequestData)
+	filename := helper.ConvertRawJsonToData(rawData)
+	err := loggedUser.DownloadFile(filename, downloadListener)
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }

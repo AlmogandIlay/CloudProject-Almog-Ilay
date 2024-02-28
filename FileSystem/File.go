@@ -1,6 +1,7 @@
 package FileSystem
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -119,5 +120,17 @@ func IsContentInDirectory(contentName, pathOfDir string) error {
 		}
 	}
 	return &ContentNotExistError{contentName, pathOfDir}
+
+}
+
+// Parse json data request to file struct
+func ParseDataToFile(data json.RawMessage) (*File, error) {
+	var file File
+
+	err := json.Unmarshal(data, &file) // Convert json request to file struct
+	if err != nil {                    // If conversion failed
+		return nil, &UnmarshalError{} // Convert the error to our custom made error.
+	}
+	return &file, nil
 
 }

@@ -29,7 +29,7 @@ func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))
 }
 
-// Convert to a full server-side path for cd requests
+// Convert to a full server-side path
 func GetServerStoragePath(userID uint32, clientPath string) string {
 	findAbsolute := strings.Index(clientPath, "\\")
 	if findAbsolute == noAbsolute || !strings.HasPrefix(clientPath, RootDir) { // If the path is not absolute or not starts with Root:\\

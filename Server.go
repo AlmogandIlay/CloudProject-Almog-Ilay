@@ -32,7 +32,7 @@ func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
 
 //Handles new client connection
 
-func handleConnection(conn net.Conn, uploadListner net.Listener) {
+func handleConnection(conn net.Conn, fileTransferListener net.Listener) {
 	defer conn.Close()
 
 	// Initialize setup
@@ -47,7 +47,7 @@ func handleConnection(conn net.Conn, uploadListner net.Listener) {
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &uploadListner) // Handle request processing
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &fileTransferListener) // Handle request processing
 
 		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
 		if err != nil {                                              // If sending request info was unsucessful
@@ -77,12 +77,12 @@ func main() {
 	}
 	defer listener.Close()
 
-	uploadListener, err := net.Listen("tcp", uploadAddr)
+	fileTransferListener, err := net.Listen("tcp", uploadAddr)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
-	defer uploadListener.Close()
+	defer fileTransferListener.Close()
 
 	fmt.Printf("Server is listening on %s...\n", addr)
 
@@ -92,7 +92,7 @@ func main() {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
-		go handleConnection(conn, uploadListener)
+		go handleConnection(conn, fileTransferListener)
 	}
 
 }
