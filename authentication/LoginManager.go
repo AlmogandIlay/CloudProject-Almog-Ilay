@@ -103,7 +103,7 @@ func (manager *AuthenticationManager) DeleteUser(username string) error {
 	if !userExist {
 		return &UsernameNotExistsError{username}
 	}
-	for index, user := range manager.onlineUsers { // look for the index of the user
+	for index, user := range manager.onlineUsers { // looking for the username in the slices of users
 		if user.Username == username {
 			manager.onlineUsers = append(manager.onlineUsers[:index], manager.onlineUsers[index+1:]...) // remove the user
 			return nil
