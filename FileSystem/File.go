@@ -40,7 +40,7 @@ func (file *File) setPath(path string) {
 
 // Validate file by its name and the file's size itself
 func (user *LoggedUser) ValidateFile(file File) error {
-	err := validFileName(file.Name, file.Path) // Check file name validation
+	err := validFileName(file.Name) // Check file name validation
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (user *LoggedUser) validNewFileSize(fileSize uint32) error {
 }
 
 // Checks if a file name is valid due to the Windows OS NTFS File System
-func validFileName(name, path string) error {
+func validFileName(name string) error {
 	switch name {
 	case "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9": // Blacklist Windows filenames
 		return &FileNameError{name}
