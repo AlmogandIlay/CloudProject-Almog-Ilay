@@ -1,6 +1,7 @@
 package FileRequestsManager
 
 import (
+	"bufio"
 	"client/ClientErrors"
 	"client/Helper"
 	"fmt"
@@ -75,9 +76,46 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 }
 
 // Download a file from the cloud server
-func downloadFile(filename string, socket net.Conn) {
+func downloadFile(path string, socket net.Conn) {
 	// TDL:
-	// check if filename is abs or not and convert it to one if it doesn't.
-	// Check why the move,rename are working with only one argument being used with ''. Not sure why
-	// read file
+	file, err := os.Create(path)
+	if err != nil {
+		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
+		return
+	}
+	file.Close()
+
+	file, err = os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644) // Open file for writing
+	if err != nil {
+		fmt.Println("Couldn't open the file for writing data.\nPlease make sure you have provided a path with permissions for write.")
+		return
+	}
+	defer file.Close()
+
+	// Create a buffered writier for efficient writes
+	writer := bufio.NewWriter(file)
+
+	var fileBytes []byte
+	bytesRead := 0
+	for {
+		read, err := socket.Read(fileBytes[bytesRead:])
+		if err != nil {
+			fmt.Println("Error reciving file data from server.\nPlease contact the developers.")
+			return
+		}
+		if read == 0 { // If file upload from server has been done (no more data has been sent)
+			break
+		}
+		_, err = writer.Write(fileBytes[bytesRead:])
+		if err != nil {
+			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
+			return
+		}
+		bytesRead += read
+	}
+	err = writer.Flush() // Flush any remaining data in the buffer to the file
+	if err != nil {
+		fmt.Println("Error flushing data to the file.\nPlease contact the developers")
+		return
+	}
 }

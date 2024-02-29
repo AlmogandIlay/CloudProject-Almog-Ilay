@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	// Command Arguments:
+	// Command Indexes:
 	/////////////////////////
 	commandArgumentIndex     = 0
 	pathArgumentIndex        = 0
@@ -25,6 +25,7 @@ const (
 	move_arguments           = 2
 	showFolderArguments      = 1
 	minimumdownloadArguments = 1
+	localPathIndex           = 2
 	/////////////////////////
 
 	path_index = 1
@@ -243,7 +244,9 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
 		filename = command_arguments[oldFileName]
-		clientpath = " '" + command_arguments[newFileName]
+		if len(command_arguments) >= localPathIndex { // If local path has been specified
+			clientpath = " '" + command_arguments[newFileName]
+		}
 	}
 	data, err := Helper.ConvertStringToBytes(filename)
 	if err != nil {
@@ -261,7 +264,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(clientpath, *downloadSocket)
+	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), *downloadSocket)
 
 	return nil
 }
