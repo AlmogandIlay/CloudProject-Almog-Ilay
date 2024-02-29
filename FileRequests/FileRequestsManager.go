@@ -262,4 +262,6 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	}
 
 	go downloadFile(clientpath, *downloadSocket)
+
+	return nil
 }
