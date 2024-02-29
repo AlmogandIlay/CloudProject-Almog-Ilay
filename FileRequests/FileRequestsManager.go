@@ -12,23 +12,26 @@ import (
 )
 
 const (
-	commandArgumentIndex = 0
-	pathArgumentIndex    = 0
-	minimumArguments     = 1
-	operationArguments   = 2
-	oldFileName          = 0
-	newFileName          = 1
-	contentNameIndex     = 1
+	// Command Arguments:
+	/////////////////////////
+	commandArgumentIndex     = 0
+	pathArgumentIndex        = 0
+	minimumArguments         = 1
+	operationArguments       = 2
+	oldFileName              = 0
+	newFileName              = 1
+	contentNameIndex         = 1
+	rename_arguments         = 2
+	move_arguments           = 2
+	showFolderArguments      = 1
+	minimumdownloadArguments = 1
+	/////////////////////////
 
-	rename_arguments = 2
-	move_arguments   = 2
+	path_index = 1
 
-	showFolderArguments = 1
-	path_index          = 1
-
+	// Commands:
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
-
 	RemoveFileCommand   = "rmfile"
 	RemoveFolderCommand = "rmdir"
 )
@@ -172,16 +175,20 @@ func HandleShow(command_arguments []string, socket *net.Conn) (string, error) {
 	return respone, nil
 }
 
-// Handle upload command
+// Handles upload command
 func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumArguments { // If file name was not provided
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
 	var filename string
 	var cloudpath string
-	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the command arguments are enclosed within a quotation (') marks
-		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath)   // Save the first path (filename to upload)
-		cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
+		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                  // Check if the second command argument is enclosed within a quotation (') marks
+			cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+		} else { // If first path is quoted but the second doesn't
+			cloudpath = Helper.ReturnNonQuotedSecondPath(command_arguments)
+		}
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
 		filename = command_arguments[oldFileName]
@@ -208,8 +215,8 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
 
+	// Creates a privte socket connection between the server to upload the file to the server
 	uploadSocket, err := Helper.CreatePrivateSocket()
-
 	if err != nil {
 		return err
 	}
@@ -217,4 +224,42 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	go uploadFile(int64(fileSize), chunksSize, filename, *uploadSocket)
 
 	return nil
+}
+
+// Handles download command
+func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
+	if len(command_arguments) < minimumdownloadArguments {
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
+	}
+	var filename string
+	var clientpath string
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
+		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                  // Check if the second command argument is enclosed within a quotation (') marks
+			clientpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+		} else { // If first path is quoted but the second doesn't
+			clientpath = Helper.ReturnNonQuotedSecondPath(command_arguments)
+		}
+	} else { // If command arguments are not enclosed within a quotation (') marks
+		// relay on argument indexes
+		filename = command_arguments[oldFileName]
+		clientpath = " '" + command_arguments[newFileName]
+	}
+	data, err := Helper.ConvertStringToBytes(filename)
+	if err != nil {
+		return err
+	}
+
+	_, err = Requests.SendRequest(Requests.DownloadFileRequest, data, socket) // Sends download file request
+	if err != nil {
+		return err
+	}
+
+	// Creates a privte socket connection between the server to download the file from the server
+	downloadSocket, err := Helper.CreatePrivateSocket()
+	if err != nil {
+		return err
+	}
+
+	go downloadFile(clientpath, *downloadSocket)
 }

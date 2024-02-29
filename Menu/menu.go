@@ -20,7 +20,7 @@ type CLI struct {
 }
 
 func NewCLI() (*CLI, error) {
-
+	// Connect to the server
 	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
@@ -29,6 +29,7 @@ func NewCLI() (*CLI, error) {
 }
 
 func (cli *CLI) closeConnection() error {
+	// Close socket connection between the server
 	err := cli.socket.Close()
 	if err != nil {
 		return err
@@ -44,7 +45,7 @@ func (cli *CLI) PrintStartup() {
 
 func (cli *CLI) printPrompt() {
 	if FileRequestsManager.IsCurrentPathInitialized() { // If client has authenticated already
-		FileRequestsManager.PrintCurrentPath()
+		FileRequestsManager.PrintCurrentPath() // Print the current working directory path
 	}
 	fmt.Print(cli.prompt)
 }

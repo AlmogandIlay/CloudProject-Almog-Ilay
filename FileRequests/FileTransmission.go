@@ -73,3 +73,11 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 		fmt.Printf("File %s has been uploaded successfully\n", filename)
 	}
 }
+
+// Download a file from the cloud server
+func downloadFile(filename string, socket net.Conn) {
+	// TDL:
+	// check if filename is abs or not and convert it to one if it doesn't.
+	// Check why the move,rename are working with only one argument being used with ''. Not sure why
+	// read file
+}

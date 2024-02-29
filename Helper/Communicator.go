@@ -110,6 +110,17 @@ func FindPath(command_arguments []string, index int, closedCount AmountOfPaths) 
 	return name
 }
 
+// For cases when the first path is quoted but the second doesn't, return the second Non-quoted second path
+func ReturnNonQuotedSecondPath(command_arguments []string) string {
+	arguments := strings.Join(command_arguments, " ") // Convert the comman arguments to string
+	lastIndex := strings.LastIndex(arguments, "'")    // Find the last time the ' index encloused has been used in the string and append 1 to avoid it completely
+	if lastIndex+1 <= len(arguments) {                // If Second path hasn't been specified
+		return ""
+	}
+	return arguments[lastIndex+1:]
+}
+
+// Creates a private socket connection between the server for file transmission
 func CreatePrivateSocket() (*net.Conn, error) {
 	sock, err := net.Dial("tcp", uploadAddr)
 	if err != nil {
