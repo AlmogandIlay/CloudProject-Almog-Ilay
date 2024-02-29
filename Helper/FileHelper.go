@@ -110,3 +110,8 @@ func Base(path string) string {
 	}
 	return path
 }
+
+// Check if the given path is absolute in view of client input path
+func IsAbs(path string) bool {
+	return strings.HasPrefix(path, RootDir)
+}

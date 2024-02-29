@@ -47,7 +47,7 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 }
 
 func (user *LoggedUser) DownloadFile(filename string, downloadListener *net.Listener) error {
-	if !filepath.IsAbs(filename) { // if file path is relative
+	if !helper.IsAbs(filename) { // if file path is relative
 		filename = helper.ConvertToAbsolute(user.GetPath(), filename) // Convert filepath to absolute
 	}
 	realPath := helper.GetServerStoragePath(user.UserID, filename)
