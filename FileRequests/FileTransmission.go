@@ -60,7 +60,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 		if totalReadFlag >= kilobyte { // For every 1 Kilobyte update the progess and perecntage bar
 			totalReadFlag = 0
 			precentage = (totalBytesRead * 100) / fileSize // Calculates total read bytes compared to the total file size in percentages
-			printer := func(length int, char string) string {
+			printer := func(_ int, _ string) string {
 				var bar string
 				for i := 0; i < int(precentage/2); i++ {
 					bar += "-"
