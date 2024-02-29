@@ -77,8 +77,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 
 // Download a file from the cloud server
 func downloadFile(path string, socket net.Conn) {
-	// TDL:
-	file, err := os.Create(path)
+	file, err := os.Create(path) // Creates the file in the given/default path
 	if err != nil {
 		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
 		return
