@@ -27,7 +27,7 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 		return emptyChunks, err
 	}
 
-	err = user.validNewFileSize(file.Size) // validate new file size. Checks if the current storage space can handle the file
+	err = user.validNewFileSize(file.Size, file.Name) // validate new file size. Checks if the current storage space can handle the file
 	if err != nil {
 		return emptyChunks, err
 	}

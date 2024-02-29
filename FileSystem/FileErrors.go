@@ -23,6 +23,7 @@ type ContentExistError struct{ Name, Path string }
 type FileLengthError struct{ Name string }
 type CharactersError struct{}
 type SizeCalculationError struct{}
+type FileExceededCurrentAvailableStorage struct{ Name string }
 
 type PremmisionOutOfRootError struct{}
 type PremmisionError struct{ Path string }
@@ -91,6 +92,10 @@ func (fileError *CharactersError) Error() string {
 }
 func (fileError *SizeCalculationError) Error() string {
 	return "There has been an error when calculating the root path"
+}
+
+func (fileError *FileExceededCurrentAvailableStorage) Error() string {
+	return fmt.Sprintf("The file '%s' has exceeded your current available storage.\nPlease clean your storage", fileError.Name)
 }
 
 func (fileError *PremmisionError) Error() string {

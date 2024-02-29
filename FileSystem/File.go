@@ -62,13 +62,13 @@ func validFileSize(fileSize uint32) error {
 }
 
 // Valids file size when creating a new file scenario
-func (user *LoggedUser) validNewFileSize(fileSize uint32) error {
+func (user *LoggedUser) validNewFileSize(fileSize uint32, fileName string) error {
 	rootSize, err := user.GetRootSize() // Get total amount of storage in usage
 	if err != nil {
 		return err
 	}
 	if fileSize+rootSize > maxFileSize { // If the new file size exceeds beyond the current storage space
-		return &FileSizeError{fileSize}
+		return &FileExceededCurrentAvailableStorage{Name: fileName}
 	}
 	return nil
 }
