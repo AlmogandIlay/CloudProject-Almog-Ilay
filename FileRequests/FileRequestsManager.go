@@ -245,7 +245,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		// relay on argument indexes
 		filename = command_arguments[oldFileName]
 		if len(command_arguments) >= localPathIndex { // If local path has been specified
-			clientpath = " '" + command_arguments[newFileName]
+			clientpath = command_arguments[newFileName]
 		}
 	}
 	data, err := Helper.ConvertStringToBytes(filename)
