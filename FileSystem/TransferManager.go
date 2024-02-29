@@ -41,7 +41,7 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 		return emptyChunks, &FileExistError{file.Name, file.Path}
 	}
 
-	go uploadAbsFile(file, uploadListener) // Start uploading file
+	go uploadAbsFile(file, uploadListener) // Start receiving file from client
 
 	return filetransmission.GetChunkSize(file.Size), nil
 }
@@ -56,7 +56,7 @@ func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.List
 		return err
 	}
 
-	go downloadAbsFile(filePath, downloadListener) // Start downloading file
+	go downloadAbsFile(filePath, downloadListener) // Start sending file to client
 
 	return nil
 }
