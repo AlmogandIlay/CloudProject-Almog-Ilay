@@ -86,7 +86,7 @@ func HandleCreate(command []string, socket *net.Conn) error {
 
 // Handle remove content (file or directory) requests
 func HandleRemove(command []string, socket *net.Conn) error {
-	if len(command) != operationArguments {
+	if len(command) < operationArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
 	}
 	data, err := Helper.ConvertStringToBytes(strings.Join(command[contentNameIndex:], " ")) // Convert content name to raw json bytes
