@@ -7,6 +7,8 @@ import (
 	"io"
 	"net"
 	"os"
+
+	"github.com/galsondor/go-ascii"
 )
 
 // File sizes
@@ -52,16 +54,16 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 
 	for { // Reads the file
 		bytesRead, err := file.Read(chunk)
-		if err != nil {
-			if err == io.EOF { // If file was successfully done reading
-				break
-			}
-			return err
-		}
-		if bytesRead == 0 { // If file reading has done but for some reason io.EOF flag hasn't raised
+		if bytesRead == 0 || err == io.EOF { // If file reading has done but for some reason io.EOF flag hasn't raised
+			chunk = []byte{ascii.ETX}    // Send 'End Of Transmisson/Text' character to indidicate to client that tranmission is done
+			helper.SendData(conn, chunk) // Send empty message to notify client that transmission has ended
 			break
 		}
-		err = helper.SendData(conn, chunk) // Sends the file data according to the chunk size
+		if err != nil {
+			return err
+		}
+
+		err = helper.SendData(conn, chunk[:bytesRead]) // Sends the file data according to the chunk size
 		if err != nil {
 			return err
 		}
@@ -109,31 +111,3 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 
 	return nil
 }
-
-/*
-
-	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
-		read, err := conn.Read(fileBytes[bytesRead:])
-		if err != nil {
-			return fmt.Errorf("error reading the file.\nplease try again")
-		}
-
-		bytesRead += read
-	}
-
-	// Write the data to the file in chunks
-	bytesWritten := 0
-	for bytesWritten < len(fileBytes) {
-		n, err := writer.Write(fileBytes[bytesWritten:])
-		if err != nil {
-			return fmt.Errorf("error writing to file: %v", fileName)
-		}
-		bytesWritten += n
-	}
-
-	err = writer.Flush() // Flush any remaining data in the buffer to the file
-	if err != nil {
-		return fmt.Errorf("error flushing data to the file: %v", fileName)
-	}
-
-	return nil*/
