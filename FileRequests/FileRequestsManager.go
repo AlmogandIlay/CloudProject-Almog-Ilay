@@ -26,6 +26,7 @@ const (
 	showFolderArguments      = 1
 	minimumdownloadArguments = 1
 	localPathIndex           = 2
+	cloudPathIndex           = 2
 	/////////////////////////
 
 	path_index = 1
@@ -193,7 +194,9 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
 		filename = command_arguments[oldFileName]
-		cloudpath = command_arguments[newFileName]
+		if len(command_arguments) == cloudPathIndex {
+			cloudpath = command_arguments[newFileName]
+		}
 	}
 
 	fileInfo, err := checkFile(filename) // Check if file exists, if it does returns file info api
