@@ -46,19 +46,23 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 	return filetransmission.GetChunkSize(file.Size), nil
 }
 
-func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.Listener) error {
+func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.Listener) (uint, error) {
 	if !helper.IsAbs(filePath) { // if file path is relative
 		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // Convert filepath to absolute
 	}
 	filePath = helper.GetServerStoragePath(user.UserID, filePath) // Convert path to server-side path in case it was an absolute path
 	err := IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath))
 	if err != nil {
-		return err
+		return emptyChunks, err
 	}
 
 	go downloadAbsFile(filePath, downloadListener) // Start sending file to client
 
-	return nil
+	fileSize, err := getFileSize(filePath)
+	if err != nil {
+		return emptyChunks, err
+	}
+	return filetransmission.GetChunkSize(fileSize), nil
 }
 
 // Uploading file proccess

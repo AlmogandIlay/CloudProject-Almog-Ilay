@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -19,6 +20,8 @@ const (
 	maxNameLength = 256         // Max name length for Windows limitiations
 
 	invalidFileCharacters = "\\/:*?\"<>|" // Invalid characters for Windows limitiations
+
+	nonSize = 0
 )
 
 type File struct {
@@ -121,6 +124,22 @@ func IsContentInDirectory(contentName, pathOfDir string) error {
 	}
 	return &ContentNotExistError{contentName, pathOfDir}
 
+}
+
+// Returns file's size by its absolute filename
+func getFileSize(absFilename string) (uint32, error) {
+	fileInfo, err := os.Stat(absFilename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// If file not exists
+			return nonSize, &FileNotExistError{Name: filepath.Base(absFilename), Path: filepath.Dir(absFilename)}
+		}
+		return nonSize, &RareIssueWithFile{Name: filepath.Base(absFilename)} // If unlikely and very rare error has happened report to client without leaking the details
+
+	}
+	fileSize := uint32(fileInfo.Size()) // Get file's size
+
+	return fileSize, nil
 }
 
 // Parse json data request to file struct

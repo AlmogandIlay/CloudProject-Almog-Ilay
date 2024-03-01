@@ -16,6 +16,7 @@ type AbsFileError struct{ Path string }
 type FileExistError struct{ Name, Path string }
 type FolderExistError struct{ Name, Path string }
 type FileNotExistError struct{ Name, Path string }
+type RareIssueWithFile struct{ Name string }
 type RenameError struct{ Name, NewName string }
 type FolderNotExistError struct{ Name, Path string }
 type ContentNotExistError struct{ Name, Path string }
@@ -78,6 +79,10 @@ func (fileError *ContentNotExistError) Error() string {
 
 func (fileError *ContentExistError) Error() string {
 	return fmt.Sprintf("The content '%s' is already exists in '%s' path", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+}
+
+func (fileError *RareIssueWithFile) Error() string {
+	return fmt.Sprintf("There has been a rare issue with the provided file when checking its size.\nPlease report that to the developers.", fileError.Name)
 }
 
 func (fileError *RenameError) Error() string {
