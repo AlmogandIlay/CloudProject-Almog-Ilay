@@ -82,7 +82,7 @@ func (fileError *ContentExistError) Error() string {
 }
 
 func (fileError *RareIssueWithFile) Error() string {
-	return fmt.Sprintf("There has been a rare issue with the provided file when checking its size.\nPlease report that to the developers.", fileError.Name)
+	return fmt.Sprintf("There has been a rare issue with the provided file: '%s' when checking its size.\nPlease report that to the developers.", fileError.Name)
 }
 
 func (fileError *RenameError) Error() string {
