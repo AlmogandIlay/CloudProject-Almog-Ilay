@@ -9,11 +9,16 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"github.com/galsondor/go-ascii"
 )
 
 const (
 	empty    = 0
 	kilobyte = 1_000_000
+
+	firstIndex    = 0
+	onlyCharacter = 1
 )
 
 // Uploads file to the cloud server
@@ -76,7 +81,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 }
 
 // Download a file from the cloud server
-func downloadFile(path string, socket net.Conn) {
+func downloadFile(path string, chunksSize int, socket net.Conn) {
 	file, err := os.Create(path) // Creates the file in the given/default path
 	if err != nil {
 		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
@@ -94,27 +99,25 @@ func downloadFile(path string, socket net.Conn) {
 	// Create a buffered writier for efficient writes
 	writer := bufio.NewWriter(file)
 
-	var fileBytes []byte
-	bytesRead := 0
 	for {
-		read, err := socket.Read(fileBytes[bytesRead:])
+		chunkBytes, err := Helper.ReciveData(&socket, chunksSize)
 		if err != nil {
 			fmt.Println("Error reciving file data from server.\nPlease contact the developers.")
 			return
 		}
-		if read == 0 { // If file upload from server has been done (no more data has been sent)
+		if chunkBytes[firstIndex] == ascii.ETX && len(chunkBytes) == onlyCharacter { // If server indicated that the end of the file has reached
 			break
 		}
-		_, err = writer.Write(fileBytes[bytesRead:])
+		_, err = writer.Write(chunkBytes)
 		if err != nil {
 			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
 			return
 		}
-		bytesRead += read
 	}
 	err = writer.Flush() // Flush any remaining data in the buffer to the file
 	if err != nil {
 		fmt.Println("Error flushing data to the file.\nPlease contact the developers")
 		return
 	}
+	fmt.Printf("File %s has been downloaded successfully\n", path)
 }

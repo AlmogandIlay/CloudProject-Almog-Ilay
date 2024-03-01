@@ -236,6 +236,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	var clientpath string
 	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
 		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
+		filename = filename[Helper.SkipEnclose : len(filename)-Helper.SkipEnclose]                     // Remove enclouse chars
 		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                  // Check if the second command argument is enclosed within a quotation (') marks
 			clientpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
 		} else { // If first path is quoted but the second doesn't
@@ -253,9 +254,14 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	_, err = Requests.SendRequest(Requests.DownloadFileRequest, data, socket) // Sends download file request
+	respone, err := Requests.SendRequest(Requests.DownloadFileRequest, data, socket) // Sends download file request
 	if err != nil {
 		return err
+	}
+
+	chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
+	if err != nil {                                           // If chunks size was returned from the server in a wrong type
+		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
 
 	// Creates a privte socket connection between the server to download the file from the server
@@ -264,7 +270,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), *downloadSocket)
+	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, *downloadSocket)
 
 	return nil
 }

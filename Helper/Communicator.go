@@ -20,6 +20,7 @@ const (
 	TwoCloudPaths       AmountOfPaths = 4 // Specifcy that looking for two filename arguments that is closed with '' ''
 	secondPathIndex                   = 3
 	chunksIndex                       = 2
+	SkipEnclose                       = 1
 
 	uploadAddr = "clouddriveserver.duckdns.org:12346"
 )
@@ -31,7 +32,7 @@ Recive data from client socket with the given buffer size.
 
 Returns the received bytes.
 */
-func ReciveData(conn *net.Conn, bufferSize int) ([]byte, error) {
+func ReciveData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
 	buffer := make([]byte, bufferSize)
 	bytesRead, err := (*conn).Read(buffer)
 	if err != nil {
@@ -83,7 +84,8 @@ func IsQuoted(command_arguments []string, closedCount AmountOfPaths) bool {
 	return counter == closedCount
 }
 
-// Find the path of a file if it's closed with ' with the given amount of closed paths and specific filename index
+// Find the path of a file if it's closed with ' with the given amount of closed paths and specific filename index.
+// Returns the string path with enclouse '
 func FindPath(command_arguments []string, index int, closedCount AmountOfPaths) string {
 	arguments := strings.Join(command_arguments, " ") // Convert to string
 	var name string
