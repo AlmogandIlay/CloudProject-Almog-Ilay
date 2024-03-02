@@ -36,16 +36,24 @@ Returns the received bytes.
 func ReciveData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
 	buffer := make([]byte, bufferSize)
 
-	err := (*conn).SetReadDeadline(time.Now().Add(10 * time.Second)) // Set timeout for packet to recieve
+	err := (*conn).SetReadDeadline(time.Now().Add(10 * time.Second)) // Set timeout for packet to recieve (10 seconds)
 	if err != nil {
 		return nil, fmt.Errorf("it took too long time to get a respone back from the server")
 	}
 	bytesRead, err := (*conn).Read(buffer)
 	if err != nil {
-		return nil, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
+		switch err := err.(type) {
+		case *net.OpError:
+			if err.Timeout() { // If error is reciving timeout
+				return nil, err // return error as is
+			}
+		default: // return custom error
+			return nil, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
+
+		}
 	}
 	data := make([]byte, bytesRead)
-	copy(data, buffer[:bytesRead])
+	copy(data, buffer[:bytesRead]) // Save all the actual data in a slice of bytes data
 	return data, nil
 }
 
