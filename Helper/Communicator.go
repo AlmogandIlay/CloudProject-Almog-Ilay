@@ -41,14 +41,6 @@ func ReciveData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
 		return nil, fmt.Errorf("it took too long time to get a respone back from the server")
 	}
 	bytesRead, err := (*conn).Read(buffer)
-	if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-		fmt.Println("read timeout:", err)
-		// time out
-	} else {
-		fmt.Println("read error:", err)
-		// some error else, do something else, for example create new conn
-	}
-
 	if err != nil {
 		return nil, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
 	}
