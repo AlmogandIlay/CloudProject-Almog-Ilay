@@ -51,8 +51,7 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 	// Recieve the chunksize for the given file size
 	chunkSize := GetChunkSize(uint32(size))
 	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
-
-	for { // Reads the file
+	for {                            // Reads the file
 		bytesRead, err := file.Read(chunk)
 		if bytesRead == 0 || err == io.EOF { // If file reading has done but for some reason io.EOF flag hasn't raised
 			chunk = []byte{ascii.ETX}    // Send 'End Of Transmisson/Text' character to indidicate to client that tranmission is done
@@ -60,14 +59,18 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 			break
 		}
 		if err != nil {
+			// fmt.Printf("something went wrong %s", err.Error())
 			return err
 		}
-
+		// totalBytes += bytesRead
+		// fmt.Printf("Len: %d\n", len(chunk[:bytesRead]))
+		// fmt.Printf("Total bytes %d\n", totalBytes)
 		err = helper.SendData(conn, chunk[:bytesRead]) // Sends the file data according to the chunk size
 		if err != nil {
 			return err
 		}
 	}
+	fmt.Println("Finished")
 	return nil
 }
 
