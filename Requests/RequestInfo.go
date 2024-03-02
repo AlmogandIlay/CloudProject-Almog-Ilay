@@ -53,7 +53,7 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 		return ResponeInfo{}, err
 	}
 
-	data, err := Helper.ReciveData(&socket, Helper.DefaultBufferSize)
+	data, err := Helper.ReciveData(&socket)
 	if err != nil {
 		return ResponeInfo{}, err
 	}

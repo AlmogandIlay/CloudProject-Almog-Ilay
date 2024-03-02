@@ -74,7 +74,10 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 				}
 				return bar
 			}
-			fmt.Printf("\rUpload Progress: %v%% - %s", precentage, printer(int(precentage), "-"))
+			fmt.Printf("\033[F\033[K")
+			fmt.Printf("Upload Progress: %v%% - %s", precentage, printer(int(precentage), "-"))
+			fmt.Println()
+
 		}
 	}
 	if validUpload {
@@ -116,7 +119,7 @@ func downloadFile(path string, chunksSize int, socket net.Conn) {
 	writer := bufio.NewWriter(file)
 
 	for {
-		chunkBytes, err := Helper.ReciveData(&socket, chunksSize)
+		chunkBytes, err := Helper.ReciveChunkData(&socket, chunksSize)
 		// If server indicated that the end of the file has reached OR the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
 		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || (chunkBytes[firstIndex] == ascii.ETX && len(chunkBytes) == onlyCharacter) {
 			break

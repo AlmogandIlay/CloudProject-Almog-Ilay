@@ -29,11 +29,38 @@ const (
 // bufferSize is usually 1024
 
 /*
-Recive data from client socket with the given buffer size.
+Recive data from client socket by the default buffer size.
 
 Returns the received bytes.
 */
-func ReciveData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
+func ReciveData(conn *net.Conn) (dataBytes []byte, errr error) {
+	buffer := make([]byte, DefaultBufferSize)
+
+	bytesRead, err := (*conn).Read(buffer)
+	if err != nil { // return custom error
+		return nil, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
+	}
+
+	data := make([]byte, bytesRead)
+	copy(data, buffer[:bytesRead]) // Save all the actual data in a slice of bytes data
+	return data, nil
+}
+
+/*
+Send data to the client socket.
+
+Returns the received bytes.
+*/
+func SendData(conn *net.Conn, message []byte) error {
+
+	_, err := (*conn).Write(message)
+	if err != nil {
+		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
+	}
+	return nil
+}
+
+func ReciveChunkData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
 	buffer := make([]byte, bufferSize)
 
 	err := (*conn).SetReadDeadline(time.Now().Add(10 * time.Second)) // Set timeout for packet to recieve (10 seconds)
@@ -55,20 +82,6 @@ func ReciveData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr error) {
 	data := make([]byte, bytesRead)
 	copy(data, buffer[:bytesRead]) // Save all the actual data in a slice of bytes data
 	return data, nil
-}
-
-/*
-Send data to the client socket.
-
-Returns the received bytes.
-*/
-func SendData(conn *net.Conn, message []byte) error {
-
-	_, err := (*conn).Write(message)
-	if err != nil {
-		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
-	}
-	return nil
 }
 
 func ConvertStringToBytes(data string) ([]byte, error) {
