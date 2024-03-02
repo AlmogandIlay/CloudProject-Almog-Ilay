@@ -150,9 +150,10 @@ func (user *LoggedUser) ListContents(path string) (string, error) {
 	if path == "" { // If path hasn't been specified
 		path = user.GetPath() // put current directory as default
 	} else { // If path has been specified
-		if !filepath.IsAbs(path) { // Convert the path to absolute if it doesn't
+		if !helper.IsAbs(path) { // Convert the path to absolute if it doesn't
 			path = helper.ConvertToAbsolute(user.GetPath(), path)
 		}
+		path = helper.GetServerStoragePath(user.UserID, path) // Convert absolute-client path to absolute-server path
 	}
 
 	if helper.IsContainGarbage(path, user.UserID) {

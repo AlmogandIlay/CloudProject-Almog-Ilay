@@ -120,9 +120,10 @@ func (filehandler *FileRequestHandler) handleRenameContent(info Requests.Request
 
 // Handle List Contents (ls) requests from client
 func (filehandler *FileRequestHandler) handleListContents(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	path := ""
-	if string(info.RequestData) != "null" { // If given path has been specified
-		path = helper.ConvertRawJsonToData(string(info.RequestData))
+	command := Requests.ParseDataToString(info.RequestData) // Convert request data to command string
+	var path string
+	if command != "null" { // If path has been specified
+		path = helper.ConvertRawJsonToData(command) // Save specified path
 	}
 	list, err := loggedUser.ListContents(path)
 	if err != nil {
