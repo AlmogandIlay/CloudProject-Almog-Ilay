@@ -11,6 +11,7 @@ type FileNotExistError struct{ Filename string }
 type ReadFileInfoError struct{ Filename string }
 type ServerBadChunks struct{}
 type BadFileContent struct{ Filename string }
+type TimeOutRespone struct{}
 
 type InvalidArgumentCountError struct {
 	Arguments uint8
@@ -55,4 +56,8 @@ func (error *ServerBadChunks) Error() string {
 
 func (error *BadFileContent) Error() string {
 	return fmt.Sprintf("There is a problem uploading the file content of the provided file: %s", error.Filename)
+}
+
+func (error *TimeOutRespone) Error() string {
+	return "It took too long time to get a respone back from the server."
 }

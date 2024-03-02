@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/galsondor/go-ascii"
 )
@@ -20,6 +21,8 @@ const (
 	firstIndex    = 0
 	onlyCharacter = 1
 )
+
+var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
 
 // Uploads file to the cloud server
 func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn) {
@@ -80,6 +83,17 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 	}
 }
 
+// Write the file content on a seprated goroutine to not waste time and resources for the main thread that recives the file
+func writeFile(writer *bufio.Writer, chunkBytes []byte) {
+	mu.Lock()         // Acquire lock before writing the file, promising that only one goroutine can write over the file
+	defer mu.Unlock() // Ensure the lock is released after writing the file
+	_, err := writer.Write(chunkBytes)
+	if err != nil {
+		fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
+		return
+	}
+}
+
 // Download a file from the cloud server
 func downloadFile(path string, chunksSize int, socket net.Conn) {
 	file, err := os.Create(path) // Creates the file in the given/default path
@@ -102,17 +116,13 @@ func downloadFile(path string, chunksSize int, socket net.Conn) {
 	for {
 		chunkBytes, err := Helper.ReciveData(&socket, chunksSize)
 		if err != nil {
-			fmt.Println("Error reciving file data from server.\nPlease contact the developers.")
+			fmt.Println(err.Error())
 			return
 		}
 		if chunkBytes[firstIndex] == ascii.ETX && len(chunkBytes) == onlyCharacter { // If server indicated that the end of the file has reached
 			break
 		}
-		_, err = writer.Write(chunkBytes)
-		if err != nil {
-			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
-			return
-		}
+		go writeFile(writer, chunkBytes) // Write the file over goroutine to not interept the connection
 	}
 	err = writer.Flush() // Flush any remaining data in the buffer to the file
 	if err != nil {

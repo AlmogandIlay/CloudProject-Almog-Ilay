@@ -194,7 +194,7 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	} else { // If command arguments are not enclosed within a quotation (') marks
 		// relay on argument indexes
 		filename = command_arguments[oldFileName]
-		if len(command_arguments) == cloudPathIndex {
+		if len(command_arguments) == cloudPathIndex { // If client specificed a path to save in cloud
 			cloudpath = command_arguments[newFileName]
 		}
 	}
