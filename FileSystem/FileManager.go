@@ -50,6 +50,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 			if helper.IsContainGarbage(serverPath, user.UserID) {
 				return "", &PremmisionError{serverPath}
 			}
+
 			path, err = user.setAbsDir(serverPath)
 
 			// If the relative path contains .. operation

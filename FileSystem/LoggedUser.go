@@ -118,13 +118,16 @@ func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
 		return &PremmisionOutOfRootError{}
 	}
-	_, err := os.Stat(path)
+	info, err := os.Stat(path)
 
 	if err != nil { // If invalid path
 		if os.IsNotExist(err) {
 			return &PathNotExistError{path}
 		}
 		return err
+	}
+	if !info.IsDir() {
+		return &FolderNotExistError{filepath.Base(path), filepath.Dir(path)}
 	}
 
 	return nil
