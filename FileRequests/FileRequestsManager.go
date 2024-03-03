@@ -157,12 +157,12 @@ func HandleMove(command_arguments []string, socket *net.Conn) error {
 
 // Handle ls command (List contents command)
 func HandleShow(command_arguments []string, socket *net.Conn) (string, error) {
-	if !(len(command_arguments) == showFolderArguments || len(command_arguments) == 0) { // check for amount of arguments
+	if !(len(command_arguments) >= showFolderArguments || len(command_arguments) == 0) { // check for amount of arguments
 		return "", &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
 	}
 	var data []byte
 	var err error
-	if len(command_arguments) == showFolderArguments { // If specific path has been specified
+	if len(command_arguments) >= showFolderArguments { // If specific path has been specified
 		data, err = Helper.ConvertStringToBytes(strings.Join(command_arguments[pathArgumentIndex:], " "))
 		if err != nil {
 			return "", err
