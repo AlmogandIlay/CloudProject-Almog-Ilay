@@ -21,6 +21,7 @@ const (
 	RenameRequest          RequestType = 306
 	ShowRequest            RequestType = 307
 	MoveRequest            RequestType = 308
+	GarbageRequest         RequestType = 309
 	UploadFileRequest      RequestType = 401
 	DownloadFileRequest    RequestType = 402
 )

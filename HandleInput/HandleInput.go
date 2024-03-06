@@ -83,6 +83,13 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			}
 			return ""
 
+		case "garbage":
+			err = FileRequestsManager.HandleGarbage(&socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+
 		case FileRequestsManager.CreateFileCommand, FileRequestsManager.CreateFolderCommand:
 			err = FileRequestsManager.HandleCreate(command, &socket)
 			if err != nil {

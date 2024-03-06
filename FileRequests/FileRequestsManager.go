@@ -62,6 +62,12 @@ func HandleChangeDirectory(command_arguments []string, socket *net.Conn) error {
 	return nil
 }
 
+// Handle Garbage request
+func HandleGarbage(socket *net.Conn) error {
+	_, err := Requests.SendRequest(Requests.GarbageRequest, nil, socket) // Send request type without any data
+	return err
+}
+
 // Handle create content (file or directory) requests
 func HandleCreate(command []string, socket *net.Conn) error {
 	if len(command) < operationArguments {
