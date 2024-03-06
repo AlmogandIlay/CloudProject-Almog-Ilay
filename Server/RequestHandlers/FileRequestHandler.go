@@ -40,9 +40,21 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleUploadFile(info, loggedUser, fileTransferListener)
 	case Requests.DownloadFileRequest:
 		return filehandler.handleDownloadFile(info, loggedUser, fileTransferListener)
+	case Requests.GarbageRequest:
+		return filehandler.handleGarbage(loggedUser)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
+}
+
+// Handle the garbage command, chage the current directory to garbage directory
+func (filehandler *FileRequestHandler) handleGarbage(loggedUser *FileSystem.LoggedUser) ResponeInfo {
+	path, err := loggedUser.GarbageChangeDirectory()
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(CDRespone+path, CreateFileRequestHandler())
 }
 
 // Handle cd (Change Directory) requests from client

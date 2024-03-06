@@ -17,6 +17,11 @@ const (
 	errorRespone = 999
 )
 
+// Change the user current directory into garbage directory
+func (user *LoggedUser) GarbageChangeDirectory() (string, error) {
+	return user.ChangeDirectory(helper.GetGarbagePath(user.UserID))
+}
+
 // FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
 
 // TODO: relacte to the garbage in all the functions
