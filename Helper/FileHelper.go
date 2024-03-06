@@ -10,7 +10,7 @@ import (
 
 const (
 	CloudDrive = "CloudDrive"
-	DrivePath  = "C:\\CloudDrive"
+	DrivePath  = "D:\\CloudDrive"
 	RootDir    = "Root:\\"
 	Garbage    = "Garbage"
 	noAbsolute = -1
@@ -71,7 +71,7 @@ func ConvertToAbsolute(fullpath, filePath string) string {
 func IsContainGarbage(path string, userID uint32) bool {
 	garbagePath := GetGarbagePath(userID)
 	// check if the path starts with the garbage path
-	if strings.HasPrefix(path, garbagePath) && len(path) != len(garbagePath) {
+	if strings.HasPrefix(path, garbagePath) {
 		return true
 	}
 	return false

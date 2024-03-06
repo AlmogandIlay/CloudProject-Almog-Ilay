@@ -8,7 +8,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 )
 
@@ -47,7 +46,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 		// If path is absolute (starts with Root:\)
 		if filepath.IsAbs(serverPath) {
-			if helper.IsContainGarbage(serverPath, user.UserID) {
+			if helper.IsContainGarbage(serverPath, user.UserID) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{serverPath}
 			}
 
@@ -59,7 +58,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 			// 		return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
 			// 	}
 		} else {
-			if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) {
+			if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) && len(helper.ConvertToAbsolute(user.CurrentPath, serverPath)) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
 			}
 			path, err = user.setForwardDir(serverPath)
@@ -74,22 +73,63 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 // Creates a new file in the given path
 func (user *LoggedUser) CreateFile(fileName string) error {
 
-	return user.fileOperation(fileName, createAbsFile)
+	// any path into server absulote path
+	serverpath := helper.GetServerStoragePath(user.UserID, fileName)
+	if !filepath.IsAbs(serverpath) {
+		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+	}
+
+	if helper.IsContainGarbage(serverpath, user.UserID) {
+		return &PremmisionError{helper.GetGarbagePath(user.UserID)}
+	}
+	return user.fileOperation(serverpath, createAbsFile)
 }
 
 // Creates a new folder in the current directory
 func (user *LoggedUser) CreateFolder(folderName string) error {
-	return user.fileOperation(folderName, createAbsDir)
+	// any path into server absulote path
+	serverpath := helper.GetServerStoragePath(user.UserID, folderName)
+	if !filepath.IsAbs(serverpath) {
+		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+	}
+	if helper.IsContainGarbage(serverpath, user.UserID) {
+		return &PremmisionError{helper.GetGarbagePath(user.UserID)}
+	}
+	return user.fileOperation(serverpath, createAbsDir)
 }
 
 // Remove a file in the current directory
 func (user *LoggedUser) RemoveFile(fileName string) error {
-	return user.fileOperation(fileName, removeAbsFile)
+	// any path into server absulote path
+	serverpath := helper.GetServerStoragePath(user.UserID, fileName)
+	if !filepath.IsAbs(serverpath) {
+		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+	}
+
+	if helper.IsContainGarbage(serverpath, user.UserID) {
+		return user.fileOperation(serverpath, removeAbsFile)
+	} else {
+		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
+		moveContent(serverpath, newContentPath)
+		return nil
+	}
 }
 
 // Remove a folder in the current directory
 func (user *LoggedUser) RemoveFolder(folderName string) error {
-	return user.fileOperation(folderName, removeAbsFolder)
+	serverpath := helper.GetServerStoragePath(user.UserID, folderName)
+	// any path into server absulote path
+	if !filepath.IsAbs(serverpath) {
+		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+	}
+
+	if helper.IsContainGarbage(serverpath, user.UserID) {
+		return user.fileOperation(serverpath, removeAbsFolder)
+	} else {
+		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
+		moveContent(serverpath, newContentPath)
+		return nil
+	}
 }
 
 // Renames a file
@@ -112,7 +152,9 @@ func (user *LoggedUser) RenameContent(contentPath string, newContentPath string)
 		return err
 	}
 
-	if helper.IsContainGarbage(helper.GetServerStoragePath(user.UserID, contentPath), user.UserID) {
+	garbagePath := helper.GetGarbagePath(user.UserID)
+	// check if the path starts with the garbage path
+	if strings.HasPrefix(helper.GetServerStoragePath(user.UserID, contentPath), garbagePath) {
 		return &PremmisionError{helper.GetServerStoragePath(user.UserID, contentPath)}
 	}
 	renameAbsContent(contentPath, newContentPath)
@@ -161,7 +203,7 @@ func (user *LoggedUser) ListContents(path string) (string, error) {
 		path = helper.GetServerStoragePath(user.UserID, path) // Convert absolute-client path to absolute-server path
 	}
 
-	if helper.IsContainGarbage(path, user.UserID) {
+	if helper.IsContainGarbage(path, user.UserID) && len(path) != len(helper.GetGarbagePath(user.UserID)) {
 		return "", &PremmisionError{path}
 	}
 	return getFolderContent(path)
@@ -169,21 +211,9 @@ func (user *LoggedUser) ListContents(path string) (string, error) {
 
 // file operation that recieves all the file operations and send them to the function that is responsible for
 func (user *LoggedUser) fileOperation(path string, operation func(string) error) error {
-	if !filepath.IsAbs(helper.GetServerStoragePath(user.UserID, path)) {
-		path = helper.ConvertToAbsolute(user.GetPath(), path) // convert to an absolute-server side path
-	} else {
-		if !strings.HasPrefix(path, helper.RootDir) {
-			return &PremmisionOutOfRootError{}
-		}
-	}
 
-	garbagePath := helper.GetGarbagePath(user.UserID)
-	if helper.IsContainGarbage(helper.GetServerStoragePath(user.UserID, path), user.UserID) {
-		switch reflect.TypeOf(operation) {
-		case reflect.TypeOf(createAbsFile), reflect.TypeOf(createAbsDir):
-			return &PremmisionError{garbagePath}
-			//case reflect.TypeOf(removeAbsFile), reflect.TypeOf(removeAbsFolder):
-		}
+	if !strings.HasPrefix(path, helper.DrivePath) {
+		return &PremmisionOutOfRootError{}
 	}
 
 	return operation(helper.GetServerStoragePath(user.UserID, path)) // Sends the real path file argument
@@ -282,7 +312,7 @@ func removeAbsFolder(absDir string) error {
 
 // Rename a file name in the current directory, gets full file path and new filename
 func renameAbsContent(currentContentPath, newContentName string) {
-	if !helper.IsAbs(newContentName) {
+	if !filepath.IsAbs(newContentName) {
 		newContentName = filepath.Join(filepath.Dir(currentContentPath), newContentName) // Get new Content name full path
 	}
 	// Use os.Rename to rename the file
