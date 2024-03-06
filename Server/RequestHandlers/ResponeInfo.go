@@ -14,6 +14,7 @@ const (
 	OkayRespone   string      = "200: Okay" // Valid Response default data
 	CDRespone     string      = "200: CurrentDirectory:"
 	ChunksRespone string      = "200: ChunksSize:"
+	SizeRespone   string      = " FileSize:"
 )
 
 type ResponeInfo struct {

@@ -164,10 +164,10 @@ func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInf
 func (filehandler *FileRequestHandler) handleDownloadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, downloadListener *net.Listener) ResponeInfo {
 	rawData := Requests.ParseDataToString(info.RequestData)
 	filename := helper.ConvertRawJsonToData(rawData)
-	chunksSize, err := loggedUser.DownloadFile(filename, downloadListener)
+	chunksSize, fileSize, err := loggedUser.DownloadFile(filename, downloadListener)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler())
+	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10)+SizeRespone+strconv.FormatUint(uint64(fileSize), 10), CreateFileRequestHandler())
 }

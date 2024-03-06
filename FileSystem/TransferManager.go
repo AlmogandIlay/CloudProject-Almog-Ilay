@@ -46,23 +46,23 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 	return filetransmission.GetChunkSize(file.Size), nil
 }
 
-func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.Listener) (uint, error) {
+func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.Listener) (uint, uint32, error) {
 	if !helper.IsAbs(filePath) { // if file path is relative
-		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // Convert filepath to absolute
+		filePath = helper.ConvertToAbsolute(user.GetPath(), filePath) // Convert filepath to absolute server-side path
 	}
-	filePath = helper.GetServerStoragePath(user.UserID, filePath) // Convert path to server-side path in case it was an absolute path
-	err := IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath))
+	filePath = helper.GetServerStoragePath(user.UserID, filePath)              // Convert path to server-side path in case it was an absolute path
+	err := IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath)) // Check if file does exist in the directory
 	if err != nil {
-		return emptyChunks, err
+		return emptyChunks, emptySize, err
 	}
 
 	go downloadAbsFile(filePath, downloadListener) // Start sending file to client
 
 	fileSize, err := getFileSize(filePath)
 	if err != nil {
-		return emptyChunks, err
+		return emptyChunks, emptySize, err
 	}
-	return filetransmission.GetChunkSize(fileSize), nil
+	return filetransmission.GetChunkSize(fileSize), fileSize, nil
 }
 
 // Uploading file proccess

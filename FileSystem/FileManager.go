@@ -13,6 +13,7 @@ import (
 
 const (
 	emptyChunks  = 0
+	emptySize    = 0
 	errorRespone = 999
 )
 
