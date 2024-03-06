@@ -24,14 +24,30 @@ func (user *LoggedUser) GarbageChangeDirectory() (string, error) {
 
 // FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
 
-// TODO: relacte to the garbage in all the functions
+func removeBackDirectories(absPath string) (string, error) {
+	absPath = helper.GetVirtualStoragePath(absPath)
+	subDirectories := strings.Split(absPath, "\\")
+	for i := 0; i < len(subDirectories); i++ {
+		if subDirectories[i] == ".." {
+			// Remove 2 subdirectories
+			subDirectories = append(subDirectories[:i-1], subDirectories[i:]...) // Removes the .. subdirectory
+			// Permission check makes sure that client doesn't escape his dedicated storage space
+			if subDirectories[i] == helper.RootDir {
+				return "", &PremmisionOutOfRootError{}
+			}
+			subDirectories = append(subDirectories[:i-1], subDirectories[i:]...) // Removes the subdirectory before the ..
+			i -= 2
+		}
+
+	}
+	return strings.Join(subDirectories, "\\"), nil
+}
 
 // Changes the current directory for the user according to the parameter
 func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	var err error
 	var path string
-	serverPath := helper.GetServerStoragePath(user.UserID, parameter)
-
+	serverPath := helper.GetServerStoragePath(user.UserID, parameter)  // Convert client paramer path to server side if it's absolute or has sub directories
 	if serverPath != ".." && serverPath != "\\" && serverPath != "/" { // If the path is not going back or forward
 		err = validFileName(helper.Base(serverPath)) // Valid for files and folders are equals. calling the validFileName
 		if err != nil {
@@ -50,19 +66,20 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 	default:
 
-		// If path is absolute (starts with Root:\)
+		// If path is absolute (starts with DrivePath)
 		if filepath.IsAbs(serverPath) {
 			if helper.IsContainGarbage(serverPath, user.UserID) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{serverPath}
 			}
-
+			// serverPath = cd ----\Ilay\Almog\..\..
+			// Dana -> Ilay -> Almog
+			serverPath, err = removeBackDirectories(serverPath)
+			serverPath = helper.GetServerStoragePath(user.UserID, serverPath)
+			if err != nil {
+				return "", err
+			}
 			path, err = user.setAbsDir(serverPath)
 
-			// If the relative path contains .. operation
-			// } else if helper.IsBackInRelativePath(serverPath) {
-			// 	if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) {
-			// 		return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
-			// 	}
 		} else {
 			if helper.IsContainGarbage(helper.ConvertToAbsolute(user.CurrentPath, serverPath), user.UserID) && len(helper.ConvertToAbsolute(user.CurrentPath, serverPath)) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{helper.ConvertToAbsolute(user.CurrentPath, serverPath)}
@@ -177,11 +194,11 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
 
-	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file's path exists
+	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file to move does exists in its path
 	if err != nil {
 		return err
 	}
-	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the provided directory exists
+	err = IsContentInDirectory(filepath.Base(newContentPath), filepath.Dir(newContentPath)) // Checks if the to move request provided directory exists
 	if err != nil {
 		return err
 	}

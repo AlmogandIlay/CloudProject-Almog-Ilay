@@ -29,7 +29,7 @@ func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))
 }
 
-// Convert to a full server-side path
+// Convert to a server-side path if the given path is absolute or has sub directories (for example: cd 'almog\ilay' is a sub directory path compared to 'cd almog')
 func GetServerStoragePath(userID uint32, clientPath string) string {
 	findAbsolute := strings.Index(clientPath, "\\")
 	if findAbsolute == noAbsolute || !strings.HasPrefix(clientPath, RootDir) { // If the path is not absolute or not starts with Root:\\
@@ -71,10 +71,7 @@ func ConvertToAbsolute(fullpath, filePath string) string {
 func IsContainGarbage(path string, userID uint32) bool {
 	garbagePath := GetGarbagePath(userID)
 	// check if the path starts with the garbage path
-	if strings.HasPrefix(path, garbagePath) {
-		return true
-	}
-	return false
+	return strings.HasPrefix(path, garbagePath)
 }
 
 // IsPathSeparator reports whether c is a directory separator character.
