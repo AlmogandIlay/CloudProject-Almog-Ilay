@@ -147,6 +147,11 @@ func (user *LoggedUser) RemoveContent(contentName string) error {
 		return user.fileOperation(serverpath, removeAbsContent)
 	} else {
 		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
+		err = IsContentInDirectory(filepath.Base(serverpath), filepath.Dir(newContentPath))
+		if err == nil { // Plaster to solve sending to garbage a filename that already exists
+			return &FileExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(newContentPath)}
+		}
+
 		moveContent(serverpath, newContentPath)
 		return nil
 	}
