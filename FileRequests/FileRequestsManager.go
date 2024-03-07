@@ -21,6 +21,7 @@ const (
 	oldFileName              = 0
 	newFileName              = 1
 	contentNameIndex         = 1
+	remove_argument          = 1
 	rename_arguments         = 2
 	move_arguments           = 2
 	showFolderArguments      = 1
@@ -34,8 +35,6 @@ const (
 	// Commands:
 	CreateFileCommand   = "newfile"
 	CreateFolderCommand = "newdir"
-	RemoveFileCommand   = "rmfile"
-	RemoveFolderCommand = "rmdir"
 )
 
 func convertResponeToPath(data string) string {
@@ -98,27 +97,17 @@ func HandleCreate(command []string, socket *net.Conn) error {
 	return err
 }
 
-// Handle remove content (file or directory) requests
-func HandleRemove(command []string, socket *net.Conn) error {
-	if len(command) < operationArguments {
-		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command)), Expected: uint8(operationArguments)}
+// Handle Remove Content (File and Directory)
+func HandleRemoveContent(command_arguments []string, socket *net.Conn) error {
+	if len(command_arguments) < remove_argument {
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(remove_argument)}
 	}
-	data, err := Helper.ConvertStringToBytes(strings.Join(command[contentNameIndex:], " ")) // Convert content name to raw json bytes
+	data, err := Helper.ConvertStringToBytes(strings.Join(command_arguments[oldFileName:], " ")) // Convert content name to raw json bytes
 	if err != nil {
 		return err
 	}
 
-	var removeType Requests.RequestType
-
-	switch command[commandArgumentIndex] {
-	case RemoveFileCommand:
-		removeType = Requests.DeleteFileRequest
-	case RemoveFolderCommand:
-		removeType = Requests.DeleteFolderRequest
-	default:
-		return fmt.Errorf("wrong remove request")
-	}
-	_, err = Requests.SendRequest(removeType, data, socket)
+	_, err = Requests.SendRequest(Requests.DeleteContentRequest, data, socket)
 	return err
 }
 

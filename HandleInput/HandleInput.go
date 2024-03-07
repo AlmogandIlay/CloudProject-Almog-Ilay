@@ -37,8 +37,7 @@ SIGNIN		Sign in to an existing CloudDrive account.
 CD		Displays/Changes the current working directory.
 NEWFILE		Creates a new file.
 NEWDIR		Creates a new directory.
-RMFILE		Removes a file.
-RMDIR		Removes a folder.	
+RM		Removes a content.
 RENAME		Renames a folder or a directory.
 MOVE		Moves a file/folder to a different location.
 LS		List all the current files in the current or given path.
@@ -97,8 +96,8 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			}
 			return "The content has been created successfully!\n"
 
-		case FileRequestsManager.RemoveFileCommand, FileRequestsManager.RemoveFolderCommand:
-			err = FileRequestsManager.HandleRemove(command, &socket)
+		case "rm":
+			err = FileRequestsManager.HandleRemoveContent(command[command_arguments:], &socket)
 			if err != nil {
 				return err.Error()
 			}
