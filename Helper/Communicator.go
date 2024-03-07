@@ -3,10 +3,13 @@ package Helper
 import (
 	"client/ClientErrors"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -55,6 +58,17 @@ func SendData(conn *net.Conn, message []byte) error {
 
 	_, err := (*conn).Write(message)
 	if err != nil {
+		var syscallErr *os.SyscallError
+		switch errInfo := err.(type) {
+		case *net.OpError:
+			if errors.As(errInfo.Err, &syscallErr) {
+				if syscallErr.Syscall == "wsasend" && syscallErr.Err == syscall.WSAECONNRESET { // If error is that server is down
+					fmt.Println("Server has been closed.\nPlease try to reconnect in a few moments.")
+					os.Exit(1) // Shutdown the client program
+				}
+			}
+		}
+
 		return fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
 	}
 	return nil
