@@ -18,12 +18,11 @@ const (
 	ChangeDirectoryRequest RequestType = 301
 	CreateFileRequest      RequestType = 302
 	CreateFolderRequest    RequestType = 303
-	DeleteFileRequest      RequestType = 304
-	DeleteFolderRequest    RequestType = 305
-	RenameContentRequest   RequestType = 306
-	ListContentsRequest    RequestType = 307
-	MoveContentRequest     RequestType = 308
-	GarbageRequest         RequestType = 309
+	DeleteContentRequest   RequestType = 304
+	RenameContentRequest   RequestType = 305
+	ListContentsRequest    RequestType = 306
+	MoveContentRequest     RequestType = 307
+	GarbageRequest         RequestType = 308
 	UploadFileRequest      RequestType = 401
 	DownloadFileRequest    RequestType = 402
 

@@ -130,9 +130,9 @@ func (user *LoggedUser) CreateFolder(folderName string) error {
 }
 
 // Remove a file in the current directory
-func (user *LoggedUser) RemoveFile(fileName string) error {
+func (user *LoggedUser) RemoveContent(contentName string) error {
 	// any path into server absulote path
-	serverpath := helper.GetServerStoragePath(user.UserID, fileName) // Convert fileName path to client side (convert to absolute only if fileName is absolute)
+	serverpath := helper.GetServerStoragePath(user.UserID, contentName) // Convert client side path to server side (convert to absolute only if contentName is absolute)
 	if !filepath.IsAbs(serverpath) {
 		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
 	}
@@ -142,8 +142,9 @@ func (user *LoggedUser) RemoveFile(fileName string) error {
 		return &FileNotExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(serverpath)}
 	}
 
+	// ILAY ADD COMMENTS HERE!!
 	if helper.IsContainGarbage(serverpath, user.UserID) {
-		return user.fileOperation(serverpath, removeAbsFile)
+		return user.fileOperation(serverpath, removeAbsContent)
 	} else {
 		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
 		moveContent(serverpath, newContentPath)
@@ -152,21 +153,21 @@ func (user *LoggedUser) RemoveFile(fileName string) error {
 }
 
 // Remove a folder in the current directory
-func (user *LoggedUser) RemoveFolder(folderName string) error {
-	serverpath := helper.GetServerStoragePath(user.UserID, folderName)
-	// any path into server absulote path
-	if !filepath.IsAbs(serverpath) {
-		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
-	}
+// func (user *LoggedUser) RemoveFolder(folderName string) error {
+// 	serverpath := helper.GetServerStoragePath(user.UserID, folderName)
+// 	// any path into server absulote path
+// 	if !filepath.IsAbs(serverpath) {
+// 		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+// 	}
 
-	if helper.IsContainGarbage(serverpath, user.UserID) {
-		return user.fileOperation(serverpath, removeAbsFolder)
-	} else {
-		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
-		moveContent(serverpath, newContentPath)
-		return nil
-	}
-}
+// 	if helper.IsContainGarbage(serverpath, user.UserID) {
+// 		return user.fileOperation(serverpath, removeAbsFolder)
+// 	} else {
+// 		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
+// 		moveContent(serverpath, newContentPath)
+// 		return nil
+// 	}
+// }
 
 // Renames a file
 func (user *LoggedUser) RenameContent(contentPath string, newContentPath string) error {
@@ -318,33 +319,36 @@ func createAbsDir(absDir string) error {
 	return nil
 }
 
-// Remove an absolute file with the parameter file name
-func removeAbsFile(filePath string) error {
-	err := validFileName(helper.Base(filePath)) // Validate file name
-	if err != nil {
-		return err
+// Remove a content with the given absolute contentPath parameter
+func removeAbsContent(contentPath string) error {
+	contentInfo, err := os.Stat(contentPath) // Get the content info
+	if err != nil {                          // If gathering info has failed which should be a rare problem, report that
+		return &RareIssueWithFile{Name: helper.Base(contentPath)}
 	}
-	err = IsContentInDirectory(helper.Base(filePath), filepath.Dir(filePath))
-	if err != nil { // If file is not in directory
-		return err
+	switch mode := contentInfo.Mode(); { // Checks content's type
+	case mode.IsDir(): // If content is Directory
+		os.RemoveAll(contentPath) // Remove directory
+
+	case mode.IsRegular(): // If content is File
+		os.Remove(contentPath) // Remove file
 	}
-	os.Remove(filePath)
+
 	return nil
 }
 
 // Remove an absolute directory with the parameter folder name
-func removeAbsFolder(absDir string) error {
-	err := validFileName(helper.Base(absDir)) // Validate folder name
-	if err != nil {
-		return err
-	}
-	err = IsContentInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
-	if err != nil { // If folder is not in directory
-		return err
-	}
-	os.RemoveAll(absDir)
-	return nil
-}
+// func removeAbsFolder(absDir string) error {
+// 	err := validFileName(helper.Base(absDir)) // Validate folder name
+// 	if err != nil {
+// 		return err
+// 	}
+// 	err = IsContentInDirectory(filepath.Base(absDir), filepath.Dir(absDir))
+// 	if err != nil { // If folder is not in directory
+// 		return err
+// 	}
+// 	os.RemoveAll(absDir)
+// 	return nil
+// }
 
 // Rename a file name in the current directory, gets full file path and new filename
 func renameAbsContent(currentContentPath, newContentName string) {

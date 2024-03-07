@@ -26,10 +26,8 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleCreateFile(info, loggedUser)
 	case Requests.CreateFolderRequest:
 		return filehandler.handleCreateFolder(info, loggedUser)
-	case Requests.DeleteFileRequest:
-		return filehandler.handleDeleteFile(info, loggedUser)
-	case Requests.DeleteFolderRequest:
-		return filehandler.handleDeleteFolder(info, loggedUser)
+	case Requests.DeleteContentRequest:
+		return filehandler.handleDeleteContent(info, loggedUser)
 	case Requests.RenameContentRequest:
 		return filehandler.handleRenameContent(info, loggedUser)
 	case Requests.ListContentsRequest:
@@ -93,11 +91,11 @@ func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestI
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-// Handle Delete File requests from client
-func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+// Handle Delete Content requests from client
+func (filehandler *FileRequestHandler) handleDeleteContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	rawData := Requests.ParseDataToString(info.RequestData)
-	file := helper.ConvertRawJsonToData(rawData)
-	err := loggedUser.RemoveFile(file)
+	content := helper.ConvertRawJsonToData(rawData)
+	err := loggedUser.RemoveContent(content)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
@@ -106,16 +104,16 @@ func (filehandler *FileRequestHandler) handleDeleteFile(info Requests.RequestInf
 }
 
 // Handle Delete Folder requests from client
-func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	folderName := helper.ConvertRawJsonToData(rawData)
-	err := loggedUser.RemoveFolder(folderName)
-	if err != nil {
-		return buildError(err.Error(), IRequestHandler(filehandler))
-	}
+// func (filehandler *FileRequestHandler) handleDeleteFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
+// 	rawData := Requests.ParseDataToString(info.RequestData)
+// 	folderName := helper.ConvertRawJsonToData(rawData)
+// 	err := loggedUser.RemoveFolder(folderName)
+// 	if err != nil {
+// 		return buildError(err.Error(), IRequestHandler(filehandler))
+// 	}
 
-	return buildRespone(OkayRespone, CreateFileRequestHandler())
-}
+// 	return buildRespone(OkayRespone, CreateFileRequestHandler())
+// }
 
 // Handle Rename content (file and folders) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
