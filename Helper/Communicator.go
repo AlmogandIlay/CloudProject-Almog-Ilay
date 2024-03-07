@@ -61,7 +61,7 @@ func SendData(conn *net.Conn, message []byte) error {
 		var syscallErr *os.SyscallError
 		switch errInfo := err.(type) {
 		case *net.OpError:
-			if errors.As(errInfo.Err, &syscallErr) {
+			if errors.As(errInfo.Err, &syscallErr) { // If error belongs to syscall communication
 				if syscallErr.Syscall == "wsasend" && syscallErr.Err == syscall.WSAECONNRESET { // If error is that server is down
 					fmt.Println("Server has been closed.\nPlease try to reconnect in a few moments.")
 					os.Exit(1) // Shutdown the client program
