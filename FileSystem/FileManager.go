@@ -24,23 +24,28 @@ func (user *LoggedUser) GarbageChangeDirectory() (string, error) {
 
 // FileManager: API interface for LoggedUser to interact with the file commands in the cloud drive.
 
+// Removes back subdriectories (..) from the absolute client-side path
 func removeBackDirectories(absPath string) (string, error) {
+	// Convert the absolute-client side path to absolute-server side path for easy access in the split proccess
 	absPath = helper.GetVirtualStoragePath(absPath)
 	subDirectories := strings.Split(absPath, "\\")
+	subDirectories[0] = helper.RootDir // Manually modify the first subDirectory which is always 'Root:\' due to the split with '\'
+	var newDirectories []string        // The actual subDirectories the client meant to access
 	for i := 0; i < len(subDirectories); i++ {
-		if subDirectories[i] == ".." {
-			// Remove 2 subdirectories
-			subDirectories = append(subDirectories[:i-1], subDirectories[i:]...) // Removes the .. subdirectory
-			// Permission check makes sure that client doesn't escape his dedicated storage space
-			if subDirectories[i] == helper.RootDir {
+		if subDirectories[i] != ".." { // If subDirectory is not back directory
+			newDirectories = append(newDirectories, subDirectories[i])
+		} else {
+			// If subDirectory is a back directory (..)
+
+			// Checks if not trying to go back from the Root:\ (avoid attempts to escape the dedicated memory space)
+			if newDirectories[len(newDirectories)-1] == helper.RootDir {
 				return "", &PremmisionOutOfRootError{}
 			}
-			subDirectories = append(subDirectories[:i-1], subDirectories[i:]...) // Removes the subdirectory before the ..
-			i -= 2
+			newDirectories = newDirectories[:len(newDirectories)-1] // Removes last subdirectory of the actual subdriectory
 		}
 
 	}
-	return strings.Join(subDirectories, "\\"), nil
+	return strings.Join(newDirectories, "\\"), nil
 }
 
 // Changes the current directory for the user according to the parameter
@@ -68,13 +73,16 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 
 		// If path is absolute (starts with DrivePath)
 		if filepath.IsAbs(serverPath) {
+
+			if strings.Contains(serverPath, "\\..") { // If absolute path contains back directory (..)
+				// Removes back directories from the path and return the actual path the user meant to go into
+				serverPath, err = removeBackDirectories(serverPath)               // Returns path without back directories as absolute client path
+				serverPath = helper.GetServerStoragePath(user.UserID, serverPath) // Convert back the absolute client path to absolute server path
+			}
+			// If client tried to access content in Garbage path
 			if helper.IsContainGarbage(serverPath, user.UserID) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{serverPath}
 			}
-			// serverPath = cd ----\Ilay\Almog\..\..
-			// Dana -> Ilay -> Almog
-			serverPath, err = removeBackDirectories(serverPath)
-			serverPath = helper.GetServerStoragePath(user.UserID, serverPath)
 			if err != nil {
 				return "", err
 			}
