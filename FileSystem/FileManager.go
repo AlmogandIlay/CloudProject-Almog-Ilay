@@ -132,9 +132,14 @@ func (user *LoggedUser) CreateFolder(folderName string) error {
 // Remove a file in the current directory
 func (user *LoggedUser) RemoveFile(fileName string) error {
 	// any path into server absulote path
-	serverpath := helper.GetServerStoragePath(user.UserID, fileName)
+	serverpath := helper.GetServerStoragePath(user.UserID, fileName) // Convert fileName path to client side (convert to absolute only if fileName is absolute)
 	if !filepath.IsAbs(serverpath) {
 		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
+	}
+
+	err := IsContentInDirectory(filepath.Base(serverpath), filepath.Dir(serverpath)) // Checks if filename to remove does exists in its path
+	if err != nil {                                                                  // If file doesn't exist
+		return &FileNotExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(serverpath)}
 	}
 
 	if helper.IsContainGarbage(serverpath, user.UserID) {
