@@ -54,7 +54,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 	var path string
 	serverPath := helper.GetServerStoragePath(user.UserID, parameter)  // Convert client paramer path to server side if it's absolute or has sub directories
 	if serverPath != ".." && serverPath != "\\" && serverPath != "/" { // If the path is not going back or forward
-		err = validFileName(helper.Base(serverPath)) // Valid for files and folders are equals. calling the validFileName
+		err = validContentName(helper.Base(serverPath)) // Valid for files and folders are equals. calling the validFileName
 		if err != nil {
 			return "", err
 		}
@@ -172,7 +172,7 @@ func (user *LoggedUser) RenameContent(contentPath string, newContentPath string)
 	if err == nil {
 		return &ContentExistError{Name: filepath.Base(newContentPath), Path: filepath.Dir(contentPath)}
 	}
-	err = user.ValidateFile(newFile(filepath.Base(newContentPath), filepath.Dir(contentPath), 0)) // Validate the newcontentPath name
+	err = user.ValidateContent(newContent(filepath.Base(newContentPath), filepath.Dir(contentPath), 0)) // Validate the newcontentPath name
 	if err != nil {
 		return err
 	}
@@ -204,11 +204,11 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if err != nil {
 		return err
 	}
-	err = validFileName(filepath.Base(contentPath)) // Checks if the file name is valid
+	err = validContentName(filepath.Base(contentPath)) // Checks if the file name is valid
 	if err != nil {
 		return err
 	}
-	err = validFileName(filepath.Base(newContentPath)) // Checks if the provided directory is valid
+	err = validContentName(filepath.Base(newContentPath)) // Checks if the provided directory is valid
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func (user *LoggedUser) setAbsDir(absDir string) (string, error) {
 
 // create a file in the given directory
 func createAbsFile(filePath string) error {
-	err := validFileName(helper.Base(filePath)) // Validate file name
+	err := validContentName(helper.Base(filePath)) // Validate file name
 	if err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func createAbsFile(filePath string) error {
 
 // Create an absolute directory with the parameter folder name
 func createAbsDir(absDir string) error {
-	err := validFileName(helper.Base(absDir)) // Validate folder name
+	err := validContentName(helper.Base(absDir)) // Validate folder name
 	if err != nil {
 		return err
 	}

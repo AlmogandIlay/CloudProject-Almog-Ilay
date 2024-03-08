@@ -18,22 +18,22 @@ func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
 }
 
 // Upload a file to the Cloud
-func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (uint, error) {
+func (user *LoggedUser) UploadFile(file *Content, uploadListener *net.Listener) (uint, error) {
 	if file.Path == "" { // if path wasn't decleared
-		file.setPath(user.GetPath())
+		file.Path = user.GetPath()
 	}
-	err := user.ValidateFile(*file) // validate file content
+	err := user.ValidateContent(*file) // validate file content
 	if err != nil {
 		return emptyChunks, err
 	}
 
-	err = user.validNewFileSize(file.Size, file.Name) // validate new file size. Checks if the current storage space can handle the file
+	err = user.validNewContentSize(file.Size, file.Name) // validate new file size. Checks if the current storage space can handle the file
 	if err != nil {
 		return emptyChunks, err
 	}
 
 	if !filepath.IsAbs(file.Path) { // Convert file's path to absolute if it doesn't
-		file.setPath(helper.ConvertToAbsolute(user.GetPath(), file.Path))
+		file.Path = helper.ConvertToAbsolute(user.GetPath(), file.Path)
 	}
 
 	err = IsContentInDirectory(file.Name, file.Path)
@@ -44,6 +44,33 @@ func (user *LoggedUser) UploadFile(file *File, uploadListener *net.Listener) (ui
 	go uploadAbsFile(file, uploadListener) // Start receiving file from client
 
 	return filetransmission.GetChunkSize(file.Size), nil
+}
+
+func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listener) error {
+	if dir.Path == "" { // if path wasn't decleared
+		dir.Path = user.GetPath()
+	}
+	err := user.ValidateContent(*dir) // validate file content
+	if err != nil {
+		return err
+	}
+
+	err = user.validNewContentSize(dir.Size, dir.Name) // validate new file size. Checks if the current storage space can handle the file
+	if err != nil {
+		return err
+	}
+
+	if !filepath.IsAbs(dir.Path) { // Convert file's path to absolute if it doesn't
+		dir.Path = helper.ConvertToAbsolute(user.GetPath(), dir.Path)
+	}
+
+	err = IsContentInDirectory(dir.Name, dir.Path)
+	if err == nil { // If file exists
+		return &ContentExistError{dir.Name, dir.Path}
+	}
+
+	go uploadAbsDirectory(dir, uploadListener) // Start receiving directory from client
+	return nil
 }
 
 func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.Listener) (uint, uint32, error) {
@@ -66,7 +93,7 @@ func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.List
 }
 
 // Uploading file proccess
-func uploadAbsFile(file *File, uploadListener *net.Listener) {
+func uploadAbsFile(file *Content, uploadListener *net.Listener) {
 	// Creates a private socket with the client for the upload file
 	uploadSocket, err := createPrivateSocket(*uploadListener)
 	if err != nil {
@@ -78,6 +105,27 @@ func uploadAbsFile(file *File, uploadListener *net.Listener) {
 	dirFile.Close()
 
 	err = filetransmission.ReceiveFile(*uploadSocket, file.Path, file.Name, int(file.Size))
+	if err != nil { // If upload process has failed
+		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
+		if err != nil {
+			return // Exit upload process
+		}
+	}
+}
+
+// Uploading directory proccess
+func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
+	// Creates a private socket with the client for the upload directory
+	uploadSocket, err := createPrivateSocket(*uploadListener)
+	if err != nil {
+		return // Exit upload proccess
+	}
+
+	fullPath := dir.Path + "\\" + dir.Name // Saves the full path for the directory to be created
+
+	_ = os.Mkdir(fullPath, os.ModePerm) // sets permissions for the directory
+
+	err = filetransmission.ReceiveFolder(*uploadSocket, dir.Path, dir.Name, int(dir.Size))
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {

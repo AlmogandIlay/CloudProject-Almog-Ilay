@@ -146,7 +146,7 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 
 // Handle Upload file requests from client
 func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
-	file, err := FileSystem.ParseDataToFile(info.RequestData)
+	file, err := FileSystem.ParseDataToContent(info.RequestData)
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}

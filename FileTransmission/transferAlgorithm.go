@@ -114,3 +114,5 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 
 	return nil
 }
+
+func ReceiveFolder(conn net.Conn, dirPath string, fileName string, fileSize int) error { return nil }

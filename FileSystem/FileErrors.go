@@ -90,10 +90,10 @@ func (fileError *RenameError) Error() string {
 }
 
 func (fileError *FileLengthError) Error() string {
-	return fmt.Sprintf("The file '%s' is not the appropriate length, should be under '%d'", fileError.Name, maxFileSize)
+	return fmt.Sprintf("The file '%s' is not the appropriate length, should be under '%d'", fileError.Name, maxcontentSize)
 }
 func (fileError *CharactersError) Error() string {
-	return fmt.Sprintf("Cannot use Illegal letters such as: '%s' in the name", strings.Join(strings.Split(invalidFileCharacters, ""), " "))
+	return fmt.Sprintf("Cannot use Illegal letters such as: '%s' in the name", strings.Join(strings.Split(invalidContentCharacters, ""), " "))
 }
 func (fileError *SizeCalculationError) Error() string {
 	return "There has been an error when calculating the root path"
