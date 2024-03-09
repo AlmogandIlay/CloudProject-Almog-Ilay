@@ -85,6 +85,10 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 	}
 }
 
+func uploadDirectory(dirpath string, socket net.Conn) {
+
+}
+
 // Write the file content on a seprated goroutine to not waste time and resources for the main thread that recives the file
 // func writeFile(writer **bufio.Writer, chunkBytes []byte) {
 // 	fmt.Println("Locking... (Currently Unlocked)")

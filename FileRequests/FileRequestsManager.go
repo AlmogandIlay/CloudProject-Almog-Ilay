@@ -314,13 +314,9 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 		return &ClientErrors.JsonEncodeError{}
 	}
 
-	respone, err := Requests.SendRequest(Requests.UploadDirectoryRequest, dir_data, socket) // Sends upload file request
-	if err != nil {                                                                         // If upload file request was rejected
+	_, err = Requests.SendRequest(Requests.UploadDirectoryRequest, dir_data, socket) // Sends upload folder request
+	if err != nil {                                                                  // If upload folder request was rejected
 		return err
-	}
-	chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
-	if err != nil {                                           // If chunks size was returned from the server in a wrong type
-		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
 
 	// Creates a privte socket connection between the server to upload the file to the server
@@ -329,6 +325,7 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go uploadFile(int64(fileSize), chunksSize, filename, *uploadSocket)
+	go uploadDirectory(dirPath, *uploadSocket)
 
+	return nil
 }
