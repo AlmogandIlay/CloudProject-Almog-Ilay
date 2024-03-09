@@ -19,7 +19,15 @@ const (
 	GB = uint32(1 << (10 * iota)) // 1 GB = 1000000000 bytes
 
 	DrivePath = "D:\\CloudDrive"
+
+	ErrorRespone int = 999
+	ValidRespone int = 200
 )
+
+type ClientResponeInfo struct {
+	Type    int    `json:"Type"`
+	Respone string `json:"Data"`
+}
 
 // Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
 func GetChunkSize(fileSize uint32) uint {
@@ -59,18 +67,13 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 			break
 		}
 		if err != nil {
-			// fmt.Printf("something went wrong %s", err.Error())
 			return err
 		}
-		// totalBytes += bytesRead
-		// fmt.Printf("Len: %d\n", len(chunk[:bytesRead]))
-		// fmt.Printf("Total bytes %d\n", totalBytes)
 		err = helper.SendData(conn, chunk[:bytesRead]) // Sends the file data according to the chunk size
 		if err != nil {
 			return err
 		}
 	}
-	fmt.Println("Finished")
 	return nil
 }
 
@@ -115,4 +118,6 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 	return nil
 }
 
-func ReceiveFolder(conn net.Conn, dirPath string, fileName string, fileSize int) error { return nil }
+func ReceiveFolder(conn *net.Conn, originalDirPath string) error {
+	return nil
+}

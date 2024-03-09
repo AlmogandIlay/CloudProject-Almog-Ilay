@@ -125,7 +125,7 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 
 	_ = os.Mkdir(fullPath, os.ModePerm) // sets permissions for the directory
 
-	err = filetransmission.ReceiveFolder(*uploadSocket, dir.Path, dir.Name, int(dir.Size))
+	err = filetransmission.ReceiveFolder(uploadSocket, fullPath)
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {

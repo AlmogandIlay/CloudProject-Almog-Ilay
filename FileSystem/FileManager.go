@@ -142,17 +142,16 @@ func (user *LoggedUser) RemoveContent(contentName string) error {
 		return &FileNotExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(serverpath)}
 	}
 
-	// ILAY ADD COMMENTS HERE!!
-	if helper.IsContainGarbage(serverpath, user.UserID) {
-		return user.fileOperation(serverpath, removeAbsContent)
-	} else {
-		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath))
+	if helper.IsContainGarbage(serverpath, user.UserID) { // If the content path is in the Garbage path
+		return user.fileOperation(serverpath, removeAbsContent) // Delete the content
+	} else { // If the content doesn't in the Garbage path
+		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath)) // Rename destination path for moving content
 		err = IsContentInDirectory(filepath.Base(serverpath), filepath.Dir(newContentPath))
 		if err == nil { // Plaster to solve sending to garbage a filename that already exists
 			return &FileExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(newContentPath)}
 		}
 
-		moveContent(serverpath, newContentPath)
+		moveContent(serverpath, newContentPath) // Move content to Garbage path
 		return nil
 	}
 }
