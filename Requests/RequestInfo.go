@@ -23,6 +23,8 @@ const (
 	GarbageRequest         RequestType = 308
 	UploadFileRequest      RequestType = 401
 	DownloadFileRequest    RequestType = 402
+	UploadDirectoryRequest RequestType = 403
+	DownloadDirRequest     RequestType = 404
 )
 
 type RequestInfo struct {

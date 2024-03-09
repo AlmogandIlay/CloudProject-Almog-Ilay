@@ -5,18 +5,19 @@ import (
 	"client/Helper"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-type file struct {
+type content struct {
 	Name string `json:"name"` // File name (including its extension)
 	Path string `json:"path"` // File's path in the Cloud
 	Size uint32 `json:"size"` // File's size in bytes
 }
 
 // Creates a new file struct with the given parameters
-func newFile(name string, path string, size uint32) file {
-	return file{
+func newContent(name string, path string, size uint32) content {
+	return content{
 		Name: name,
 		Path: path,
 		Size: size,
@@ -24,7 +25,7 @@ func newFile(name string, path string, size uint32) file {
 }
 
 // Checks local file and returns the file api if exists
-func checkFile(filename string) (fs.FileInfo, error) {
+func checkContent(filename string) (fs.FileInfo, error) {
 	clearPath := strings.Replace(filename, "'", "", Helper.RemoveAll)
 	fileInfo, err := os.Stat(clearPath) // Check file (Access file path without enclosed quotation)
 	if err != nil {
@@ -35,4 +36,20 @@ func checkFile(filename string) (fs.FileInfo, error) {
 		}
 	}
 	return fileInfo, nil
+}
+
+// Returns directory size
+func getDirSize(dirPath string) (uint32, error) {
+	var totalSize int64
+	// Walk through all the files and dirctories in the given dir to calculate its size
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil { // If couldn't read file info
+			return &ClientErrors.ReadFileInfoError{Filename: info.Name()}
+		}
+		if !info.IsDir() {
+			totalSize += info.Size() // Increase total size for files only
+		}
+		return nil
+	})
+	return uint32(totalSize), err
 }

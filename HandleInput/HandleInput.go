@@ -41,6 +41,8 @@ RM		Removes a content.
 RENAME		Renames a folder or a directory.
 MOVE		Moves a file/folder to a different location.
 LS		List all the current files in the current or given path.
+UPLOADFILE		Uploads a file to the current directory/given path.
+DOWNLOADFILE		Downloads a file in the current program patg/given path.
 		`
 }
 
@@ -137,6 +139,8 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 				return err.Error()
 			}
 			return ""
+
+		case "uploaddir":
 
 		default:
 			return "Invalid command.\nPlease try a different command or use \"help\"\n"

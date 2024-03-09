@@ -201,12 +201,12 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 		}
 	}
 
-	fileInfo, err := checkFile(filename) // Check if file exists, if it does returns file info api
+	fileInfo, err := checkContent(filename) // Check if file exists, if it does returns file info api
 	if err != nil {
 		return err
 	}
 	fileSize := uint32(fileInfo.Size())
-	file := newFile(filepath.Base(strings.Replace(filename, "'", "", Helper.RemoveAll)), cloudpath, fileSize) // Create a new file struct for server communication
+	file := newContent(filepath.Base(strings.Replace(filename, "'", "", Helper.RemoveAll)), cloudpath, fileSize) // Creates a new file struct for server communication
 	file_data, err := json.Marshal(file)
 	if err != nil {
 		return &ClientErrors.JsonEncodeError{}
@@ -278,4 +278,57 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, *downloadSocket)
 
 	return nil
+}
+
+func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
+	if len(command_arguments) < minimumArguments { // If dir name was not provided
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
+	}
+	var dirPath string
+	var cloudpath string
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+		dirPath = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
+		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                 // Check if the second command argument is enclosed within a quotation (') marks
+			cloudpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+		} else { // If first path is quoted but the second doesn't
+			cloudpath = Helper.ReturnNonQuotedSecondPath(command_arguments)
+		}
+	} else { // If command arguments are not enclosed within a quotation (') marks
+		// relay on argument indexes
+		dirPath = command_arguments[oldFileName]
+		if len(command_arguments) == cloudPathIndex { // If client specificed a path to save in cloud
+			cloudpath = command_arguments[newFileName]
+		}
+	}
+	_, err := checkContent(dirPath) // Check if directory exists,
+	if err != nil {
+		return err
+	}
+	pathSize, err := getDirSize(dirPath)
+	if err != nil {
+		return err
+	}
+	dir := newContent(filepath.Base(strings.Replace(dirPath, "'", "", Helper.RemoveAll)), cloudpath, pathSize) // Creates a new dir struct for server communication
+	dir_data, err := json.Marshal(dir)
+	if err != nil {
+		return &ClientErrors.JsonEncodeError{}
+	}
+
+	respone, err := Requests.SendRequest(Requests.UploadDirectoryRequest, dir_data, socket) // Sends upload file request
+	if err != nil {                                                                         // If upload file request was rejected
+		return err
+	}
+	chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
+	if err != nil {                                           // If chunks size was returned from the server in a wrong type
+		return &ClientErrors.ServerBadChunks{} // Blame the server
+	}
+
+	// Creates a privte socket connection between the server to upload the file to the server
+	uploadSocket, err := Helper.CreatePrivateSocket()
+	if err != nil {
+		return err
+	}
+
+	go uploadFile(int64(fileSize), chunksSize, filename, *uploadSocket)
+
 }
