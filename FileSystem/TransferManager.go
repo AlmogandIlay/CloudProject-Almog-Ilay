@@ -50,22 +50,22 @@ func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listen
 	if dir.Path == "" { // if path wasn't decleared
 		dir.Path = user.GetPath()
 	}
-	err := user.ValidateContent(*dir) // validate file content
+	err := user.ValidateContent(*dir) // validate dir info
 	if err != nil {
 		return err
 	}
 
-	err = user.validNewContentSize(dir.Size, dir.Name) // validate new file size. Checks if the current storage space can handle the file
+	err = user.validNewContentSize(dir.Size, dir.Name) // validate new dir size. Checks if the current storage space can handle the dir
 	if err != nil {
 		return err
 	}
 
-	if !filepath.IsAbs(dir.Path) { // Convert file's path to absolute if it doesn't
+	if !filepath.IsAbs(dir.Path) { // Convert dir's path to absolute if it doesn't
 		dir.Path = helper.ConvertToAbsolute(user.GetPath(), dir.Path)
 	}
 
 	err = IsContentInDirectory(dir.Name, dir.Path)
-	if err == nil { // If file exists
+	if err == nil { // If dir exists
 		return &ContentExistError{dir.Name, dir.Path}
 	}
 
