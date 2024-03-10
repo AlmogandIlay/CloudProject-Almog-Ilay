@@ -159,6 +159,7 @@ func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInf
 	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler()) // Send chunks size
 }
 
+// Handle Download file requests from client
 func (filehandler *FileRequestHandler) handleDownloadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, downloadListener *net.Listener) ResponeInfo {
 	rawData := Requests.ParseDataToString(info.RequestData)
 	filename := helper.ConvertRawJsonToData(rawData)
@@ -168,4 +169,18 @@ func (filehandler *FileRequestHandler) handleDownloadFile(info Requests.RequestI
 	}
 
 	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10)+SizeRespone+strconv.FormatUint(uint64(fileSize), 10), CreateFileRequestHandler())
+}
+
+// Handle Upload directory requests from client
+func (filehandler *FileRequestHandler) handleUploadDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
+	dir, err := FileSystem.ParseDataToContent(info.RequestData)
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+	err = loggedUser.UploadDirectory(dir, uploadListener)
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Send chunks size
+
 }
