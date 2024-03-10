@@ -26,8 +26,8 @@ func newContent(name string, path string, size uint32) content {
 
 // Checks local file and returns the file api if exists
 func checkContent(filename string) (fs.FileInfo, error) {
-	clearPath := strings.Replace(filename, "'", "", Helper.RemoveAll)
-	fileInfo, err := os.Stat(clearPath) // Check file (Access file path without enclosed quotation)
+	clearPath := strings.Replace(filename, "'", "", Helper.RemoveAll) // Clears ' encloused chars if they exist
+	fileInfo, err := os.Stat(clearPath)                               // Check file (Access file path without enclosed quotation)
 	if err != nil {
 		if os.IsNotExist(err) { // If file not exists
 			return nil, &ClientErrors.FileNotExistError{Filename: clearPath}

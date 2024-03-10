@@ -41,8 +41,10 @@ RM		Removes a content.
 RENAME		Renames a folder or a directory.
 MOVE		Moves a file/folder to a different location.
 LS		List all the current files in the current or given path.
-UPLOADFILE		Uploads a file to the current directory/given path.
-DOWNLOADFILE		Downloads a file in the current program patg/given path.
+GARBAGE		A quick shortcut to Garbage directory.
+UPLOADFILE	Uploads a file to the current directory/given directory.
+DOWNLOADFILE	Downloads a file in the current program patg/given directory.
+UPLOADDIR	Uploads a directory to the current directory/given directory.
 		`
 }
 
@@ -141,6 +143,11 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			return ""
 
 		case "uploaddir":
+			err = FileRequestsManager.HandleUploadDirectory(command[command_arguments:], &socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
 
 		default:
 			return "Invalid command.\nPlease try a different command or use \"help\"\n"
