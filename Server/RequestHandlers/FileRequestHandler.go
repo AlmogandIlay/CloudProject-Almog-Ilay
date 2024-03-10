@@ -40,6 +40,8 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleDownloadFile(info, loggedUser, fileTransferListener)
 	case Requests.GarbageRequest:
 		return filehandler.handleGarbage(loggedUser)
+	case Requests.UploadDirectoryRequest:
+		return filehandler.handleUploadDirectory(info, loggedUser, fileTransferListener)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
