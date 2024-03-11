@@ -23,7 +23,7 @@ const (
 	OneClosedPath       AmountOfPaths = 2 // Specifcy that looking for one filename argument that is closed with ''
 	TwoCloudPaths       AmountOfPaths = 4 // Specifcy that looking for two filename arguments that is closed with '' ''
 	secondPathIndex                   = 3
-	chunksIndex                       = 2
+	chunksIndex                       = 1
 	SkipEnclose                       = 1
 
 	uploadAddr = "clouddriveserver.duckdns.org:12346"
