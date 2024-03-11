@@ -12,6 +12,7 @@ type ReadFileInfoError struct{ Filename string }
 type ServerBadChunks struct{}
 type BadFileContent struct{ Filename string }
 type TimeOutRespone struct{}
+type ConvertToRelative struct{}
 
 type InvalidArgumentCountError struct {
 	Arguments uint8
@@ -48,6 +49,11 @@ func (error *FileNotExistError) Error() string {
 
 func (error *ReadFileInfoError) Error() string {
 	return fmt.Sprintf("Cannot read file %s info.", error.Filename)
+}
+
+// Usage: Upload directory process
+func (error *ConvertToRelative) Error() string {
+	return "error converting path to relative.\nUploading process has stopped"
 }
 
 func (error *ServerBadChunks) Error() string {

@@ -4,10 +4,14 @@ import (
 	"bufio"
 	"client/ClientErrors"
 	"client/Helper"
+	"client/Requests"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/galsondor/go-ascii"
@@ -85,8 +89,57 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 	}
 }
 
+// Upload directory to cloud server
 func uploadDirectory(dirpath string, socket net.Conn) {
+	err := filepath.WalkDir(dirpath, func(contentPath string, contentInfo fs.DirEntry, err error) error { // Walk through all the contents in the given dir path
+		if err != nil {
+			return err
+		}
 
+		relativePath, err := filepath.Rel(dirpath, contentPath) // Convert the contentPath absolute to relative from the given path to upload
+		if err != nil {
+			return &ClientErrors.ConvertToRelative{}
+		}
+		dirData, err := Helper.ConvertStringToBytes(relativePath) // Convert new dir path to bytes
+
+		if !contentInfo.IsDir() { // If content is file
+			fileInfo, err := contentInfo.Info() // Get file's info
+			if err != nil {
+				return &ClientErrors.ReadFileInfoError{Filename: filepath.Base(relativePath)}
+			}
+			file := newContent(filepath.Base(relativePath), filepath.Dir(relativePath), uint32(fileInfo.Size()))
+			file_data, err := json.Marshal(file)
+			if err != nil {
+				return &ClientErrors.JsonEncodeError{Err: err}
+			}
+			respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, &socket)
+			if err != nil { // If upload file request was rejected
+				return err
+			}
+			chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
+			if err != nil {                                           // If chunks size was returned from the server in a wrong type
+				return &ClientErrors.ServerBadChunks{} // Blame the server
+			}
+			uploadFile(fileInfo.Size(), chunksSize, contentPath, socket) // Upload the file
+		} else { // If content is directory
+			if err != nil {
+				return fmt.Errorf("error converting file path to bytes.\nUploading process has stopped")
+			}
+			// Sends request to make a new directory
+			respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), socket)
+			if err != nil {
+				return err
+			}
+			if respone.Type == Requests.ErrorRespone { // If respone is error
+				return fmt.Errorf(respone.Respone)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 }
 
 // Write the file content on a seprated goroutine to not waste time and resources for the main thread that recives the file
