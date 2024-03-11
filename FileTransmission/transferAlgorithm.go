@@ -24,11 +24,6 @@ const (
 	ValidRespone int = 200
 )
 
-type ClientResponeInfo struct {
-	Type    int    `json:"Type"`
-	Respone string `json:"Data"`
-}
-
 // Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
 func GetChunkSize(fileSize uint32) uint {
 
@@ -108,16 +103,12 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 		}
 		bytesWritten += n
 	}
-	fmt.Println("Finished writing file")
+	fmt.Println("Finished writing file.\nUsed for debugging as we still haven't improved the upload file core technology")
 
 	err = writer.Flush() // Flush any remaining data in the buffer to the file
 	if err != nil {
 		return fmt.Errorf("error flushing data to the file: %v", fileName)
 	}
 
-	return nil
-}
-
-func ReceiveFolder(conn *net.Conn, originalDirPath string) error {
 	return nil
 }

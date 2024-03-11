@@ -1,12 +1,23 @@
 package FileSystem
 
 import (
-	filetransmission "CloudDrive/FileTransmission"
 	helper "CloudDrive/Helper"
+	"CloudDrive/Server/RequestHandlers/Requests"
+	"CloudDrive/filetransmission"
+	"encoding/json"
 	"net"
 	"os"
 	"path/filepath"
 )
+
+const (
+	okayRespone string = "Okay"
+)
+
+type clientResponeInfo struct {
+	Type    int    `json:"Type"`
+	Respone string `json:"Data"`
+}
 
 // Create private socket for file recieve and ready to accept the client connection
 func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
@@ -64,8 +75,8 @@ func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listen
 		dir.Path = helper.ConvertToAbsolute(user.GetPath(), dir.Path)
 	}
 
-	err = IsContentInDirectory(dir.Name, dir.Path)
-	if err == nil { // If dir exists
+	err = IsContentInDirectory(dir.Name, dir.Path) // Checks if dir doesn't exist already
+	if err == nil {                                // If dir exists
 		return &ContentExistError{dir.Name, dir.Path}
 	}
 
@@ -113,6 +124,45 @@ func uploadAbsFile(file *Content, uploadListener *net.Listener) {
 	}
 }
 
+// Implement createFolder for reciving folder implemention.
+// Input:
+// info Requests.RequestInfo - Client request's info
+// user *LoggedUser
+func createFolder(info Requests.RequestInfo, baseFolderPath string) clientResponeInfo {
+	// Convert request json bytes to dir path variable
+	rawData := Requests.ParseDataToString(info.RequestData)
+	relativeFolderPath := helper.ConvertRawJsonToData(rawData)
+	absFolderPath := filepath.Join(baseFolderPath, relativeFolderPath) // Appened the base path and the relative path to make a full absolute path
+
+	err := IsContentInDirectory(helper.Base(absFolderPath), filepath.Dir(absFolderPath)) // Check if the folder is already exists
+	if err == nil {                                                                      // If directory is already exist
+		return clientResponeInfo{Type: errorRespone, Respone: (&FolderExistError{Name: helper.Base(absFolderPath), Path: filepath.Dir(absFolderPath)}).Error()} // If folder exists
+	}
+	os.Mkdir(absFolderPath, os.ModePerm) // Creates a folder
+	return clientResponeInfo{Type: validRespone, Respone: okayRespone}
+}
+
+// Recieves folder from client implemention
+func receiveFolder(conn *net.Conn, absDirPath string) error {
+	for {
+		request_Info, err := Requests.ReciveRequestInfo(conn) // Recieves request info indicating whether to upload file or folder
+		if err != nil {
+			return err
+		}
+		var responeInfo clientResponeInfo
+		switch request_Info.Type {
+		case Requests.CreateFolderRequest:
+			responeInfo = createFolder(request_Info, absDirPath)
+			message, err := json.Marshal(responeInfo)
+			if err != nil {
+				return err
+			}
+			helper.SendData(conn, message)
+
+		}
+	}
+}
+
 // Uploading directory proccess
 func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 	// Creates a private socket with the client for the upload directory
@@ -125,7 +175,7 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 
 	_ = os.Mkdir(fullPath, os.ModePerm) // sets permissions for the directory
 
-	err = filetransmission.ReceiveFolder(uploadSocket, fullPath)
+	err = receiveFolder(uploadSocket, fullPath)
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {

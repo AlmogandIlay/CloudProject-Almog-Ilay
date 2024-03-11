@@ -15,6 +15,7 @@ const (
 	emptyChunks  = 0
 	emptySize    = 0
 	errorRespone = 999
+	validRespone = 200
 )
 
 // Change the user current directory into garbage directory
@@ -119,11 +120,11 @@ func (user *LoggedUser) CreateFile(fileName string) error {
 // Creates a new folder in the current directory
 func (user *LoggedUser) CreateFolder(folderName string) error {
 	// any path into server absulote path
-	serverpath := helper.GetServerStoragePath(user.UserID, folderName)
-	if !filepath.IsAbs(serverpath) {
+	serverpath := helper.GetServerStoragePath(user.UserID, folderName) // Convert folderName client path side to absolute if given absolute
+	if !filepath.IsAbs(serverpath) {                                   // Convert path folder name to absolute if it doesn't
 		serverpath = helper.ConvertToAbsolute(user.GetPath(), serverpath) // convert to an absolute-server side path
 	}
-	if helper.IsContainGarbage(serverpath, user.UserID) {
+	if helper.IsContainGarbage(serverpath, user.UserID) { // If the folder to be created should be in Garbage folder
 		return &PremmisionError{helper.GetGarbagePath(user.UserID)}
 	}
 	return user.fileOperation(serverpath, createAbsDir)
@@ -138,8 +139,8 @@ func (user *LoggedUser) RemoveContent(contentName string) error {
 	}
 
 	err := IsContentInDirectory(filepath.Base(serverpath), filepath.Dir(serverpath)) // Checks if the content to remove does exists in its path
-	if err != nil {                                                                  // If content doesn't exist
-		return &FileNotExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(serverpath)}
+	if err != nil {                                                                  // If content doesn't exist in its path
+		return &ContentNotExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(serverpath)}
 	}
 
 	if helper.IsContainGarbage(serverpath, user.UserID) { // If the content path is in the Garbage path
@@ -148,7 +149,7 @@ func (user *LoggedUser) RemoveContent(contentName string) error {
 		newContentPath := filepath.Join(helper.GetGarbagePath(user.UserID), filepath.Base(serverpath)) // Rename destination path for moving content
 		err = IsContentInDirectory(filepath.Base(serverpath), filepath.Dir(newContentPath))
 		if err == nil { // Plaster to solve sending to garbage a filename that already exists
-			return &FileExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(newContentPath)}
+			return &ContentExistError{Name: filepath.Base(serverpath), Path: filepath.Dir(newContentPath)}
 		}
 
 		moveContent(serverpath, newContentPath) // Move content to Garbage path

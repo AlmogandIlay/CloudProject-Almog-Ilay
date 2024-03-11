@@ -11,9 +11,9 @@ type ResponeType int
 const (
 	ErrorRespone  ResponeType = 999
 	ValidRespone  ResponeType = 200
-	OkayRespone   string      = "200: Okay" // Valid Response default data
-	CDRespone     string      = "200: CurrentDirectory:"
-	ChunksRespone string      = "200: ChunksSize:"
+	OkayRespone   string      = "Okay" // Valid Response default data
+	CDRespone     string      = "CurrentDirectory:"
+	ChunksRespone string      = "ChunksSize:"
 	SizeRespone   string      = " FileSize:"
 )
 
