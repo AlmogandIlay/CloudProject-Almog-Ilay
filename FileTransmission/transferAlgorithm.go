@@ -94,7 +94,6 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 	// Create a buffered writer for efficient writes
 	writer := bufio.NewWriter(file)
 
-	//fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
 	bytesWritten := 0
 	for bytesWritten < len(fileBytes) {
 		n, err := writer.Write(fileBytes[bytesWritten:])

@@ -1,10 +1,11 @@
 package FileSystem
 
 import (
-	"CloudDrive/Filetransmission"
+	"CloudDrive/FileTransmission"
 	helper "CloudDrive/Helper"
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
+	"fmt"
 	"net"
 	"os"
 	"path/filepath"
@@ -56,7 +57,7 @@ func (user *LoggedUser) UploadFile(file *Content, uploadListener *net.Listener) 
 
 	go uploadAbsFile(file, uploadListener) // Start receiving file from client
 
-	return Filetransmission.GetChunkSize(file.Size), nil
+	return FileTransmission.GetChunkSize(file.Size), nil
 }
 
 func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listener) error {
@@ -102,7 +103,7 @@ func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.List
 	if err != nil {
 		return emptyChunks, emptySize, err
 	}
-	return Filetransmission.GetChunkSize(fileSize), fileSize, nil
+	return FileTransmission.GetChunkSize(fileSize), fileSize, nil
 }
 
 // Uploading file proccess
@@ -117,7 +118,7 @@ func uploadAbsFile(file *Content, uploadListener *net.Listener) {
 	dirFile, _ := os.Create(fullPath)        // Creates the file
 	dirFile.Close()
 
-	err = Filetransmission.ReceiveFile(*uploadSocket, file.Path, file.Name, int(file.Size))
+	err = FileTransmission.ReceiveFile(*uploadSocket, file.Path, file.Name, int(file.Size))
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {
@@ -148,33 +149,40 @@ func createFolder(info Requests.RequestInfo, baseFolderPath string) clientRespon
 // Input:
 // Requests.RequestInfo - Client request's info
 // baseFolderPath - Base absolute path of server side
-func createFile(info Requests.RequestInfo, baseFolderPath string) clientResponeInfo {
+// Output:
+// Respone (ResponeInfo)
+// Absolute filepath (if file's valid)
+// File's size (if file's valid)
+func createFile(info Requests.RequestInfo, baseFolderPath string) (clientResponeInfo, string, int) {
 	file, err := ParseDataToContent(info.RequestData) // Parse json bytes to file struct
 	if err != nil {
-		return clientResponeInfo{Type: errorRespone, Respone: err.Error()}
+		return clientResponeInfo{Type: errorRespone, Respone: err.Error()}, "", nonSize
 	}
 	err = validContentName(file.Name) // Valids file name
 	if err != nil {
-		return clientResponeInfo{Type: errorRespone, Respone: err.Error()}
+		return clientResponeInfo{Type: errorRespone, Respone: err.Error()}, "", nonSize
 	}
 	absFilePath := filepath.Join(baseFolderPath, file.Path, file.Name) // Appened the base path and the relative path to make a full absolute path
 
 	err = IsContentInDirectory(helper.Base(absFilePath), filepath.Dir(absFilePath)) // Check if the file is already exists
 	if err == nil {                                                                 // If file exists
-		return clientResponeInfo{Type: errorRespone, Respone: (&FileExistError{Name: helper.Base(absFilePath), Path: filepath.Dir(absFilePath)}).Error()} // If file exists
+		// Returns FileExist error
+		return clientResponeInfo{Type: errorRespone, Respone: (&FileExistError{Name: helper.Base(absFilePath), Path: filepath.Dir(absFilePath)}).Error()}, "", nonSize
 	}
 
-	chunksSize := Filetransmission.GetChunkSize(file.Size) // Saves the chunks size for the file
+	chunksSize := FileTransmission.GetChunkSize(file.Size) // Saves the chunks size for the file
 
 	dirFile, _ := os.Create(absFilePath) // Creates the file
 	dirFile.Close()
 
-	return clientResponeInfo{Type: validRespone, Respone: chunksRespone + strconv.FormatUint(uint64(chunksSize), 10)}
+	return clientResponeInfo{Type: validRespone, Respone: chunksRespone + strconv.FormatUint(uint64(chunksSize), 10)}, absFilePath, int(file.Size)
 }
 
 // Recieves folder from client implemention
 func receiveFolder(conn *net.Conn, absDirPath string) error {
 	for {
+		var absFilePath string
+		var fileSize int
 		request_Info, err := Requests.ReciveRequestInfo(conn) // Recieves request info indicating whether to upload file or folder
 		if err != nil {
 			return err
@@ -185,13 +193,17 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			responeInfo = createFolder(request_Info, absDirPath) // Creates the directory with a given absolute base path, returns the respone info indicating success
 
 		case Requests.UploadFileRequest:
-			responeInfo = createFile(request_Info, absDirPath) // Creates the file with a given absolute base path, returns the respone info including the file's chunk size
+			responeInfo, absFilePath, fileSize = createFile(request_Info, absDirPath) // Creates the file with a given absolute base path, returns the respone info including the file's chunk size
+			fmt.Println(responeInfo.Respone)
 		}
 		message, err := json.Marshal(responeInfo) // encode respone info to json bytes
 		if err != nil {
 			return err
 		}
-		helper.SendData(conn, message) // Sends respone Info bytes
+		helper.SendData(conn, message)                                                           // Sends respone Info bytes
+		if request_Info.Type == Requests.UploadFileRequest && responeInfo.Type != errorRespone { // If client requested to upload a file and its respone is valid
+			FileTransmission.ReceiveFile(*conn, filepath.Dir(absFilePath), helper.Base(absFilePath), fileSize) // Start reciving file proccess
+		}
 	}
 }
 
@@ -205,7 +217,7 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 
 	fullPath := dir.Path + "\\" + dir.Name // Saves the full path for the directory to be created
 
-	_ = os.Mkdir(fullPath, os.ModePerm) // Creates the base directory with set permissions for the directory
+	_ = os.Mkdir(fullPath, os.ModePerm) // Creates the base directory with set permissions for the directory on the cloud
 
 	err = receiveFolder(uploadSocket, fullPath)
 	if err != nil { // If upload process has failed
@@ -229,7 +241,7 @@ func downloadAbsFile(filepath string, downloadListener *net.Listener) {
 		return // Exit download proccess
 	}
 
-	err = Filetransmission.SendFile(downloadSocket, fileSize, filepath) // Send file to client
+	err = FileTransmission.SendFile(downloadSocket, fileSize, filepath) // Send file to client
 	if err != nil {
 		return // Exit download process
 	}
