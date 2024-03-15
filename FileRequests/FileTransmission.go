@@ -153,7 +153,11 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+	} else { // If upload was valid
+		_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopUpload, nil), socket) // Send stop upload request to server
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
