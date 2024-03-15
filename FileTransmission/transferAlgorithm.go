@@ -1,4 +1,4 @@
-package Filetransmission
+package FileTransmission
 
 import (
 	helper "CloudDrive/Helper"
