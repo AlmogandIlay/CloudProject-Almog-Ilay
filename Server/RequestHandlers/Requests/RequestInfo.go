@@ -27,6 +27,7 @@ const (
 	DownloadFileRequest    RequestType = 402
 	UploadDirectoryRequest RequestType = 403
 	DownloadDirRequest     RequestType = 404
+	StopUpload             RequestType = 501
 
 	ErrorRequest RequestType = 999
 )
@@ -39,9 +40,9 @@ type RequestInfo struct {
 
 }
 
-// Recives data from client socket and returns RequestInfo
-func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
-	data, err := helper.ReciveData(conn, helper.DefaultBufferSize)
+// Recives request info json data from client socket and returns RequestInfo encoded struct with timeout flag
+func ReciveRequestInfo(conn *net.Conn, timeoutFlag bool) (RequestInfo, error) {
+	data, err := helper.ReciveData(conn, helper.DefaultBufferSize, timeoutFlag)
 
 	if err != nil {
 		return RequestInfo{}, err
@@ -49,7 +50,7 @@ func ReciveRequestInfo(conn *net.Conn) (RequestInfo, error) {
 
 	var requestInfo RequestInfo
 
-	err = json.Unmarshal(data, &requestInfo)
+	err = json.Unmarshal(data, &requestInfo) // Encode json to struct
 	if err != nil {
 		return RequestInfo{
 			Type:        ErrorRequest,

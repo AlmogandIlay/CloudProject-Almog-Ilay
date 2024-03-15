@@ -185,9 +185,14 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 		var absFilePath string // Absolute file path
 		var fileSize int       // File size
 
-		request_Info, err := Requests.ReciveRequestInfo(conn) // Recieves request info indicating whether to upload file or folder
+		request_Info, err := Requests.ReciveRequestInfo(conn, true) // Recieves request info with timeout flag on, indicating whether to upload file or folder
 		if err != nil {
-			return err
+			switch err := err.(type) { // Checking error type
+			case *net.OpError:
+				if err.Timeout() { // If error is reciving timeout
+					break
+				}
+			}
 		}
 		var responeInfo clientResponeInfo
 		switch request_Info.Type {
@@ -197,6 +202,9 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 		case Requests.UploadFileRequest:
 			responeInfo, absFilePath, fileSize = createFile(request_Info, absDirPath) // Creates the file with a given absolute base path, returns the respone info including the file's chunk size
 			fmt.Println(responeInfo.Respone)
+
+		case Requests.StopUpload: // If client requested to stop uploading
+			return nil
 		}
 		message, err := json.Marshal(responeInfo) // encode respone info to json bytes
 		if err != nil {
@@ -207,6 +215,7 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			FileTransmission.ReceiveFile(*conn, filepath.Dir(absFilePath), helper.Base(absFilePath), fileSize) // Start reciving file proccess
 		}
 	}
+	return nil
 }
 
 // Uploading directory proccess
