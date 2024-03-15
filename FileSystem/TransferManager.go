@@ -181,8 +181,10 @@ func createFile(info Requests.RequestInfo, baseFolderPath string) (clientRespone
 // Recieves folder from client implemention
 func receiveFolder(conn *net.Conn, absDirPath string) error {
 	for {
-		var absFilePath string
-		var fileSize int
+		// File variables:
+		var absFilePath string // Absolute file path
+		var fileSize int       // File size
+
 		request_Info, err := Requests.ReciveRequestInfo(conn) // Recieves request info indicating whether to upload file or folder
 		if err != nil {
 			return err
