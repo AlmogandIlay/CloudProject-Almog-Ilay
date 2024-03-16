@@ -227,7 +227,7 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go uploadFile(int64(fileSize), chunksSize, filename, *uploadSocket)
+	go uploadFile(int64(fileSize), chunksSize, filename, true, *uploadSocket) // Upload the file with print reports
 
 	return nil
 }

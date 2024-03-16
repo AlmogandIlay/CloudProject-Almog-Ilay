@@ -27,8 +27,9 @@ const (
 
 //var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
 
-// Uploads file to the cloud server
-func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn) {
+// Uploads file to the cloud server with the given file size an the chunk from the cloud core technology, filename to open the file from local pc
+// shoutFlag to indicate whether to print upload finished or no
+func uploadFile(fileSize int64, chunksSize int, filename string, shoutFlag bool, socket net.Conn) {
 	file, err := os.Open(strings.Replace(filename, "'", "", Helper.RemoveAll)) // Open file
 	if err != nil {
 		fmt.Println(err.Error())
@@ -68,7 +69,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 		totalReadFlag += int64(bytesRead)
 		totalBytesRead += int64(bytesRead)
 
-		if totalReadFlag >= kilobyte { // For every 1 Kilobyte update the progess and perecntage bar
+		if totalReadFlag >= kilobyte && shoutFlag { // If shout flag has been enabled, for every 1 Kilobyte update the progess and perecntage bar in the cli
 			totalReadFlag = 0
 			precentage = (totalBytesRead * 100) / fileSize // Calculates total read bytes compared to the total file size in percentages
 			printer := func(_ int, _ string) string {
@@ -84,7 +85,8 @@ func uploadFile(fileSize int64, chunksSize int, filename string, socket net.Conn
 
 		}
 	}
-	if validUpload {
+	// If upload finished and shout flag has been enabled
+	if validUpload && shoutFlag {
 		fmt.Printf("File %s has been uploaded successfully\n", filename)
 	}
 }
@@ -133,7 +135,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 					return &ClientErrors.ServerBadChunks{} // Blame the server
 				}
 
-				uploadFile(fileInfo.Size(), chunksSize, contentPath, socket) // Uploads the file
+				uploadFile(fileInfo.Size(), chunksSize, contentPath, false, socket) // Uploads the file with no prints
 
 			} else { // If content is directory
 				// Sends request to make a new directory
