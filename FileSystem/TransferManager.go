@@ -190,7 +190,7 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			switch err := err.(type) { // Checking error type
 			case *net.OpError:
 				if err.Timeout() { // If error is reciving timeout
-					break
+					return nil
 				}
 			}
 		}
@@ -215,7 +215,6 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			FileTransmission.ReceiveFile(*conn, filepath.Dir(absFilePath), helper.Base(absFilePath), fileSize) // Start reciving file proccess
 		}
 	}
-	return nil
 }
 
 // Uploading directory proccess

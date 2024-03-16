@@ -43,7 +43,7 @@ func handleConnection(conn net.Conn, fileTransferListener net.Listener) {
 
 	for !closeConnection {
 
-		request_Info, err := Requests.ReciveRequestInfo(&conn) // Recive request info from client
+		request_Info, err := Requests.ReciveRequestInfo(&conn, false) // Recive request info from client with no timeout flag
 		if err != nil {
 			closeConnection = true
 		}
