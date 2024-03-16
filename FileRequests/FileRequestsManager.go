@@ -324,7 +324,6 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-
 	go uploadDirectory(dirPath, *uploadSocket)
 
 	return nil

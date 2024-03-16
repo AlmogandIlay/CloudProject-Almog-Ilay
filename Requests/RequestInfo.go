@@ -45,7 +45,7 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 	}
 }
 
-func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, error) {
+func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.Conn) (ResponeInfo, error) {
 	requestBytes, err := json.Marshal(request_info)
 	if err != nil {
 		return ResponeInfo{}, &ClientErrors.JsonEncodeError{Err: err}
@@ -54,6 +54,9 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	err = Helper.SendData(&socket, requestBytes)
 	if err != nil {
 		return ResponeInfo{}, err
+	}
+	if !waitForRespone {
+		return ResponeInfo{}, nil
 	}
 
 	data, err := Helper.ReciveData(&socket)
@@ -64,14 +67,13 @@ func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, er
 	if err != nil {
 		return ResponeInfo{}, err
 	}
-
 	return response_info, nil
 }
 
 // Handles the entire request-response cycle.
 func SendRequest(requestType RequestType, request_data []byte, socket *net.Conn) (string, error) {
 	request_info := BuildRequestInfo(requestType, request_data)
-	response_info, err := SendRequestInfo(request_info, *socket) // sends a request and receives a response
+	response_info, err := SendRequestInfo(request_info, true, *socket) // sends a request and receives a response
 	if err != nil {
 		return "", err
 	}

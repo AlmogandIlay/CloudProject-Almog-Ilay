@@ -102,7 +102,6 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 		if err != nil {
 			return &ClientErrors.ConvertToRelative{}
 		}
-
 		if relativePath != "." { // If path is not the base (already exists) path
 			dirData, err := Helper.ConvertStringToBytes(relativePath) // Convert new dir path to bytes
 			if err != nil {
@@ -139,7 +138,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 			} else { // If content is directory
 				// Sends request to make a new directory
-				respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), socket)
+				respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), true, socket)
 				if err != nil {
 					return err
 				}
@@ -155,13 +154,15 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 	if err != nil {
 		fmt.Println(err.Error())
+		return
 	} else { // If upload was valid
-		_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopUpload, nil), socket) // Send stop upload request to server
+		_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopUpload, nil), false, socket) // Send stop upload request to server
 		if err != nil {
 			fmt.Println(err.Error())
 		}
 		fmt.Println("Upload directory has finished")
 	}
+
 }
 
 // Write the file content on a seprated goroutine to not waste time and resources for the main thread that recives the file
