@@ -118,7 +118,7 @@ func uploadAbsFile(file *Content, uploadListener *net.Listener) {
 	dirFile, _ := os.Create(fullPath)        // Creates the file
 	dirFile.Close()
 
-	err = FileTransmission.ReceiveFile(*uploadSocket, file.Path, file.Name, int(file.Size))
+	err = FileTransmission.ReceiveFile(uploadSocket, file.Path, file.Name, int(file.Size))
 	if err != nil { // If upload process has failed
 		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 		if err != nil {
@@ -212,7 +212,7 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 		}
 		helper.SendData(conn, message)                                                           // Sends respone Info bytes
 		if request_Info.Type == Requests.UploadFileRequest && responeInfo.Type != errorRespone { // If client requested to upload a file and its respone is valid
-			FileTransmission.ReceiveFile(*conn, filepath.Dir(absFilePath), helper.Base(absFilePath), fileSize) // Start reciving file proccess
+			FileTransmission.ReceiveFile(conn, filepath.Dir(absFilePath), helper.Base(absFilePath), fileSize) // Start reciving file proccess
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"time"
 
 	"github.com/galsondor/go-ascii"
 )
@@ -72,13 +73,17 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 	return nil
 }
 
-// Reccive file from the client, read the data in chunks and then write in chunks into the file.
-func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) error {
+// Recives a file from the client, read the data in chunks and then write in chunks into the file.
+func ReceiveFile(conn *net.Conn, filePath string, fileName string, fileSize int) error {
 	fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
 	bytesRead := 0
 	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
-		// Reading file
-		read, err := conn.Read(fileBytes[bytesRead:])
+		// Reciving file
+		err := (*conn).SetReadDeadline(time.Now().Add(1 * time.Minute)) // Set timeout reciving for 1 minute
+		if err != nil {
+			return err
+		}
+		read, err := (*conn).Read(fileBytes[bytesRead:])
 		if err != nil {
 			return fmt.Errorf("error reading the file.\nplease try again")
 		}
@@ -100,6 +105,8 @@ func ReceiveFile(conn net.Conn, filePath string, fileName string, fileSize int) 
 		if err != nil {
 			return fmt.Errorf("error writing to file: %v", fileName)
 		}
+		fmt.Println("chunk data: ", fileBytes[bytesWritten:])
+		fmt.Println("Amount of data read this for iteration: ", n)
 		bytesWritten += n
 	}
 	fmt.Println("Finished writing file.\nUsed for debugging as we still haven't improved the upload file core technology")
