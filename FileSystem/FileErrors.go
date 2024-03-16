@@ -35,6 +35,8 @@ type UnmarshalError struct{}
 
 type CreatePrivateSocketError struct{}
 
+type UploadTimeOut struct{}
+
 // Creates custom errors for filesystem
 
 func (fileError *FileSizeError) Error() string {
@@ -123,6 +125,10 @@ func (fileError *CreatePrivateSocketError) Error() string {
 	return "Couldn't create a private socket for the file upload."
 }
 
+func (fileError *UploadTimeOut) Error() string {
+	return "Upload process has been stopped as it's passed the timeout duration of upload.\nThis doesn't mean the upload proccess didn't finished.\nPlease take a look of the uploaded content."
+}
+
 func (fileError *AbsFileError) Error() string {
-	return fmt.Sprintf("The argument %s should be pure name of file not abs path", fileError.Path)
+	return fmt.Sprintf("The argument %s should be pure name of file, not abs path", fileError.Path)
 }

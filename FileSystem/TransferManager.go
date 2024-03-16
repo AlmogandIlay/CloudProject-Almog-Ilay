@@ -190,7 +190,7 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			switch err := err.(type) { // Checking error type
 			case *net.OpError:
 				if err.Timeout() { // If error is reciving timeout
-					return nil
+					return &UploadTimeOut{}
 				}
 			}
 		}
@@ -231,10 +231,7 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 
 	err = receiveFolder(uploadSocket, fullPath)
 	if err != nil { // If upload process has failed
-		err = sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
-		if err != nil {
-			return // Exit upload process
-		}
+		sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
 	}
 }
 
