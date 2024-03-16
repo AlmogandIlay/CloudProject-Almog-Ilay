@@ -158,6 +158,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		fmt.Println("Upload directory has finished")
 	}
 }
 
