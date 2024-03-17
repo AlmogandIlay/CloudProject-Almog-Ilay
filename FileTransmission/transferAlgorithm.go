@@ -78,7 +78,7 @@ func ReceiveFile(conn *net.Conn, filePath string, fileName string, fileSize int)
 	fileBytes := make([]byte, fileSize) // Save the file content on a chunk bytes
 	bytesRead := 0
 	for bytesRead < fileSize { // First reading the file (to make sure the entire chunks can be read before writing to file)
-		// Reciving file
+		// Reciving- file
 		err := (*conn).SetReadDeadline(time.Now().Add(1 * time.Minute)) // Set timeout reciving for 1 minute
 		if err != nil {
 			return err
