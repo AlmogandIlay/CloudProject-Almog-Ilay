@@ -32,6 +32,7 @@ type PremmisionError struct{ Path string }
 type InitializeError struct{}
 
 type UnmarshalError struct{}
+type MarshalError struct{}
 
 type CreatePrivateSocketError struct{}
 
@@ -118,6 +119,10 @@ func (fileError *InitializeError) Error() string {
 }
 
 func (fileError *UnmarshalError) Error() string {
+	return "There has been an error when attempting to decode the requested file."
+}
+
+func (fileError *MarshalError) Error() string {
 	return "There has been an error when attempting to encode the requested file."
 }
 

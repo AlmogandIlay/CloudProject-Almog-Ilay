@@ -6,6 +6,7 @@ import (
 	"CloudDrive/Server/RequestHandlers/Requests"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net"
 	"os"
 	"path/filepath"
@@ -58,6 +59,26 @@ func (user *LoggedUser) UploadFile(file *Content, uploadListener *net.Listener) 
 	go uploadAbsFile(file, uploadListener) // Start receiving file from client
 
 	return FileTransmission.GetChunkSize(file.Size), nil
+}
+
+func (user *LoggedUser) DownloadDirectory(dirPath string, downloadListener *net.Listener) error {
+
+	if !helper.IsAbs(dirPath) { // if dir path is relative
+		dirPath = helper.ConvertToAbsolute(user.GetPath(), dirPath) // Convert the given path to absolute server-side path
+	}
+	dirPath = helper.GetServerStoragePath(user.UserID, dirPath)              // Convert path to server-side path in case it was an absolute path
+	err := IsContentInDirectory(helper.Base(dirPath), filepath.Dir(dirPath)) // Check if dir does exist in the directory
+	if err != nil {
+		return err
+	}
+
+	socket, err := createPrivateSocket(*downloadListener)
+	if err != nil {
+		return err
+	}
+	go downloadAbsDirectory(dirPath, socket) // Start sending file to client
+
+	return nil
 }
 
 func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listener) error {
@@ -232,6 +253,62 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 	err = receiveFolder(uploadSocket, fullPath)
 	if err != nil { // If upload process has failed
 		sendResponseInfo(uploadSocket, buildError(err.Error())) // Send error respone
+	}
+}
+
+func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
+
+	err := filepath.WalkDir(directoryPath, func(contentpath string, contentInfo fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		relativePath, err := filepath.Rel(directoryPath, contentpath)
+		if err != nil {
+			return err // Todo: create custom error
+		}
+
+		if relativePath != "." {
+			if !contentInfo.IsDir() {
+				fileInfo, err := contentInfo.Info()
+
+				if err != nil {
+					return err // Todo: create custom error
+				}
+
+				file := newContent(helper.Base(relativePath), filepath.Dir(relativePath), uint32(fileInfo.Size()))
+
+				fileData, err := json.Marshal(file)
+
+				if err != nil {
+					return &MarshalError{}
+				}
+
+				responeInfo := buildRespone(fileData)
+
+				err = sendResponseInfo(downloadSocket, responeInfo)
+
+				if err != nil {
+					return err
+				}
+
+				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
+
+				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10)))
+
+				err = sendResponseInfo(downloadSocket, responeInfo)
+
+				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), relativePath) // Send file to client
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
 	}
 }
 

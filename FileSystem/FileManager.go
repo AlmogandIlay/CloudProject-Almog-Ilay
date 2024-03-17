@@ -390,6 +390,16 @@ func buildError(response string) interface{} {
 	}
 }
 
+func buildRespone(response []byte) interface{} {
+	return struct {
+		Type    int    `json:"Type"`
+		Respone string `json:"Data"`
+	}{
+		Type:    validRespone,
+		Respone: string(response),
+	}
+}
+
 // Duplicate from ResponeInfo to avoid import cycle. send Respone info.
 func sendResponseInfo(conn *net.Conn, responseInfo interface{}) error {
 	message, _ := json.Marshal(responseInfo)
