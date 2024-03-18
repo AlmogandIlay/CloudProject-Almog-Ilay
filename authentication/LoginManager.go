@@ -27,44 +27,45 @@ func InitializeAuthenticationManager() (*AuthenticationManager, error) {
 	return &manager, nil
 }
 
-// Add comment
+// Performs login request using the AuthenticationManager API
 func (manager *AuthenticationManager) Login(username, password string) error {
-	userExist, err := manager.doesUserExist(username)
-	if err != nil {
+	userExist, err := manager.doesUserExist(username) // Checks if the username exists in the database table
+	if err != nil {                                   // If error occured in the check
 		return err
 	}
-	if !userExist {
+	if !userExist { // If username does not exists
 		return &UsernameNotExistsError{username}
 	}
 
 	match, err := manager.doesPasswordMatch(username, Hash(password)) // check if the password match after encryption
-	if err != nil {
+	if err != nil {                                                   // If error occured in the check
 		return err
 	}
-	if !match {
+	if !match { // If password not match
 		return &UsernameNotMatchPasswrodError{username, password}
 	}
+	// User has succesfully signed in
 	user, err := manager.getUser(username)
 	if err != nil {
 		return err
 	}
-	manager.onlineUsers = append(manager.onlineUsers, *user)
+	manager.onlineUsers = append(manager.onlineUsers, *user) // Appened the user to the onlineUsers slice
 	return nil
 }
 
-// Add comment
+// Performs signup request using the AuthenticationManager API
 func (manager *AuthenticationManager) Signup(username, password, email string) []error {
-	userExist, err := manager.doesUserExist(username)
-	if err != nil {
+	userExist, err := manager.doesUserExist(username) // Checks if the username exists in the database table
+	if err != nil {                                   // If error occured in the check
 		return []error{err}
 	}
-	if userExist {
+	if userExist { // If username is already exists
 		return []error{&UsernameExistsError{username}}
 	}
 
-	user, userErrors := NewUser(username, password, email)
+	user, userErrors := NewUser(username, password, email) // Creates the new user and validates its fields
 
-	if len(userErrors) > 0 { // no errors
+	if len(userErrors) > 0 { // If there are errors after validating the user
 		return userErrors
 	}
 

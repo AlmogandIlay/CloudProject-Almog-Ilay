@@ -30,6 +30,7 @@ const (
 	MAXIMUM_USERNAME_LENGTH = 16
 )
 
+// Creates a new user struct after validating its fields
 func NewUser(username, password, email string) (*User, []error) {
 	var validationErrors []error
 
@@ -41,17 +42,18 @@ func NewUser(username, password, email string) (*User, []error) {
 	}
 
 	// check for user value before creation
-	validate(Name(username), &UsernameError{username})
-	validate(Password(password), &PasswordError{password})
-	validate(Email(email), &EmailError{email})
+	validate(Name(username), &UsernameError{username})     // Valids username
+	validate(Password(password), &PasswordError{password}) // Valids password
+	validate(Email(email), &EmailError{email})             // Valids email
 
-	// check if an error accured
+	// check if error/s accured
 	if len(validationErrors) > 0 {
 		return nil, validationErrors
 	}
 
-	hashedPassword := Hash(password)
+	hashedPassword := Hash(password) // Encerypt the password
 
+	// Returns the user struct after making sure the fields are valid
 	return &User{Username: username, Password: hashedPassword, Email: email}, nil
 }
 
@@ -96,15 +98,18 @@ func (user *User) setEmail(newEmail string) error {
 }
 
 // implementation of the interface, check if the fields are valid
+// Valids username
 func (name Name) Valid() bool {
 	return len(name) >= MINIMUM_USERNAME_LENGTH && len(name) <= MAXIMUM_USERNAME_LENGTH
 }
 
+// Valids password
 func (password Password) Valid() bool {
 	return len(password) >= MINIMUM_PASSWORD_LENGTH && len(password) <= MAXIMUM_PASSWORD_LENGTH
 }
 
 // check the validication of an email by email rules
+// Valids email
 func (email Email) Valid() bool {
 	match, _ := regexp.MatchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, string(email))
 	return match
