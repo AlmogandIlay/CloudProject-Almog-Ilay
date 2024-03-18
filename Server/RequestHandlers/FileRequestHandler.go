@@ -42,6 +42,8 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 		return filehandler.handleGarbage(loggedUser)
 	case Requests.UploadDirectoryRequest:
 		return filehandler.handleUploadDirectory(info, loggedUser, fileTransferListener)
+	case Requests.DownloadDirRequest:
+		return filehandler.handleDownloadDir(info, loggedUser, fileTransferListener)
 	default:
 		return Error(info, IRequestHandler(&filehandler))
 	}
@@ -185,5 +187,19 @@ func (filehandler *FileRequestHandler) handleUploadDirectory(info Requests.Reque
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Send Directory is valid respone
+
+}
+
+func (filehandler *FileRequestHandler) handleDownloadDir(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, downloadListener *net.Listener) ResponeInfo {
+	rawData := Requests.ParseDataToString(info.RequestData)
+
+	path := helper.ConvertRawJsonToData(rawData) // Fixes the raw string to path string
+
+	err := loggedUser.DownloadDirectory(path, downloadListener)
+	if err != nil {
+		return buildError(err.Error(), IRequestHandler(filehandler))
+	}
+
+	return buildRespone(OkayRespone, CreateFileRequestHandler())
 
 }

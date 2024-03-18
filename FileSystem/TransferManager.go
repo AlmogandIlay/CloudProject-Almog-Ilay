@@ -258,10 +258,13 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 
 func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
 
+	// walk through all the files and and sub-directories in the given path
 	err := filepath.WalkDir(directoryPath, func(contentpath string, contentInfo fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
+
+		// Convert the given path to relative path
 		relativePath, err := filepath.Rel(directoryPath, contentpath)
 		if err != nil {
 			return err // Todo: create custom error
@@ -275,9 +278,10 @@ func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
 					return err // Todo: create custom error
 				}
 
+				// Initialize file struct
 				file := newContent(helper.Base(relativePath), filepath.Dir(relativePath), uint32(fileInfo.Size()))
 
-				fileData, err := json.Marshal(file)
+				fileData, err := json.Marshal(file) // Convert the struct to json bytes
 
 				if err != nil {
 					return &MarshalError{}
@@ -285,17 +289,18 @@ func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
 
 				responeInfo := buildRespone(fileData)
 
-				err = sendResponseInfo(downloadSocket, responeInfo)
+				err = sendResponseInfo(downloadSocket, responeInfo) // send the file data to the client
 
 				if err != nil {
 					return err
 				}
 
+				// send
 				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
 
-				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10)))
+				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10))) // Convert the chunk size to respone
 
-				err = sendResponseInfo(downloadSocket, responeInfo)
+				err = sendResponseInfo(downloadSocket, responeInfo) // Send the chunk size
 				if err != nil {
 					return err
 				}
@@ -305,8 +310,13 @@ func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
 					return err
 				}
 			} else {
-				err = createAbsDir(relativePath)
+				// When the content is sub-dir
+				// Create respone for create sub-dir in the relative path
+				responeInfo := func(relativePath string) clientResponeInfo {
 
+					return clientResponeInfo{Type: int(Requests.CreateFolderRequest), Respone: relativePath}
+				}
+				err = sendResponseInfo(downloadSocket, responeInfo)
 				if err != nil {
 					return err
 				}
