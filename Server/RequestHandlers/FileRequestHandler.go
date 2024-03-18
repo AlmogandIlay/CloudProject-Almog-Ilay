@@ -201,5 +201,4 @@ func (filehandler *FileRequestHandler) handleDownloadDir(info Requests.RequestIn
 	}
 
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
-
 }
