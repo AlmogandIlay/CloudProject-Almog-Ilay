@@ -64,7 +64,7 @@ func SendData(conn *net.Conn, message []byte) error {
 			if errors.As(errInfo.Err, &syscallErr) { // If error belongs to syscall communication
 				if syscallErr.Syscall == "wsasend" && syscallErr.Err == syscall.WSAECONNRESET { // If error is that server is down
 					fmt.Println("Server has been closed.\nPlease try to reconnect in a few moments.")
-					os.Exit(1) // Shutdown the client program
+					os.Exit(1) // Shutdown the client program with an error indication
 				}
 			}
 		}
@@ -98,16 +98,17 @@ func ReciveChunkData(conn *net.Conn, bufferSize int) (dataBytes []byte, errr err
 	return data, nil
 }
 
+// Convert the data string field to json bytes object
 func ConvertStringToBytes(data string) ([]byte, error) {
-	// Create a simple struct to hold data
+	// Creates a simple struct to hold the data
 	jsonData := struct {
 		Data string `json:"Data"`
 	}{Data: data}
 
-	bytes, err := json.Marshal(jsonData)
+	bytes, err := json.Marshal(jsonData) // Decoding the struct to json bytes object
 	if err != nil {
 		// Handle the error appropriately
-		return nil, fmt.Errorf("error encoding requested path to be sent to the server")
+		return nil, fmt.Errorf("error decoding requested data to be sent to the server")
 	}
 	return bytes, nil
 }

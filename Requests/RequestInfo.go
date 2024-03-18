@@ -45,13 +45,22 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 	}
 }
 
+// Send RequestInfo struct to the server.
+// I/O:
+// Input:
+// request_info - RequestInfo struct
+// waitForRespone - flag bool indicates whether to wait and have a timeout for the respone
+// socket - The socket to recieve the respond from.
+// Output:
+// ResponeInfo - struct.
+// error - indicates something went wrong.
 func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.Conn) (ResponeInfo, error) {
-	requestBytes, err := json.Marshal(request_info)
+	requestBytes, err := json.Marshal(request_info) // Decode RequestInfo struct to json bytes
 	if err != nil {
-		return ResponeInfo{}, &ClientErrors.JsonEncodeError{Err: err}
+		return ResponeInfo{}, &ClientErrors.JsonDecodeError{Err: err}
 	}
 
-	err = Helper.SendData(&socket, requestBytes)
+	err = Helper.SendData(&socket, requestBytes) // Send json bytes to server
 	if err != nil {
 		return ResponeInfo{}, err
 	}
@@ -59,11 +68,12 @@ func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.C
 		return ResponeInfo{}, nil
 	}
 
-	data, err := Helper.ReciveData(&socket)
+	data, err := Helper.ReciveData(&socket) // Recieve raw data from server
 	if err != nil {
 		return ResponeInfo{}, err
 	}
-	response_info, err := getResponseInfo(data)
+	// Convert raw bytes json to ResponeInfo struct
+	response_info, err := GetResponseInfo(data)
 	if err != nil {
 		return ResponeInfo{}, err
 	}

@@ -17,7 +17,8 @@ type ResponeInfo struct {
 	Respone string      `json:"Data"`
 }
 
-func getResponseInfo(data []byte) (ResponeInfo, error) {
+// Encode raw slice of bytes to ResponeInfo struct
+func GetResponseInfo(data []byte) (ResponeInfo, error) {
 	var response_info ResponeInfo
 	err := json.Unmarshal(data, &response_info)
 	if err != nil {

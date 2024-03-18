@@ -254,7 +254,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 			clientpath = command_arguments[newFileName]
 		}
 	}
-	data, err := Helper.ConvertStringToBytes(filename)
+	data, err := Helper.ConvertStringToBytes(filename) // Convert filename to json bytes
 	if err != nil {
 		return err
 	}
@@ -325,6 +325,50 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 	go uploadDirectory(dirPath, *uploadSocket)
+
+	return nil
+}
+
+func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
+	if len(command_arguments) < minimumdownloadArguments {
+		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
+	}
+
+	var dirname string
+	var clientpath string
+
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+		dirname = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
+		dirname = dirname[Helper.SkipEnclose : len(dirname)-Helper.SkipEnclose]                       // Remove enclouse chars
+		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                 // Check if the second command argument is enclosed within a quotation (') marks
+			clientpath = Helper.FindPath(command_arguments, Helper.SecondNameParameter, Helper.TwoCloudPaths) // Save the second path (path in cloud storage to save)
+		} else { // If first path is quoted but the second doesn't
+			clientpath = Helper.ReturnNonQuotedSecondPath(command_arguments)
+		}
+	} else { // If command arguments are not enclosed within a quotation (') marks
+		// relay on argument indexes
+		dirname = command_arguments[oldFileName]
+		if len(command_arguments) >= localPathIndex { // If local path has been specified
+			clientpath = command_arguments[newFileName]
+		}
+	}
+	data, err := Helper.ConvertStringToBytes(dirname) // Convert filename to json bytes
+	if err != nil {
+		return err
+	}
+
+	_, err = Requests.SendRequest(Requests.DownloadDirRequest, data, socket) // Sends download directory request
+	if err != nil {                                                          // If download directory has been rejected
+		return err
+	}
+
+	// Creates a privte socket connection between the server to download the directory from the server
+	downloadSocket, err := Helper.CreatePrivateSocket()
+	if err != nil {
+		return err
+	}
+
+	go downloadDirectory(filepath.Join(clientpath, filepath.Base(dirname)), *downloadSocket)
 
 	return nil
 }

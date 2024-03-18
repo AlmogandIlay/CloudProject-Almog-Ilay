@@ -43,6 +43,7 @@ func (cli *CLI) PrintStartup() {
 	fmt.Println("Type \"help\" for available commands.")
 }
 
+// Print the prompt that gets output every command line
 func (cli *CLI) printPrompt() {
 	if FileRequestsManager.IsCurrentPathInitialized() { // If client has authenticated already
 		FileRequestsManager.PrintCurrentPath() // Print the current working directory path

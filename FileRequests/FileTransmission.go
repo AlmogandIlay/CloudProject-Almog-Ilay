@@ -223,3 +223,37 @@ func downloadFile(path string, chunksSize int, socket net.Conn) {
 	}
 	fmt.Printf("File %s has been downloaded successfully\n", path)
 }
+
+func createFolder(info Requests.ResponeInfo, baseFolderPath string) {
+
+}
+
+func downloadDirectory(path string, socket net.Conn) {
+	os.Mkdir(path, os.ModePerm) // Creates the base directory with set permissions for the directory
+
+	var startDownload = func() error {
+		// Start reciving contents in the base directory
+		for {
+			dataBytes, err := Helper.ReciveData(&socket) // Recieves bytes json data from server
+			if err != nil {
+				return err
+			}
+
+			responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
+			if err != nil {
+				return err
+			}
+			// ResponeInfo is like RequestInfo, reciving RequestInfo types in ResponeInfo struct
+
+			switch responeInfo.Type {
+			case Requests.ResponeType(Requests.CreateFolderRequest):
+			}
+
+		}
+	}
+	err := startDownload() // Start downloading proccess
+	if err != nil {
+		fmt.Println(err.Error() + "\nDownload process has been stopped.")
+		return
+	}
+}

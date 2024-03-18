@@ -149,6 +149,13 @@ func (inputBuffer UserInput) HandleInput(socket net.Conn) string {
 			}
 			return ""
 
+		case "downloaddir":
+			err = FileRequestsManager.HandleDownloadDir(command[command_arguments:], &socket)
+			if err != nil {
+				return err.Error()
+			}
+			return ""
+
 		default:
 			return "Invalid command.\nPlease try a different command or use \"help\"\n"
 
