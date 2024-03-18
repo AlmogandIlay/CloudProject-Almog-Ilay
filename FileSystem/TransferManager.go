@@ -253,6 +253,7 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 }
 
 func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) {
+	// Creates a private socket with the client to send the directory
 	downloadSocket, err := createPrivateSocket(*downloadListener)
 	if err != nil {
 		return
