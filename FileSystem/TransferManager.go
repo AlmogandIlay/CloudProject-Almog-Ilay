@@ -296,8 +296,17 @@ func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
 				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10)))
 
 				err = sendResponseInfo(downloadSocket, responeInfo)
+				if err != nil {
+					return err
+				}
 
 				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), relativePath) // Send file to client
+				if err != nil {
+					return err
+				}
+			} else {
+				err = createAbsDir(relativePath)
+
 				if err != nil {
 					return err
 				}
