@@ -49,7 +49,7 @@ func (filehandler FileRequestHandler) HandleRequest(info Requests.RequestInfo, l
 
 // Handle the garbage command, chage the current directory to garbage directory
 func (filehandler *FileRequestHandler) handleGarbage(loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	path, err := loggedUser.GarbageChangeDirectory()
+	path, err := loggedUser.GarbageChangeDirectory() // Changes current directory to Garbage path
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
@@ -59,10 +59,10 @@ func (filehandler *FileRequestHandler) handleGarbage(loggedUser *FileSystem.Logg
 
 // Handle cd (Change Directory) requests from client
 func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	requestPath := helper.ConvertRawJsonToData(rawData)
-	path, err := loggedUser.ChangeDirectory(requestPath)
-	if err != nil {
+	rawData := Requests.ParseDataToString(info.RequestData) // Convert the RequestInfo.Data to raw string
+	requestPath := helper.ConvertRawJsonToData(rawData)     // Fixes the raw string to path string
+	path, err := loggedUser.ChangeDirectory(requestPath)    // Changes the current directory to the given path string
+	if err != nil {                                         // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -71,10 +71,10 @@ func (filehandler *FileRequestHandler) handleChangeDirectory(info Requests.Reque
 
 // Handle Create File requests from client
 func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	file := helper.ConvertRawJsonToData(rawData)
-	err := loggedUser.CreateFile(file)
-	if err != nil {
+	rawData := Requests.ParseDataToString(info.RequestData) // Convert the RequestInfo.Data to raw string
+	file := helper.ConvertRawJsonToData(rawData)            // Fixes the raw string to path string
+	err := loggedUser.CreateFile(file)                      // Creates a file with the given path string
+	if err != nil {                                         // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -83,10 +83,10 @@ func (filehandler *FileRequestHandler) handleCreateFile(info Requests.RequestInf
 
 // Handle Create Folder requests from client
 func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	folderName := helper.ConvertRawJsonToData(rawData)
-	err := loggedUser.CreateFolder(folderName)
-	if err != nil {
+	rawData := Requests.ParseDataToString(info.RequestData) // Convert the RequestInfo.Data to raw string
+	folderName := helper.ConvertRawJsonToData(rawData)      // Fixes the raw string to path string
+	err := loggedUser.CreateFolder(folderName)              // Creates a folder with the given path string
+	if err != nil {                                         // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -95,10 +95,10 @@ func (filehandler *FileRequestHandler) handleCreateFolder(info Requests.RequestI
 
 // Handle Delete Content requests from client
 func (filehandler *FileRequestHandler) handleDeleteContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	content := helper.ConvertRawJsonToData(rawData)
-	err := loggedUser.RemoveContent(content)
-	if err != nil {
+	rawData := Requests.ParseDataToString(info.RequestData) // Convert the RequestInfo.Data to raw string
+	content := helper.ConvertRawJsonToData(rawData)         // Fixes the raw string to path string
+	err := loggedUser.RemoveContent(content)                // Removes a content with the given path string
+	if err != nil {                                         // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -107,11 +107,11 @@ func (filehandler *FileRequestHandler) handleDeleteContent(info Requests.Request
 
 // Handle Rename content (file and folders) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	command := Requests.ParseDataToString(info.RequestData)
-	data := helper.ConvertRawJsonToData(command)
-	arguments := strings.Split(data, "'")
-	err := loggedUser.RenameContent(arguments[pathContentName], arguments[newPathContentName])
-	if err != nil {
+	command := Requests.ParseDataToString(info.RequestData)                                    // Convert the RequestInfo.Data to raw string
+	data := helper.ConvertRawJsonToData(command)                                               // Fixes the raw string to path string
+	arguments := strings.Split(data, "'")                                                      // Saves the rename arguments in a slice
+	err := loggedUser.RenameContent(arguments[pathContentName], arguments[newPathContentName]) // Renames a given content name with the given new content name
+	if err != nil {                                                                            // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -125,7 +125,7 @@ func (filehandler *FileRequestHandler) handleListContents(info Requests.RequestI
 	if command != "null" { // If path has been specified
 		path = helper.ConvertRawJsonToData(command) // Save specified path
 	}
-	list, err := loggedUser.ListContents(path)
+	list, err := loggedUser.ListContents(path) // List the contents inside the given path
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
@@ -135,11 +135,11 @@ func (filehandler *FileRequestHandler) handleListContents(info Requests.RequestI
 
 // Handle Move content (files and folders) requests from client
 func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
-	command := Requests.ParseDataToString(info.RequestData)
-	data := helper.ConvertRawJsonToData(command)
-	arguments := strings.Split(data, "'")
-	err := loggedUser.MoveContent(arguments[pathContentName], arguments[newPathContentName])
-	if err != nil {
+	command := Requests.ParseDataToString(info.RequestData)                                  // Convert the RequestInfo.Data to raw string
+	data := helper.ConvertRawJsonToData(command)                                             // Fixes the raw string to path string
+	arguments := strings.Split(data, "'")                                                    // Saves the move arguments in a slice
+	err := loggedUser.MoveContent(arguments[pathContentName], arguments[newPathContentName]) // Moves a given content name to the given new directory
+	if err != nil {                                                                          // If error has occured
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
@@ -148,41 +148,42 @@ func (filehandler *FileRequestHandler) handleMoveContent(info Requests.RequestIn
 
 // Handle Upload file requests from client
 func (filehandler *FileRequestHandler) handleUploadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
-	file, err := FileSystem.ParseDataToContent(info.RequestData)
+	file, err := FileSystem.ParseDataToContent(info.RequestData) // Parse RequestInfo.Data to Content struct
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	chunksSize, err := loggedUser.UploadFile(file, uploadListener)
-	if err != nil {
+	chunksSize, err := loggedUser.UploadFile(file, uploadListener) // Sends to upload file request
+	if err != nil {                                                // If the file to upload is not valid
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
+	// The file to upload is valid
 
-	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler()) // Send chunks size
+	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10), CreateFileRequestHandler()) // Sends chunks size of the given file
 }
 
 // Handle Download file requests from client
 func (filehandler *FileRequestHandler) handleDownloadFile(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, downloadListener *net.Listener) ResponeInfo {
-	rawData := Requests.ParseDataToString(info.RequestData)
-	filename := helper.ConvertRawJsonToData(rawData)
-	chunksSize, fileSize, err := loggedUser.DownloadFile(filename, downloadListener)
-	if err != nil {
+	rawData := Requests.ParseDataToString(info.RequestData)                          // Convert the RequestInfo.Data to raw string
+	filename := helper.ConvertRawJsonToData(rawData)                                 // Fixes the raw string to path string
+	chunksSize, fileSize, err := loggedUser.DownloadFile(filename, downloadListener) // Sends to download file request
+	if err != nil {                                                                  // If the file to download is not valid
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
 
-	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10)+SizeRespone+strconv.FormatUint(uint64(fileSize), 10), CreateFileRequestHandler())
+	return buildRespone(ChunksRespone+strconv.FormatUint(uint64(chunksSize), 10)+SizeRespone+strconv.FormatUint(uint64(fileSize), 10), CreateFileRequestHandler()) // Sends chunk size and the file size of the given file.
 }
 
 // Handle Upload directory requests from client
 func (filehandler *FileRequestHandler) handleUploadDirectory(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser, uploadListener *net.Listener) ResponeInfo {
-	dir, err := FileSystem.ParseDataToContent(info.RequestData)
+	dir, err := FileSystem.ParseDataToContent(info.RequestData) // Parse RequestInfo.Data to Content struct
 	if err != nil {
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	err = loggedUser.UploadDirectory(dir, uploadListener)
-	if err != nil {
+	err = loggedUser.UploadDirectory(dir, uploadListener) // Sends to upload directory request
+	if err != nil {                                       // If the directory to upload is not valid
 		return buildError(err.Error(), IRequestHandler(filehandler))
 	}
-	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Send chunks size
+	return buildRespone(OkayRespone, CreateFileRequestHandler()) // Send Directory is valid respone
 
 }

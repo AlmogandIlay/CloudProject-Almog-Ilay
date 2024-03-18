@@ -28,21 +28,22 @@ func GetManager() *authentication.AuthenticationManager {
 	return Manager
 }
 
+// Initializes LoggedUser API with the given RequestInfo data
 func GetLoggedUser(requestInfo Requests.RequestInfo) (FileSystem.LoggedUser, error) {
 	var loggedUser *FileSystem.LoggedUser
-	user := helper.GetEncodedUser(requestInfo.RequestData)
-	id, err := Manager.GetUserID(user.Username)
-	if err != nil {
+	user := helper.GetEncodedUser(requestInfo.RequestData) // Encode RequestInfo.Data to user struct
+	id, err := Manager.GetUserID(user.Username)            // Gets user id by its username
+	if err != nil {                                        // If error has occured
 		return FileSystem.LoggedUser{}, err
 	}
-	loggedUser, err = FileSystem.NewLoggedUser(id)
-	if err != nil {
+	loggedUser, err = FileSystem.NewLoggedUser(id) // Initializes a new LoggedUser API Instance with the given userID
+	if err != nil {                                // If error has occured
 		return FileSystem.LoggedUser{}, err
 	}
 	return *loggedUser, nil
 }
 
-// Remove Online User from the Online Users slice
+// Removes online User from the Online Users slice
 func RemoveOnlineUser(loggedUser FileSystem.LoggedUser) error {
 	username, err := Manager.GetUserName(loggedUser.UserID)
 	if err != nil {

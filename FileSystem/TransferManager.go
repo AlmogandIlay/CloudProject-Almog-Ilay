@@ -156,7 +156,7 @@ func createFolder(info Requests.RequestInfo, baseFolderPath string) clientRespon
 	// Convert request json bytes to dir path variable
 	rawData := Requests.ParseDataToString(info.RequestData)
 	relativeFolderPath := helper.ConvertRawJsonToData(rawData)
-	absFolderPath := filepath.Join(baseFolderPath, relativeFolderPath) // Appened the base path and the relative path to make a full absolute path
+	absFolderPath := helper.ConvertToAbsolute(baseFolderPath, relativeFolderPath) // Convert the path to a full absolute path
 
 	err := IsContentInDirectory(helper.Base(absFolderPath), filepath.Dir(absFolderPath)) // Check if the folder is already exists
 	if err == nil {                                                                      // If directory is already exist
