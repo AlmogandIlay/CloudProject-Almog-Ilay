@@ -27,7 +27,7 @@ Handle Login requests from client
 */
 func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData) // Encode RequestInfo to User struct
-	login_manager := GetManager()                   // Recives a pointer to LoginManager API
+	login_manager := GetManager()                   // Recives a pointer to LoginManager API instance
 
 	err := login_manager.Login(user.Username, user.Password) // Attempt to perform a login request
 	if err != nil {
@@ -47,7 +47,7 @@ func (loginHandler *AuthenticationRequestHandler) handleLogin(info Requests.Requ
 // Handle Signup requests from client
 func (loginHandler *AuthenticationRequestHandler) handleSignup(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	user := helper.GetEncodedUser(info.RequestData) // Encode RequestInfo to User struct
-	login_manager := GetManager()                   // Recives a pointer to LoginManager API
+	login_manager := GetManager()                   // Recives a pointer to LoginManager API instance
 
 	errs := login_manager.Signup(user.Username, user.Password, user.Email) // Attempt to perform a signup request
 	if len(errs) > 0 {                                                     // If errors occured in the signup process
