@@ -72,11 +72,7 @@ func (user *LoggedUser) DownloadDirectory(dirPath string, downloadListener *net.
 		return err
 	}
 
-	socket, err := createPrivateSocket(*downloadListener)
-	if err != nil {
-		return err
-	}
-	go downloadAbsDirectory(dirPath, socket) // Start sending file to client
+	go downloadAbsDirectory(dirPath, downloadListener) // Start sending file proccess
 
 	return nil
 }
@@ -256,10 +252,14 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 	}
 }
 
-func downloadAbsDirectory(directoryPath string, downloadSocket *net.Conn) {
+func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) {
+	downloadSocket, err := createPrivateSocket(*downloadListener)
+	if err != nil {
+		return
+	}
 
 	// walk through all the files and and sub-directories in the given path
-	err := filepath.WalkDir(directoryPath, func(contentpath string, contentInfo fs.DirEntry, err error) error {
+	err = filepath.WalkDir(directoryPath, func(contentpath string, contentInfo fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
