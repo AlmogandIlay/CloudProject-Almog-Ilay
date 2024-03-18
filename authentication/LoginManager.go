@@ -55,7 +55,7 @@ func (manager *AuthenticationManager) Login(username, password string) error {
 
 // Performs signup request using the AuthenticationManager API
 func (manager *AuthenticationManager) Signup(username, password, email string) []error {
-	userExist, err := manager.doesUserExist(username) // Checks if the username exists in the database table
+	userExist, err := manager.doesUserExist(username) // Checks if the username is already exists in the database table
 	if err != nil {                                   // If error occured in the check
 		return []error{err}
 	}
