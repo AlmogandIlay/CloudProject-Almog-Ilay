@@ -271,7 +271,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 			return err // Todo: create custom error
 		}
 
-		if relativePath != "." {
+		if relativePath != "." { // If path is not the base (already exists) path
 			if !contentInfo.IsDir() {
 				fileInfo, err := contentInfo.Info()
 
@@ -296,7 +296,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 					return err
 				}
 
-				// send
+				// Recieves chunks size for the specific file
 				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
 
 				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10))) // Convert the chunk size to respone
@@ -317,7 +317,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 
 					return clientResponeInfo{Type: int(Requests.CreateFolderRequest), Respone: relativePath}
 				}
-				err = sendResponseInfo(downloadSocket, responeInfo)
+				err = sendResponseInfo(downloadSocket, responeInfo(relativePath))
 				if err != nil {
 					return err
 				}
