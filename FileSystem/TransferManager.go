@@ -268,16 +268,15 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 		// Convert the given path to relative path
 		relativePath, err := filepath.Rel(directoryPath, contentpath)
 		if err != nil {
-			return err // Todo: create custom error
+			return &RelFileError{Path: contentpath}
 		}
 
 		if relativePath != "." { // If path is not the base (already exists) path
 			if !contentInfo.IsDir() {
-				// If content is file
-
+				// If content is a file
 				fileInfo, err := contentInfo.Info()
 				if err != nil {
-					return err // Todo: create custom error
+					return &FileInfoError{Name: contentInfo.Name()}
 				}
 
 				// Initialize file struct
@@ -291,9 +290,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 
 				// Build ResponeInfo with RequestInfo type to notify client to prepare to download a file by giving its info
 				responeInfo := buildRespone(int(Requests.DownloadFileRequest), fileData)
-
 				err = sendResponseInfo(downloadSocket, responeInfo) // Send the file info to the client
-
 				if err != nil {
 					return err
 				}
@@ -308,7 +305,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 					return err
 				}
 
-				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), relativePath) // Starting sending file content to the client
+				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), contentpath) // Starting sending file content to the client
 				if err != nil {
 					return err
 				}

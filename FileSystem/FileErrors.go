@@ -13,7 +13,9 @@ type PathNotExistError struct{ Path string }
 type OpenDirError struct{ Path string }
 type ReadDirError struct{ Path string }
 type AbsFileError struct{ Path string }
+type RelFileError struct{ Path string }
 type FileExistError struct{ Name, Path string }
+type FileInfoError struct{ Name string }
 type FolderExistError struct{ Name, Path string }
 type FileNotExistError struct{ Name, Path string }
 type RareIssueWithFile struct{ Name string }
@@ -62,6 +64,10 @@ func (fileError *ReadDirError) Error() string {
 
 func (fileError *FileExistError) Error() string {
 	return fmt.Sprintf("The file '%s' is already exist in '%s'", fileError.Name, helper.GetVirtualStoragePath(fileError.Path))
+}
+
+func (fileError *FileInfoError) Error() string {
+	return fmt.Sprintf("Couldn't read filename '%s''s info", fileError.Name)
 }
 
 func (fileError *FolderExistError) Error() string {
@@ -136,4 +142,8 @@ func (fileError *UploadTimeOut) Error() string {
 
 func (fileError *AbsFileError) Error() string {
 	return fmt.Sprintf("The argument %s should be pure name of file, not abs path", fileError.Path)
+}
+
+func (fileError *RelFileError) Error() string {
+	return fmt.Sprintf("Couldn't convert '%s' path to Relative path", fileError.Path)
 }
