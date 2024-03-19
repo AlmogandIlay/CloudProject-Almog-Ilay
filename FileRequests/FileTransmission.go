@@ -233,6 +233,10 @@ func createFolder(info Requests.ResponeInfo, baseFolderPath string) error {
 	return nil
 }
 
+func createFile(info Requests.ResponeInfo, baseFolderPath string) (int, error) {
+	return 0, nil
+}
+
 func downloadDirectory(path string, socket net.Conn) {
 	os.Mkdir(path, os.ModePerm) // Creates the base directory with set permissions for the directory
 
@@ -248,7 +252,7 @@ func downloadDirectory(path string, socket net.Conn) {
 			if err != nil {
 				return err
 			}
-			// ResponeInfo is like RequestInfo, reciving RequestInfo types in ResponeInfo struct
+			// ResponeInfo is like RequestInfo, receiving RequestInfo types in ResponeInfo struct
 
 			switch responeInfo.Type {
 			case Requests.ResponeType(Requests.CreateFolderRequest):
@@ -256,6 +260,8 @@ func downloadDirectory(path string, socket net.Conn) {
 				if err != nil {
 					fmt.Println(err.Error()) // Print create folder error, so it won't stop the reciving folder proccess
 				}
+			case Requests.ResponeType(Requests.DownloadFileRequest):
+				fmt.Println("test")
 			}
 
 		}
