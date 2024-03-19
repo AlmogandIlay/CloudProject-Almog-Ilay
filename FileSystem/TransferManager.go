@@ -315,11 +315,8 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 			} else {
 				// When the content is sub-dir
 				// Create respone for create sub-dir in the relative path
-				responeInfo := func(relativePath string) clientResponeInfo {
-
-					return clientResponeInfo{Type: int(Requests.CreateFolderRequest), Respone: relativePath}
-				}
-				err = sendResponseInfo(downloadSocket, responeInfo(relativePath))
+				responeInfo := buildRespone(int(Requests.CreateFolderRequest), []byte(relativePath))
+				err = sendResponseInfo(downloadSocket, responeInfo)
 				if err != nil {
 					return err
 				}
