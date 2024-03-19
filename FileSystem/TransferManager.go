@@ -220,7 +220,7 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 			responeInfo, absFilePath, fileSize = createFile(request_Info, absDirPath) // Creates the file with a given absolute base path, returns the respone info including the file's chunk size
 			fmt.Println(responeInfo.Respone)
 
-		case Requests.StopUpload: // If client requested to stop uploading
+		case Requests.StopTranmission: // If client requested to stop uploading
 			return nil
 		}
 		message, err := json.Marshal(responeInfo) // encode respone info to json bytes
@@ -325,6 +325,12 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 	if err != nil {
 		fmt.Println(err.Error())
 		return
+	}
+	// Notify client that download has finished
+	responeInfo := buildRespone(int(Requests.StopTranmission), nil) // Build RequestInfo struct with StopTransmission type
+	err = sendResponseInfo(downloadSocket, responeInfo)             // Send client that download proccess has been finished
+	if err != nil {
+		fmt.Printf("ERROR: Couldn't send 'Stop Download' request to client '%s'\n", (*downloadSocket).RemoteAddr())
 	}
 }
 

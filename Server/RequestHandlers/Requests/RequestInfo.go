@@ -30,7 +30,7 @@ const (
 	UploadDirectoryRequest RequestType = 403
 	DownloadDirRequest     RequestType = 404
 
-	StopUpload RequestType = 501
+	StopTranmission RequestType = 501
 
 	ErrorRequest RequestType = 999
 )
