@@ -273,8 +273,9 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 
 		if relativePath != "." { // If path is not the base (already exists) path
 			if !contentInfo.IsDir() {
-				fileInfo, err := contentInfo.Info()
+				// If content is file
 
+				fileInfo, err := contentInfo.Info()
 				if err != nil {
 					return err // Todo: create custom error
 				}
@@ -282,15 +283,16 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				// Initialize file struct
 				file := newContent(helper.Base(relativePath), filepath.Dir(relativePath), uint32(fileInfo.Size()))
 
-				fileData, err := json.Marshal(file) // Convert the struct to json bytes
+				fileData, err := json.Marshal(file) // Encode the file struct to json bytes
 
 				if err != nil {
 					return &MarshalError{}
 				}
 
-				responeInfo := buildRespone(fileData)
+				// Build ResponeInfo with RequestInfo type to notify client to prepare to download a file by giving its info
+				responeInfo := buildRespone(int(Requests.DownloadFileRequest), fileData)
 
-				err = sendResponseInfo(downloadSocket, responeInfo) // send the file data to the client
+				err = sendResponseInfo(downloadSocket, responeInfo) // Send the file info to the client
 
 				if err != nil {
 					return err
@@ -299,14 +301,14 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				// Recieves chunks size for the specific file
 				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
 
-				responeInfo = buildRespone([]byte(chunksRespone + strconv.FormatUint(uint64(chunkSize), 10))) // Convert the chunk size to respone
+				responeInfo = buildRespone(validRespone, []byte(chunksRespone+strconv.FormatUint(uint64(chunkSize), 10))) // Convert the chunk size to respone info
 
 				err = sendResponseInfo(downloadSocket, responeInfo) // Send the chunk size
 				if err != nil {
 					return err
 				}
 
-				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), relativePath) // Send file to client
+				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), relativePath) // Starting sending file content to the client
 				if err != nil {
 					return err
 				}

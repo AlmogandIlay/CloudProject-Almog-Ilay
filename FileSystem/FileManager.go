@@ -390,12 +390,12 @@ func buildError(response string) interface{} {
 	}
 }
 
-func buildRespone(response []byte) interface{} {
+func buildRespone(responeType int, response []byte) interface{} {
 	return struct {
 		Type    int    `json:"Type"`
 		Respone string `json:"Data"`
 	}{
-		Type:    validRespone,
+		Type:    responeType,
 		Respone: string(response),
 	}
 }
