@@ -179,7 +179,7 @@ func HandleShow(command_arguments []string, socket *net.Conn) (string, error) {
 	return respone, nil
 }
 
-// Handles upload command
+// Handles upload file command
 func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumArguments { // If file name was not provided
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
@@ -232,7 +232,7 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 	return nil
 }
 
-// Handles download command
+// Handles download file command
 func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumdownloadArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
@@ -275,11 +275,12 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, *downloadSocket)
+	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, *downloadSocket) // Start downloading file process in a seprated goroutine
 
 	return nil
 }
 
+// Handles upload directory command
 func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumArguments { // If dir name was not provided
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
@@ -324,11 +325,12 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-	go uploadDirectory(dirPath, *uploadSocket)
+	go uploadDirectory(dirPath, *uploadSocket) // Start uploading directory process in a seprated goroutine
 
 	return nil
 }
 
+// Handles download directory command
 func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
 	if len(command_arguments) < minimumdownloadArguments {
 		return &ClientErrors.InvalidArgumentCountError{Arguments: uint8(len(command_arguments)), Expected: uint8(operationArguments)}
@@ -362,13 +364,13 @@ func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	// Creates a privte socket connection between the server to download the directory from the server
+	// Creates a privte socket connection between the server to download the directory from the server (connects to the server)
 	downloadSocket, err := Helper.CreatePrivateSocket()
 	if err != nil {
 		return err
 	}
 
-	go downloadDirectory(filepath.Join(clientpath, filepath.Base(dirname)), *downloadSocket)
+	go downloadDirectory(filepath.Join(clientpath, filepath.Base(dirname)), *downloadSocket) // Start downloading directory process in a seprated goroutine
 
 	return nil
 }

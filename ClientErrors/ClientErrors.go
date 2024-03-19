@@ -13,6 +13,10 @@ type ServerBadChunks struct{}
 type BadFileContent struct{ Filename string }
 type TimeOutRespone struct{}
 type ConvertToRelative struct{}
+type CreateFolderError struct {
+	Filename string
+	Err      error
+}
 
 type InvalidArgumentCountError struct {
 	Arguments uint8
@@ -66,4 +70,8 @@ func (error *BadFileContent) Error() string {
 
 func (error *TimeOutRespone) Error() string {
 	return "It took too long time to get a respone back from the server."
+}
+
+func (error *CreateFolderError) Error() string {
+	return fmt.Sprintf("Couldn't create directory '%s'. The folder and its sub-contents might won't be available.\nPlease provide the next error information to the developers:\n%s", error.Filename, error.Err)
 }

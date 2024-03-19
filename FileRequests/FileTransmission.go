@@ -224,8 +224,13 @@ func downloadFile(path string, chunksSize int, socket net.Conn) {
 	fmt.Printf("File %s has been downloaded successfully\n", path)
 }
 
-func createFolder(info Requests.ResponeInfo, baseFolderPath string) {
-
+func createFolder(info Requests.ResponeInfo, baseFolderPath string) error {
+	fullPath := filepath.Join(baseFolderPath, info.Respone) // Append the full path of the new directory by the base Folder path and the given folder path
+	err := os.Mkdir(fullPath, os.ModePerm)                  // Creates a folder
+	if err != nil {                                         // If creating folder was unsuccessfull
+		return &ClientErrors.CreateFolderError{Filename: fullPath, Err: err}
+	}
+	return nil
 }
 
 func downloadDirectory(path string, socket net.Conn) {
@@ -247,6 +252,10 @@ func downloadDirectory(path string, socket net.Conn) {
 
 			switch responeInfo.Type {
 			case Requests.ResponeType(Requests.CreateFolderRequest):
+				err = createFolder(responeInfo, path)
+				if err != nil {
+					fmt.Println(err.Error()) // Print create folder error, so it won't stop the reciving folder proccess
+				}
 			}
 
 		}
