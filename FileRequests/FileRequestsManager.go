@@ -239,7 +239,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 	}
 	var filename string
 	var clientpath string
-	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) || Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) { // Check if the first or the second command argument is enclosed within a quotation (') marks
 		filename = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
 		filename = filename[Helper.SkipEnclose : len(filename)-Helper.SkipEnclose]                     // Remove enclouse chars
 		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                  // Check if the second command argument is enclosed within a quotation (') marks
@@ -254,6 +254,16 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 			clientpath = command_arguments[newFileName]
 		}
 	}
+
+	// Checks if path exists
+	isExists, err := Helper.IsPathExists(clientpath)
+	if err != nil { // If check gone wrong
+		return err
+	}
+	if !isExists { // If path not exists
+		return &ClientErrors.PathNotExistError{Path: clientpath}
+	}
+
 	data, err := Helper.ConvertStringToBytes(filename) // Convert filename to json bytes
 	if err != nil {
 		return err
@@ -275,7 +285,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, *downloadSocket) // Start downloading file process in a seprated goroutine
+	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, downloadSocket) // Start downloading file process in a seprated goroutine
 
 	return nil
 }
@@ -339,7 +349,7 @@ func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
 	var dirname string
 	var clientpath string
 
-	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) { // Check if the first command argument is enclosed within a quotation (') marks
+	if Helper.IsQuoted(command_arguments, Helper.OneClosedPath) || Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) { // Check if the first or the second command argument is enclosed within a quotation (') marks
 		dirname = Helper.FindPath(command_arguments, Helper.FirstNameParameter, Helper.OneClosedPath) // Save the first path (filename to upload)
 		dirname = dirname[Helper.SkipEnclose : len(dirname)-Helper.SkipEnclose]                       // Remove enclouse chars
 		if Helper.IsQuoted(command_arguments, Helper.TwoCloudPaths) {                                 // Check if the second command argument is enclosed within a quotation (') marks
@@ -354,6 +364,25 @@ func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
 			clientpath = command_arguments[newFileName]
 		}
 	}
+
+	// Checks if path exists
+	isExists, err := Helper.IsPathExists(clientpath)
+	if err != nil { // If check gone wrong
+		return err
+	}
+	if !isExists { // If path not exists
+		return &ClientErrors.PathNotExistError{Path: clientpath}
+	}
+
+	// Checks if the directory to download is already exists in the client's PC
+	isExists, err = Helper.IsPathExists(filepath.Join(clientpath, dirname))
+	if err != nil {
+		return err
+	}
+	if isExists {
+		return &ClientErrors.PathExistError{Path: filepath.Join(clientpath, dirname)}
+	}
+
 	data, err := Helper.ConvertStringToBytes(dirname) // Convert filename to json bytes
 	if err != nil {
 		return err

@@ -12,6 +12,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/galsondor/go-ascii"
@@ -23,6 +24,7 @@ const (
 
 	firstIndex    = 0
 	onlyCharacter = 1
+	chunksSize    = 11
 )
 
 //var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
@@ -179,8 +181,9 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 // 	fmt.Println("Unlocking... (Currently locked)")
 // }
 
+// TDL add file's size to the argument so it would print percentage bar
 // Download a file from the cloud server
-func downloadFile(path string, chunksSize int, socket net.Conn) {
+func downloadFile(path string, chunksSize int, socket *net.Conn) {
 	file, err := os.Create(path) // Creates the file in the given/default path
 	if err != nil {
 		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
@@ -199,7 +202,7 @@ func downloadFile(path string, chunksSize int, socket net.Conn) {
 	writer := bufio.NewWriter(file)
 
 	for {
-		chunkBytes, err := Helper.ReciveChunkData(&socket, chunksSize)
+		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
 		// If server indicated that the end of the file has reached OR the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
 		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || (chunkBytes[firstIndex] == ascii.ETX && len(chunkBytes) == onlyCharacter) {
 			break
@@ -233,8 +236,42 @@ func createFolder(info Requests.ResponeInfo, baseFolderPath string) error {
 	return nil
 }
 
-func createFile(info Requests.ResponeInfo, baseFolderPath string) (int, error) {
-	return 0, nil
+// Implement getFileInfo for reciving folder implemention.
+// Returns all the file's info that is given from the server.
+// Input:
+// Requests.ResponeInfo - Server's Respone struct
+// baseFolderPath - Base path of client side
+// Output:
+// File's chunks size (If file's valid)
+// File's size (If file's valid)
+// Absolute filepath (if file's valid)
+// error (if file's not valid)
+func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath string) (uint32, uint32, string, error) {
+	content, err := ParseDataToContent(info.Respone) // Convert string json respone to content struct
+	if err != nil {
+		return empty, empty, "", err
+	}
+
+	absFilePath := filepath.Join(baseFolderPath, content.Path, content.Name) // Convert to absolute file path
+
+	dataBytes, err := Helper.ReciveData(socket) // Recieves bytes json data from server
+	if err != nil {
+		return empty, empty, "", err
+	}
+	responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
+	if err != nil {
+		return empty, empty, "", err
+	}
+	if responeInfo.Type != Requests.ValidRespone { // If respone valid chunks hasn't recieved
+		return empty, empty, "", fmt.Errorf(responeInfo.Respone) // Returns error with its error data
+	}
+
+	chunks, err := strconv.ParseUint(responeInfo.Respone[chunksSize:], 10, 32)
+	if err != nil {
+		return empty, empty, "", err
+	}
+
+	return uint32(chunks), content.Size, absFilePath, nil
 }
 
 func downloadDirectory(path string, socket net.Conn) {
@@ -256,12 +293,18 @@ func downloadDirectory(path string, socket net.Conn) {
 
 			switch responeInfo.Type {
 			case Requests.ResponeType(Requests.CreateFolderRequest):
+				// If server pointed at a directory to create
 				err = createFolder(responeInfo, path)
 				if err != nil {
 					fmt.Println(err.Error()) // Print create folder error, so it won't stop the reciving folder proccess
 				}
 			case Requests.ResponeType(Requests.DownloadFileRequest):
-				fmt.Println("test")
+				// If server pointed at a file to recieve
+				chunkSize, _, fileAbsPath, err := getFileInfo(&socket, responeInfo, path) // Get all file's info by its ResponeInfo detail
+				if err != nil {
+					return err
+				}
+				downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
 			}
 
 		}

@@ -6,7 +6,14 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+)
+
+const (
+	fileNameIndex = 3
+	pathIndex     = 7
+	sizeIndex     = 10
 )
 
 type content struct {
@@ -52,4 +59,22 @@ func getDirSize(dirPath string) (uint32, error) {
 		return nil
 	})
 	return uint32(totalSize), err
+}
+
+// Parse json data request to content struct
+func ParseDataToContent(data string) (content, error) {
+	// Removing enclosing json field
+	data = data[1 : len(data)-1]
+	fields := strings.Split(data, "\"") // Split to type details
+
+	filename := fields[fileNameIndex]
+	path := fields[pathIndex]
+	convertSize, err := strconv.ParseUint((fields[sizeIndex])[1:], 10, 32) // Save file's size to uint
+	if err != nil {
+		return content{}, err
+	}
+	fileSize := uint32(convertSize) // Convert to uint32
+
+	return newContent(filename, path, fileSize), nil
+
 }

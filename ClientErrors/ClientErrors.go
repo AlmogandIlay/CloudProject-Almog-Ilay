@@ -8,6 +8,8 @@ type ServerConnectionError struct{ Err error }
 type JsonEncodeError struct{ Err error }
 type JsonDecodeError struct{ Err error }
 type FileNotExistError struct{ Filename string }
+type PathNotExistError struct{ Path string }
+type PathExistError struct{ Path string }
 type ReadFileInfoError struct{ Filename string }
 type ServerBadChunks struct{}
 type BadFileContent struct{ Filename string }
@@ -48,7 +50,15 @@ func (error *InvalidArgumentCountError) Error() string {
 }
 
 func (error *FileNotExistError) Error() string {
-	return fmt.Sprintf("File %s does not eixst on your local machine.", error.Filename)
+	return fmt.Sprintf("File '%s' does not exist on your local machine.", error.Filename)
+}
+
+func (error *PathNotExistError) Error() string {
+	return fmt.Sprintf("Path '%s' does not exist on your local machine.", error.Path)
+}
+
+func (error *PathExistError) Error() string {
+	return fmt.Sprintf("Path '%s' is already exist on your local machine.", error.Path)
 }
 
 func (error *ReadFileInfoError) Error() string {
