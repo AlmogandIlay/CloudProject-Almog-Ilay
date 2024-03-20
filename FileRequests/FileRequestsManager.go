@@ -311,7 +311,7 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 			cloudpath = command_arguments[newFileName]
 		}
 	}
-	_, err := checkContent(dirPath) // Check if directory exists,
+	_, err := checkContent(dirPath) // Checks if directory exists in local machine
 	if err != nil {
 		return err
 	}
