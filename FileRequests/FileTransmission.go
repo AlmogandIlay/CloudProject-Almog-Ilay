@@ -157,13 +157,12 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 	if err != nil {
 		fmt.Println(err.Error())
 		return
-	} else { // If upload was valid
-		_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopUpload, nil), false, socket) // Send stop upload request to server
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		fmt.Println("Upload directory has finished")
 	}
+	_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopTransmission, nil), false, socket) // Send stop upload request to server
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("Upload directory has finished")
 
 }
 
@@ -305,13 +304,24 @@ func downloadDirectory(path string, socket net.Conn) {
 					return err
 				}
 				downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
+
+			case Requests.ResponeType(Requests.StopTransmission): // If server indicated that the download proccess is finished
+				return nil
 			}
 
 		}
 	}
 	err := startDownload() // Start downloading proccess
 	if err != nil {
-		fmt.Println(err.Error() + "\nDownload process has been stopped.")
+		switch err := err.(type) {
+		case *net.OpError:
+			if err.Timeout() { // If error type is Timeout
+				fmt.Println("Downloading might have finished. Could not verify the download with the server.\nPlease make sure all the contents have been successfully downloaded.")
+			}
+		default: // If it's any other error type
+			fmt.Println(err.Error() + "\nDownload process has been stopped.")
+		}
 		return
 	}
+	fmt.Println("Finished Downloading " + path + " Path")
 }
