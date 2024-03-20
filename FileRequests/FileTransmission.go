@@ -14,17 +14,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/galsondor/go-ascii"
 )
 
 const (
 	empty    = 0
 	kilobyte = 1_000_000
 
-	firstIndex    = 0
-	onlyCharacter = 1
-	chunksSize    = 11
+	firstIndex = 0
+	chunksSize = 11
 )
 
 //var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
@@ -202,8 +199,9 @@ func downloadFile(path string, chunksSize int, socket *net.Conn) {
 
 	for {
 		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
-		// If server indicated that the end of the file has reached OR the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
-		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || (chunkBytes[firstIndex] == ascii.ETX && len(chunkBytes) == onlyCharacter) {
+		// {}
+		// If the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
+		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
 			break
 		}
 		if err != nil {
