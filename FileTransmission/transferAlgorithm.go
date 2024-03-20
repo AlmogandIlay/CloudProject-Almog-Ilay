@@ -2,14 +2,14 @@ package FileTransmission
 
 import (
 	helper "CloudDrive/Helper"
+	"CloudDrive/Server/RequestHandlers/Requests"
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
 	"os"
 	"time"
-
-	"github.com/galsondor/go-ascii"
 )
 
 // File sizes
@@ -57,8 +57,12 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 	chunk := make([]byte, chunkSize) // Makes a slice of bytes in size of the chunk size
 	for {                            // Reads the file
 		bytesRead, err := file.Read(chunk)
-		if bytesRead == 0 || err == io.EOF { // If file reading has done but for some reason io.EOF flag hasn't raised
-			chunk = []byte{ascii.ETX}    // Send 'End Of Transmisson/Text' character to indidicate to client that tranmission is done
+		if bytesRead == 0 || err == io.EOF { // If file reading is done
+			requestInfo := Requests.RequestInfo{Type: Requests.StopTranmission, RequestData: nil} // Create Stop Downloading transmission to client
+			chunk, err = json.Marshal(requestInfo)
+			if err != nil {
+				return err
+			}
 			helper.SendData(conn, chunk) // Send empty message to notify client that transmission has ended
 			break
 		}
