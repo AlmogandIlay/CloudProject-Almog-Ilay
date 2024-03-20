@@ -22,6 +22,8 @@ const (
 
 	firstIndex = 0
 	chunksSize = 11
+
+	stopTransmissionRespone = "{\"Type\":501,\"Data\":\"}"
 )
 
 //var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
@@ -199,9 +201,8 @@ func downloadFile(path string, chunksSize int, socket *net.Conn) {
 
 	for {
 		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
-		// {}
 		// If the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
-		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() {
+		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || string(chunkBytes) == stopTransmissionRespone {
 			break
 		}
 		if err != nil {
