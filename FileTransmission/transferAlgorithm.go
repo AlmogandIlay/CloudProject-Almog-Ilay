@@ -25,6 +25,12 @@ const (
 	ValidRespone int = 200
 )
 
+// Redefine ResponeInfo to avoid import cycle
+type clientResponeInfo struct {
+	Type    int    `json:"Type"`
+	Respone string `json:"Data"`
+}
+
 // Based on our research for optimizing, returns the best chunk size (amount of bytes) for a given file size
 func GetChunkSize(fileSize uint32) uint {
 
@@ -58,7 +64,7 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 	for {                            // Reads the file
 		bytesRead, err := file.Read(chunk)
 		if bytesRead == 0 || err == io.EOF { // If file reading is done
-			requestInfo := Requests.RequestInfo{Type: Requests.StopTranmission, RequestData: nil} // Create Stop Downloading transmission to client
+			requestInfo := clientResponeInfo{Type: int(Requests.StopTranmission), Respone: ""} // Create Stop Downloading transmission to client
 			chunk, err = json.Marshal(requestInfo)
 			if err != nil {
 				return err
