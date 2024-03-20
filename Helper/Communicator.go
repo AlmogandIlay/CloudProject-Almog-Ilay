@@ -51,7 +51,6 @@ func ReciveData(conn *net.Conn) (dataBytes []byte, errr error) {
 
 /*
 Send data to the client socket.
-
 Returns the received bytes.
 */
 func SendData(conn *net.Conn, message []byte) error {
@@ -175,5 +174,7 @@ func CreatePrivateSocket() (*net.Conn, error) {
 
 // Convert respone to chunks size
 func ConvertResponeToChunks(respone string) (int, error) {
-	return strconv.Atoi(strings.Split(respone, ":")[chunksIndex])
+	splited := strings.Split(respone, ":")
+
+	return strconv.Atoi(splited[chunksIndex])
 }

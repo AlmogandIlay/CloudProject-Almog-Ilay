@@ -23,7 +23,7 @@ const (
 	firstIndex = 0
 	chunksSize = 11
 
-	stopTransmissionRespone = "{\"Type\":501,\"Data\":\"}"
+	stopTransmissionRespone = "{\"Type\":501,\"Data\":\"\"}"
 )
 
 //var mu sync.Mutex // Lock the file writing to make sure only one goroutine can write over the file
