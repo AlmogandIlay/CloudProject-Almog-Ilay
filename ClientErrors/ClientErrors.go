@@ -15,7 +15,13 @@ type ServerBadChunks struct{}
 type BadFileContent struct{ Filename string }
 type TimeOutRespone struct{}
 type ConvertToRelative struct{}
+
 type CreateFolderError struct {
+	Foldername string
+	Err        error
+}
+
+type CreateFileError struct {
 	Filename string
 	Err      error
 }
@@ -83,5 +89,9 @@ func (error *TimeOutRespone) Error() string {
 }
 
 func (error *CreateFolderError) Error() string {
-	return fmt.Sprintf("Couldn't create directory '%s'. The folder and its sub-contents might won't be available.\nPlease provide the next error information to the developers:\n%s", error.Filename, error.Err)
+	return fmt.Sprintf("Couldn't create directory '%s'. The folder and its sub-contents might won't be available.\nPlease provide the next error information to the developers:\n%s", error.Foldername, error.Err)
+}
+
+func (error *CreateFileError) Error() string {
+	return fmt.Sprintf("Couldn't create file '%s'. The file won't be available.\nPlease provide the next error information to the developers:\n%s", error.Filename, error.Err)
 }

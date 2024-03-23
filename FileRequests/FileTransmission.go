@@ -229,7 +229,7 @@ func createFolder(info Requests.ResponeInfo, baseFolderPath string) error {
 	fullPath := filepath.Join(baseFolderPath, info.Respone) // Append the full path of the new directory by the base Folder path and the given folder path
 	err := os.Mkdir(fullPath, os.ModePerm)                  // Creates a folder
 	if err != nil {                                         // If creating folder was unsuccessfull
-		return &ClientErrors.CreateFolderError{Filename: fullPath, Err: err}
+		return &ClientErrors.CreateFolderError{Foldername: fullPath, Err: err}
 	}
 	return nil
 }
@@ -251,8 +251,7 @@ func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath str
 	}
 
 	absFilePath := filepath.Join(baseFolderPath, content.Path, content.Name) // Convert to absolute file path
-
-	dataBytes, err := Helper.ReciveData(socket) // Recieves bytes json data from server
+	dataBytes, err := Helper.ReciveData(socket)                              // Recieves chunks size bytes json data from server
 	if err != nil {
 		return empty, empty, "", err
 	}
@@ -263,7 +262,6 @@ func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath str
 	if responeInfo.Type != Requests.ValidRespone { // If respone valid chunks hasn't recieved
 		return empty, empty, "", fmt.Errorf(responeInfo.Respone) // Returns error with its error data
 	}
-
 	chunks, err := strconv.ParseUint(responeInfo.Respone[chunksSize:], 10, 32)
 	if err != nil {
 		return empty, empty, "", err
@@ -305,6 +303,13 @@ func downloadDirectory(path string, socket net.Conn) {
 				// Avoid downloading empty file
 				if fileSize > 0 {
 					downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
+				} else {
+					// If file is empty, only create it
+					file, err := os.Create(fileAbsPath) // Creates the file in the given/default path
+					if err != nil {
+						return &ClientErrors.CreateFileError{Filename: fileAbsPath, Err: err}
+					}
+					file.Close()
 				}
 
 			case Requests.ResponeType(Requests.StopTransmission): // If server indicated that the download proccess is finished
