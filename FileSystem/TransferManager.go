@@ -114,11 +114,13 @@ func (user *LoggedUser) DownloadFile(filePath string, downloadListener *net.List
 		return emptyChunks, emptySize, err
 	}
 
-	go downloadAbsFile(filePath, downloadListener) // Start sending file to client
-
 	fileSize, err := getFileSize(filePath)
 	if err != nil {
 		return emptyChunks, emptySize, err
+	}
+	// Avoid sending empty file
+	if fileSize > 0 {
+		go downloadAbsFile(filePath, downloadListener) // Start sending file to client
 	}
 	return FileTransmission.GetChunkSize(fileSize), fileSize, nil
 }
@@ -304,10 +306,13 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
+				// Avoid sending empty file
+				if file.Size > 0 {
+					err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), contentpath) // Starting sending file content to the client
+					if err != nil {
+						return err
+					}
 
-				err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), contentpath) // Starting sending file content to the client
-				if err != nil {
-					return err
 				}
 			} else {
 				// When the content is sub-dir
