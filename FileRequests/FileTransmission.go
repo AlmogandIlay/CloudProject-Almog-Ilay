@@ -298,11 +298,14 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 			case Requests.ResponeType(Requests.DownloadFileRequest):
 				// If server pointed at a file to recieve
-				chunkSize, _, fileAbsPath, err := getFileInfo(&socket, responeInfo, path) // Get all file's info by its ResponeInfo detail
+				chunkSize, fileSize, fileAbsPath, err := getFileInfo(&socket, responeInfo, path) // Get all file's info by its ResponeInfo detail
 				if err != nil {
 					return err
 				}
-				downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
+				// Avoid downloading empty file
+				if fileSize > 0 {
+					downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
+				}
 
 			case Requests.ResponeType(Requests.StopTransmission): // If server indicated that the download proccess is finished
 				return nil
