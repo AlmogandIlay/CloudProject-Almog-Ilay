@@ -115,8 +115,6 @@ func ReceiveFile(conn *net.Conn, filePath string, fileName string, fileSize int)
 		if err != nil {
 			return fmt.Errorf("error writing to file: %v", fileName)
 		}
-		fmt.Println("chunk data: ", fileBytes[bytesWritten:])
-		fmt.Println("Amount of data read this for iteration: ", n)
 		bytesWritten += n
 	}
 	fmt.Println("Finished writing file.\nUsed for debugging as we still haven't improved the upload file core technology")

@@ -220,7 +220,6 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 
 		case Requests.UploadFileRequest:
 			responeInfo, absFilePath, fileSize = createFile(request_Info, absDirPath) // Creates the file with a given absolute base path, returns the respone info including the file's chunk size
-			fmt.Println(responeInfo.Respone)
 
 		case Requests.StopTranmission: // If client requested to stop uploading
 			return nil
