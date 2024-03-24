@@ -285,7 +285,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, downloadSocket) // Start downloading file process in a seprated goroutine
+	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, false, downloadSocket) // Start downloading file process in a seprated goroutine with success print
 
 	return nil
 }

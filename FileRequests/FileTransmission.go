@@ -180,8 +180,8 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 // }
 
 // TDL add file's size to the argument so it would print percentage bar
-// Download a file from the cloud server
-func downloadFile(path string, chunksSize int, socket *net.Conn) {
+// Download a file from the cloud server, prints finished downloading file if supression flag is off, prints errors in any case.
+func downloadFile(path string, chunksSize int, suppression bool, socket *net.Conn) {
 	file, err := os.Create(path) // Creates the file in the given/default path
 	if err != nil {
 		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
@@ -222,7 +222,10 @@ func downloadFile(path string, chunksSize int, socket *net.Conn) {
 		fmt.Println("Error flushing data to the file.\nPlease contact the developers")
 		return
 	}
-	fmt.Printf("File %s has been downloaded successfully\n", path)
+	// If suppression flag is off, prints success
+	if !suppression {
+		fmt.Printf("File %s has been downloaded successfully\n", path)
+	}
 }
 
 func createFolder(info Requests.ResponeInfo, baseFolderPath string) error {
@@ -302,7 +305,7 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 				// Avoid downloading empty file
 				if fileSize > 0 {
-					downloadFile(fileAbsPath, int(chunkSize), &socket) // Start downloading file proccess
+					downloadFile(fileAbsPath, int(chunkSize), true, &socket) // Start downloading file proccess with no success prints
 				} else {
 					// If file is empty, only create it
 					file, err := os.Create(fileAbsPath) // Creates the file in the given/default path
