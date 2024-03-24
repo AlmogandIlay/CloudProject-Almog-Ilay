@@ -315,7 +315,7 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-	pathSize, err := getDirSize(dirPath)
+	pathSize, err := getDirSize(strings.Replace(dirPath, "'", "", Helper.RemoveAll))
 	if err != nil {
 		return err
 	}
