@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 const (
@@ -295,6 +296,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
+				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
 
 				// Recieves chunks size for the specific file
 				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
@@ -305,6 +307,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
+				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
 				// Avoid sending empty file
 				if file.Size > 0 {
 					err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), contentpath) // Starting sending file content to the client
@@ -321,6 +324,7 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
+				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
 			}
 		}
 		return nil
