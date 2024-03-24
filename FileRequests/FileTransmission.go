@@ -249,31 +249,22 @@ func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath str
 	if err != nil {
 		return empty, empty, "", err
 	}
-	fmt.Println("File name is", content.Name)
-	fmt.Println("File size is", content.Size)
-	fmt.Println("File path is", content.Path)
 
 	absFilePath := filepath.Join(baseFolderPath, content.Path, content.Name) // Convert to absolute file path
-	fmt.Println("Absolute file path is", absFilePath)
 
 	dataBytes, err := Helper.ReciveData(socket) // Recieves chunks size bytes json data from server
 	if err != nil {
-		fmt.Println("Error reciving chunks size from server ", err.Error())
 		return empty, empty, "", err
 	}
-	fmt.Println("Raw chunkbytes respone from server is", string(dataBytes))
 	responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
 	if err != nil {
-		fmt.Println("Error converting chunks size from server to responeInfo ", err.Error())
 		return empty, empty, "", err
 	}
-	fmt.Println("responeInfo.Respone is", responeInfo.Respone)
 	if responeInfo.Type != Requests.ValidRespone { // If respone valid chunks hasn't recieved
 		return empty, empty, "", fmt.Errorf(responeInfo.Respone) // Returns error with its error data
 	}
 	chunks, err := strconv.ParseUint(responeInfo.Respone[chunksSize:], 10, 32)
 	if err != nil {
-		fmt.Println("Error with strconv.ParseUint()")
 		return empty, empty, "", err
 	}
 
@@ -290,11 +281,8 @@ func downloadDirectory(path string, socket net.Conn) {
 			if err != nil {
 				return err
 			}
-			fmt.Println("Raw databytes is", string(dataBytes))
-
 			responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
 			if err != nil {
-				fmt.Println("Error with converting to responeInfo")
 				return err
 			}
 			// ResponeInfo is like RequestInfo, receiving RequestInfo types in ResponeInfo struct
@@ -308,7 +296,6 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 			case Requests.ResponeType(Requests.DownloadFileRequest):
 				// If server pointed at a file to recieve
-				fmt.Println("Content is a file")
 				chunkSize, fileSize, fileAbsPath, err := getFileInfo(&socket, responeInfo, path) // Get all file's info by its ResponeInfo detail
 				if err != nil {
 					return err
