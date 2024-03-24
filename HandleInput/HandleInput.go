@@ -43,8 +43,9 @@ MOVE		Moves a file/folder to a different location.
 LS		List all the current files in the current or given path.
 GARBAGE		A quick shortcut to Garbage directory.
 UPLOADFILE	Uploads a file to the current directory/given directory.
-DOWNLOADFILE	Downloads a file in the current program patg/given directory.
+DOWNLOADFILE	Downloads a file in the current program directory/given directory.
 UPLOADDIR	Uploads a directory to the current directory/given directory.
+DOWNLOADDIR	Downloads a directory to the current program directory/given directory.
 		`
 }
 
