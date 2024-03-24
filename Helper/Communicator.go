@@ -26,7 +26,7 @@ const (
 	chunksIndex                       = 1
 	SkipEnclose                       = 1
 
-	uploadAddr = "clouddriveserver.duckdns.org:12346"
+	transmissionAddr = "clouddriveserver.duckdns.org:12346"
 )
 
 // bufferSize is usually 1024
@@ -164,7 +164,7 @@ func ReturnNonQuotedSecondPath(command_arguments []string) string {
 
 // Creates a private socket connection between the server for file transmission
 func CreatePrivateSocket() (*net.Conn, error) {
-	sock, err := net.Dial("tcp", uploadAddr)
+	sock, err := net.Dial("tcp", transmissionAddr)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
