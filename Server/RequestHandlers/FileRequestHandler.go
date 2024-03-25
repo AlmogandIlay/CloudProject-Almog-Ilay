@@ -107,7 +107,7 @@ func (filehandler *FileRequestHandler) handleDeleteContent(info Requests.Request
 	return buildRespone(OkayRespone, CreateFileRequestHandler())
 }
 
-// Handle Rename content (file and folders) requests from client
+// Handle Rename content (file and folder) requests from client
 func (filehandler *FileRequestHandler) handleRenameContent(info Requests.RequestInfo, loggedUser *FileSystem.LoggedUser) ResponeInfo {
 	command := Requests.ParseDataToString(info.RequestData)                                    // Convert the RequestInfo.Data to raw string
 	data := helper.ConvertRawJsonToData(command)                                               // Fixes the raw string to path string
