@@ -84,7 +84,7 @@ func (user *LoggedUser) ChangeDirectory(parameter string) (string, error) {
 			if helper.IsContainGarbage(serverPath, user.UserID) && len(serverPath) != len(helper.GetGarbagePath(user.UserID)) {
 				return "", &PremmisionError{serverPath}
 			}
-			if err != nil {
+			if err != nil { // check error for removeBackDirectories but first check if it contains in Garbage as a priotity error check
 				return "", err
 			}
 			path, err = user.setAbsDir(serverPath)
