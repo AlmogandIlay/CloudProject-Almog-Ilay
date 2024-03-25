@@ -7,7 +7,7 @@ import (
 )
 
 type FileSizeError struct{ Size uint32 }
-type FileNameError struct{ Name string }
+type ContentNameError struct{ Name string }
 type PathNotExistError struct{ Path string }
 
 type OpenDirError struct{ Path string }
@@ -23,7 +23,7 @@ type RenameError struct{ Name, NewName string }
 type FolderNotExistError struct{ Name, Path string }
 type ContentNotExistError struct{ Name, Path string }
 type ContentExistError struct{ Name, Path string }
-type FileLengthError struct{ Name string }
+type ContentLengthError struct{ Name string }
 type CharactersError struct{}
 type SizeCalculationError struct{}
 type FileExceededCurrentAvailableStorage struct{ Name string }
@@ -46,8 +46,8 @@ func (fileError *FileSizeError) Error() string {
 	return fmt.Sprintf("The file size %d has exceeded your total storage size which is %d", fileError.Size, -1)
 }
 
-func (fileError *FileNameError) Error() string {
-	return fmt.Sprintf("The file: '%s' has invalid name", fileError.Name)
+func (fileError *ContentNameError) Error() string {
+	return fmt.Sprintf("The content name '%s' is invalid", fileError.Name)
 }
 
 func (fileError *PathNotExistError) Error() string {
@@ -98,8 +98,8 @@ func (fileError *RenameError) Error() string {
 	return fmt.Sprintf("Connot rename the file: %s to %s", fileError.Name, fileError.NewName)
 }
 
-func (fileError *FileLengthError) Error() string {
-	return fmt.Sprintf("The file '%s' is not the appropriate length, should be under '%d'", fileError.Name, maxcontentSize)
+func (fileError *ContentLengthError) Error() string {
+	return fmt.Sprintf("The content '%s''s length is not an appropriate length", fileError.Name, maxcontentSize)
 }
 func (fileError *CharactersError) Error() string {
 	return fmt.Sprintf("Cannot use Illegal letters such as: '%s' in the name", strings.Join(strings.Split(invalidContentCharacters, ""), " "))

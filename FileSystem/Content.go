@@ -76,10 +76,10 @@ func (user *LoggedUser) validNewContentSize(contentSize uint32, contentName stri
 func validContentName(name string) error {
 	switch name {
 	case "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9": // Blacklist Windows filenames
-		return &FileNameError{name}
+		return &ContentNameError{name}
 	}
 	if !validContentNameLength(name) {
-		return &FileLengthError{name}
+		return &ContentLengthError{name}
 	}
 
 	r := regexp.MustCompile(fmt.Sprintf("[%s]", regexp.QuoteMeta(invalidContentCharacters))) // regex check for specific content chars
