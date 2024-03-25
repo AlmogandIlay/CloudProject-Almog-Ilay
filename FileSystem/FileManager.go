@@ -27,7 +27,7 @@ func (user *LoggedUser) GarbageChangeDirectory() (string, error) {
 
 // Removes back subdriectories (..) from the absolute client-side path
 func removeBackDirectories(absPath string) (string, error) {
-	// Convert the absolute-client side path to absolute-server side path for easy access in the split proccess
+	// Convert the absolute-side side path to absolute-client side path for easy access in the split proccess
 	absPath = helper.GetVirtualStoragePath(absPath)
 	subDirectories := strings.Split(absPath, "\\")
 	subDirectories[0] = helper.RootDir // Manually modify the first subDirectory which is always 'Root:\' due to the split with '\'
