@@ -99,7 +99,7 @@ func (user *LoggedUser) GetRootSize() (uint32, error) {
 // Check if Folder is exitence in certain condition for cd
 func isFolderInDirectory(userPath, pathOfDir string) error {
 	if !strings.Contains(userPath, helper.DrivePath) { // If path is not fully absolute
-		userPath = filepath.Join(pathOfDir, path) // Convert path to fully absolute
+		userPath = filepath.Join(pathOfDir, userPath) // Convert path to fully absolute
 	}
 	_, err := os.Stat(userPath)
 
