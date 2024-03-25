@@ -99,7 +99,7 @@ func (fileError *RenameError) Error() string {
 }
 
 func (fileError *ContentLengthError) Error() string {
-	return fmt.Sprintf("The content '%s''s length is not an appropriate length", fileError.Name, maxcontentSize)
+	return fmt.Sprintf("The content '%s''s length is not an appropriate length", fileError.Name)
 }
 func (fileError *CharactersError) Error() string {
 	return fmt.Sprintf("Cannot use Illegal letters such as: '%s' in the name", strings.Join(strings.Split(invalidContentCharacters, ""), " "))
