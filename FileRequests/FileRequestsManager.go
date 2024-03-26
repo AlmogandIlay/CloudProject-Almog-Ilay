@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -279,13 +280,26 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return &ClientErrors.ServerBadChunks{} // Blame the server
 	}
 
+	fullPath := filepath.Join(clientpath, filepath.Base(filename)) // Creates the full path of the file to download
+
+	if chunksSize == 0 { // If chunksSize that has retruend is 0, meaning the file is empty only create it.
+		file, err := os.Create(fullPath) // Creates the file in the given/default path
+		if err != nil {
+			return &ClientErrors.CreateFileError{Filename: fullPath, Err: err}
+		}
+		file.Close()
+
+		fmt.Printf("File %s has been downloaded successfully\n", fullPath)
+		return nil
+	}
+
 	// Creates a privte socket connection between the server to download the file from the server
 	downloadSocket, err := Helper.CreatePrivateSocket()
 	if err != nil {
 		return err
 	}
 
-	go downloadFile(filepath.Join(clientpath, filepath.Base(filename)), chunksSize, false, downloadSocket) // Start downloading file process in a seprated goroutine with success print
+	go downloadFile(fullPath, chunksSize, false, downloadSocket) // Start downloading file process in a seprated goroutine with success print
 
 	return nil
 }
