@@ -196,7 +196,7 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 		newContentPath = helper.ConvertToAbsolute(user.GetPath(), newContentPath)
 	}
 
-	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the file to move does exists in its path
+	err := IsContentInDirectory(filepath.Base(contentPath), filepath.Dir(contentPath)) // Checks if the content to move does exists in its path
 	if err != nil {
 		return err
 	}
@@ -204,14 +204,7 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if err != nil {
 		return err
 	}
-	err = validContentName(filepath.Base(contentPath)) // Checks if the file name is valid
-	if err != nil {
-		return err
-	}
-	err = validContentName(filepath.Base(newContentPath)) // Checks if the provided directory is valid
-	if err != nil {
-		return err
-	}
+
 	newContentPath += "\\" + filepath.Base(contentPath) // Add the content (file/path)'s name extension to the new directory
 	moveContent(contentPath, newContentPath)
 	return nil
