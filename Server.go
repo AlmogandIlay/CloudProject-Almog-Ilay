@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	addr       = "192.168.50.220:12345"
-	uploadAddr = "192.168.50.220:12346"
+	addr             = "192.168.50.220:12345"
+	transmissionAddr = "192.168.50.220:12346"
 )
 
 //Prints the Remote IP:Port's client in the CLI server program.
@@ -77,7 +77,7 @@ func main() {
 	}
 	defer listener.Close()
 
-	fileTransferListener, err := net.Listen("tcp", uploadAddr)
+	fileTransferListener, err := net.Listen("tcp", transmissionAddr)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
