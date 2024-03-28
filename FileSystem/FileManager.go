@@ -204,14 +204,7 @@ func (user *LoggedUser) MoveContent(contentPath, newContentPath string) error {
 	if err != nil {
 		return err
 	}
-	err = validContentName(filepath.Base(contentPath)) // Checks if the file name is valid
-	if err != nil {
-		return err
-	}
-	err = validContentName(filepath.Base(newContentPath)) // Checks if the provided directory is valid
-	if err != nil {
-		return err
-	}
+
 	newContentPath += "\\" + filepath.Base(contentPath) // Add the content (file/path)'s name extension to the new directory
 	moveContent(contentPath, newContentPath)
 	return nil
