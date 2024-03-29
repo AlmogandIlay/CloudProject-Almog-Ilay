@@ -1,3 +1,5 @@
+github.com/galsondor/go-ascii v0.0.0-20151210013816-e2eb5175fb10 h1:wg8EZEM/8jNk5KZhMVVEPq16M4CrrjMAYNsH3ZPjiac=
+github.com/galsondor/go-ascii v0.0.0-20151210013816-e2eb5175fb10/go.mod h1:TQf0oGo0I2KYcJfUbnOgrnHZrxhfVu6TW9z6q+k1I/M=
 github.com/go-sql-driver/mysql v1.7.1 h1:lUIinVbN1DY0xBg0eMOzmmtGoHwWBbvnWubQUrtU8EI=
 github.com/go-sql-driver/mysql v1.7.1/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 golang.org/x/crypto v0.16.0 h1:mMMrFzRSCF0GvB7Ne27XVtVAaXLrPmgPC7/v0tkwHaY=

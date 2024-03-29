@@ -10,8 +10,6 @@ type Database struct {
 	*sql.DB
 }
 
-// add methods to change values in specific row
-
 func openDatabase() (*Database, error) {
 	sqlDatabase := Database{}
 

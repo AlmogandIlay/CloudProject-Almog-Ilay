@@ -72,8 +72,35 @@ func (user *LoggedUser) GetPath() string {
 	return user.CurrentPath
 }
 
-func isFolderInDirectory(path, pathOfDir string) error {
-	userPath := filepath.Join(pathOfDir, path)
+// Returns the root total size
+func (user *LoggedUser) GetRootSize() (uint32, error) {
+	var totalSize uint32 = 0
+	rootPath := helper.GetUserStorageRoot(user.UserID)
+
+	// Traverses the root directory and calls the provided function for each file or directory encountered.
+	err := filepath.Walk(rootPath, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() { // If the current item is a file, add its size to the total.
+			totalSize += uint32(info.Size())
+		}
+		// Continue the traversal.
+
+		return nil
+	})
+	if err != nil {
+		return 0, &SizeCalculationError{}
+	}
+	return totalSize, nil
+
+}
+
+// Check if Folder is exitence in certain condition for cd
+func isFolderInDirectory(userPath, pathOfDir string) error {
+	if !strings.Contains(userPath, helper.DrivePath) { // If path is not fully absolute
+		userPath = filepath.Join(pathOfDir, userPath) // Convert path to fully absolute
+	}
 	_, err := os.Stat(userPath)
 
 	if os.IsNotExist(err) {
@@ -88,15 +115,18 @@ func isFolderInDirectory(path, pathOfDir string) error {
 // Valid the path that is given in the parameters of the client
 func ValidPath(userID uint32, path string) error {
 	if !strings.HasPrefix(path, helper.GetUserStorageRoot(userID)) {
-		return &PremmisionError{path}
+		return &PremmisionOutOfRootError{}
 	}
-	_, err := os.Stat(path)
+	info, err := os.Stat(path)
 
 	if err != nil { // If invalid path
 		if os.IsNotExist(err) {
 			return &PathNotExistError{path}
 		}
 		return err
+	}
+	if !info.IsDir() {
+		return &FolderNotExistError{filepath.Base(path), filepath.Dir(path)}
 	}
 
 	return nil

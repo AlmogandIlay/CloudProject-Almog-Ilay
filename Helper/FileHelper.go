@@ -12,6 +12,7 @@ const (
 	CloudDrive = "CloudDrive"
 	DrivePath  = "D:\\CloudDrive"
 	RootDir    = "Root:\\"
+	Garbage    = "Garbage"
 	noAbsolute = -1
 )
 
@@ -20,11 +21,15 @@ from the user observation he see and write the encapsulate path(root/filesys/etc
 root/file1/file2 -> C:/CloudDrive/id/file1/file2
 */
 
+func GetGarbagePath(userID uint32) string {
+	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10), Garbage)
+}
+
 func GetUserStorageRoot(userID uint32) string {
 	return filepath.Join(DrivePath, strconv.FormatUint(uint64(userID), 10))
 }
 
-// Convert to a full server-side path for cd requests
+// Convert to a server-side path if the given path is absolute or has sub directories (for example: cd 'almog\ilay' is a sub directory path compared to 'cd almog')
 func GetServerStoragePath(userID uint32, clientPath string) string {
 	findAbsolute := strings.Index(clientPath, "\\")
 	if findAbsolute == noAbsolute || !strings.HasPrefix(clientPath, RootDir) { // If the path is not absolute or not starts with Root:\\
@@ -62,6 +67,13 @@ func ConvertToAbsolute(fullpath, filePath string) string {
 	return filepath.Join(fullpath, filePath)
 }
 
+// check whether the given path of the user owned the UserID contain Garbage
+func IsContainGarbage(path string, userID uint32) bool {
+	garbagePath := GetGarbagePath(userID)
+	// check if the path starts with the garbage path
+	return strings.HasPrefix(path, garbagePath)
+}
+
 // IsPathSeparator reports whether c is a directory separator character.
 func isPathSeparator(c uint8) bool {
 	return c == '\\'
@@ -94,4 +106,9 @@ func Base(path string) string {
 		return string(filepath.Separator)
 	}
 	return path
+}
+
+// Check if the given path is absolute in view of client input path
+func IsAbs(path string) bool {
+	return strings.HasPrefix(path, RootDir)
 }

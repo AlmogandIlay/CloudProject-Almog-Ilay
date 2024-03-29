@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	addr = "192.168.50.220:12345"
+	addr             = "192.168.50.220:12345"
+	transmissionAddr = "192.168.50.220:12346"
 )
 
 //Prints the Remote IP:Port's client in the CLI server program.
@@ -31,7 +32,7 @@ func initializeRequestHandler() RequestHandlers.AuthenticationRequestHandler {
 
 //Handles new client connection
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, fileTransferListener net.Listener) {
 	defer conn.Close()
 
 	// Initialize setup
@@ -42,18 +43,17 @@ func handleConnection(conn net.Conn) {
 
 	for !closeConnection {
 
-		request_Info, err := Requests.ReciveRequestInfo(&conn) // Recive request info from client
+		request_Info, err := Requests.ReciveRequestInfo(&conn, false) // Recive request info from client with no timeout flag
 		if err != nil {
 			closeConnection = true
 		}
-		response_info := userHandler.HandleRequest(request_Info, &loggedUser) // Handle request processing
+		response_info := userHandler.HandleRequest(request_Info, &loggedUser, &fileTransferListener) // Handle request processing
 
 		err = RequestHandlers.SendResponseInfo(&conn, response_info) // Send Response Info to client
 		if err != nil {                                              // If sending request info was unsucessful
 			closeConnection = true
 		}
 		userHandler = RequestHandlers.UpdateRequestHandler(response_info) // Update Request Handler if needed
-
 	}
 
 	err := RequestHandlers.RemoveOnlineUser(loggedUser) // Remove the current user from the online users array
@@ -77,6 +77,13 @@ func main() {
 	}
 	defer listener.Close()
 
+	fileTransferListener, err := net.Listen("tcp", transmissionAddr)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer fileTransferListener.Close()
+
 	fmt.Printf("Server is listening on %s...\n", addr)
 
 	for {
@@ -85,7 +92,7 @@ func main() {
 			fmt.Println("Error accepting connection:", err)
 			continue
 		}
-		go handleConnection(conn)
+		go handleConnection(conn, fileTransferListener)
 	}
 
 }
