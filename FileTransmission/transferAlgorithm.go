@@ -69,7 +69,7 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 			if err != nil {
 				return err
 			}
-			helper.SendData(conn, chunk) // Send empty message to notify client that transmission has ended
+			helper.SendData(conn, chunk) // Send the ResponeInfo of StopTransmisson to notify client that transmission has ended
 			break
 		}
 		if err != nil {
