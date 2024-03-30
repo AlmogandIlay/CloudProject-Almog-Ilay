@@ -178,3 +178,10 @@ func ConvertResponeToChunks(respone string) (int, error) {
 
 	return strconv.Atoi(splited[chunksIndex])
 }
+
+// Convert respone to chunks size
+func ConvertResponeToFileSize(respone string) (int, error) {
+	splited := strings.Split(respone, ":")
+
+	return strconv.Atoi(splited[chunksIndex+2])
+}

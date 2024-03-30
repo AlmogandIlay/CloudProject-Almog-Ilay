@@ -181,7 +181,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 // TDL add file's size to the argument so it would print percentage bar
 // Download a file from the cloud server, prints finished downloading file if supression flag is off, prints errors in any case.
-func downloadFile(path string, chunksSize int, suppression bool, socket *net.Conn) {
+func downloadFile(path string, chunksSize int, suppression bool, socket *net.Conn, fileSize int64) {
 	file, err := os.Create(path) // Creates the file in the given/default path
 	if err != nil {
 		fmt.Println("Couldn't create the file in the provided path.\nPlease provide a different path.")
@@ -199,6 +199,10 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 	// Create a buffered writier for efficient writes
 	writer := bufio.NewWriter(file)
 
+	var totalWrittenBytes int64
+	var totalWrittenFlag int64 // Flag for client view to automatically update upload percentage and bar progress
+	var precentage int64
+
 	for {
 		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
 		// If the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
@@ -210,10 +214,29 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 			return
 		}
 
-		_, err = (*writer).Write(chunkBytes)
+		writtenBytes, err := (*writer).Write(chunkBytes)
 		if err != nil {
 			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
 			return
+		}
+
+		// counter the written bytes
+		totalWrittenBytes += int64(writtenBytes)
+		totalWrittenFlag += int64(writtenBytes)
+
+		if totalWrittenFlag >= kilobyte && !suppression { // If shout flag has been enabled, for every 1 Kilobyte update the progess and perecntage bar in the cli
+			totalWrittenFlag = 0
+			precentage = (totalWrittenBytes * 100) / fileSize // Calculates total read bytes compared to the total file size in percentages
+			printer := func(_ int, _ string) string {
+				var bar string
+				for i := 0; i < int(precentage/2); i++ {
+					bar += "-"
+				}
+				return bar
+			}
+			fmt.Printf("\033[F\033[K")
+			fmt.Printf("Download Progress: %v%% - %s", precentage, printer(int(precentage), "-"))
+			fmt.Println()
 		}
 		//go writeFile(&writer, chunkBytes) // Write the file over goroutine to not interept the connection
 	}
@@ -305,7 +328,7 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 				// Avoid downloading empty file
 				if fileSize > 0 {
-					downloadFile(fileAbsPath, int(chunkSize), true, &socket) // Start downloading file proccess with no success prints
+					downloadFile(fileAbsPath, int(chunkSize), true, &socket, int64(fileSize)) // Start downloading file proccess with no success prints
 				} else {
 					// If file is empty, only create it
 					file, err := os.Create(fileAbsPath) // Creates the file in the given/default path

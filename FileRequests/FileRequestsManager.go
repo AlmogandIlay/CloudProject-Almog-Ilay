@@ -299,7 +299,12 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	go downloadFile(fullPath, chunksSize, false, downloadSocket) // Start downloading file process in a seprated goroutine with success print
+	fileSize, err := Helper.ConvertResponeToFileSize(respone)
+	if err != nil {
+		return err
+	}
+
+	go downloadFile(fullPath, chunksSize, false, downloadSocket, int64(fileSize)) // Start downloading file process in a seprated goroutine with success print
 
 	return nil
 }
