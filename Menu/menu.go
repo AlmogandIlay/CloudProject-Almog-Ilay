@@ -21,7 +21,7 @@ type CLI struct {
 
 func NewCLI() (*CLI, error) {
 	// Connect to the server
-	fmt.Println("Connecting to the CloudDrive Server...\n")
+	fmt.Println("Connecting to the CloudDrive Server...")
 	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
@@ -40,7 +40,7 @@ func (cli *CLI) closeConnection() error {
 
 // Prints the program startup intro
 func (cli *CLI) PrintStartup() {
-	fmt.Println("CloudDrive v1.0 Command Line Interface!")
+	fmt.Println("\nCloudDrive v1.0 Command Line Interface!")
 	fmt.Println("Type \"help\" for available commands.")
 }
 
