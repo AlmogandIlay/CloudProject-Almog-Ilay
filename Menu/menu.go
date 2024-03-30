@@ -21,7 +21,7 @@ type CLI struct {
 
 func NewCLI() (*CLI, error) {
 	// Connect to the server
-	fmt.Println("Connecting to the CloudDrive Server...")
+	fmt.Println("Connecting to the CloudDrive Server...\n")
 	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
