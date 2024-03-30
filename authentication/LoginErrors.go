@@ -33,7 +33,7 @@ func (userError *UsernameNotMatchPasswrodError) Error() string {
 }
 
 func (userError *UsernameError) Error() string {
-	return fmt.Sprintf("Username '%s' is invalid! username length should be between 4-8", userError.username)
+	return fmt.Sprintf("Username '%s' is invalid! username length should be between 4-16", userError.username)
 }
 
 func (passError *PasswordError) Error() string {
