@@ -100,7 +100,7 @@ func (user *User) setEmail(newEmail string) error {
 // implementation of the interface, check if the fields are valid
 // Valids username
 func (name Name) Valid() bool {
-	return len(name) < MINIMUM_USERNAME_LENGTH || len(name) > MAXIMUM_USERNAME_LENGTH
+	return len(name) >= MINIMUM_USERNAME_LENGTH && len(name) <= MAXIMUM_USERNAME_LENGTH
 }
 
 // Valids password
