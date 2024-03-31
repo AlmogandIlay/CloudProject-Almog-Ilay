@@ -94,7 +94,15 @@ func uploadFile(fileSize int64, chunksSize int, filename string, shoutFlag bool,
 
 // Upload directory to cloud server
 func uploadDirectory(dirpath string, socket net.Conn) {
-	err := filepath.WalkDir(dirpath, func(contentPath string, contentInfo fs.DirEntry, err error) error { // Walk through all the contents in the given dir path
+
+	fileCountInDir, folderCountInDir, err := Helper.CountContents(dirpath) // Count the amount of contents (files and folders) that are in the path
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	var contentUploadCounter uint // Count the amount of contents that have been uploaded
+
+	err = filepath.WalkDir(dirpath, func(contentPath string, contentInfo fs.DirEntry, err error) error { // Walk through all the contents in the given dir path
 		if err != nil {
 			return err
 		}
@@ -137,6 +145,12 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 				uploadFile(fileInfo.Size(), chunksSize, contentPath, false, socket) // Uploads the file with no prints
 
+				contentUploadCounter++
+
+				fmt.Printf("\033[F\033[K")
+				fmt.Printf("Upload Directory Progress: %v out of %v contents has been uploaded", contentUploadCounter, fileCountInDir+folderCountInDir)
+				fmt.Println()
+
 			} else { // If content is directory
 				// Sends request to make a new directory
 				respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), true, socket)
@@ -146,6 +160,8 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 				if respone.Type == Requests.ErrorRespone { // If respone is error
 					return fmt.Errorf(respone.Respone)
+				} else {
+					contentUploadCounter++ // Increase content counter
 				}
 			}
 		}
