@@ -1,6 +1,8 @@
 package Requests
 
 import (
+	"client/ClientErrors"
+	"client/Helper"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -9,9 +11,21 @@ import (
 type RequestType int
 
 const (
-	LoginRequest  RequestType = 101
-	SignupRequest RequestType = 102
-	// ...
+	LoginRequest           RequestType = 101
+	SignupRequest          RequestType = 102
+	ChangeDirectoryRequest RequestType = 301
+	CreateFileRequest      RequestType = 302
+	CreateFolderRequest    RequestType = 303
+	DeleteContentRequest   RequestType = 304
+	RenameRequest          RequestType = 305
+	ShowRequest            RequestType = 306
+	MoveRequest            RequestType = 307
+	GarbageRequest         RequestType = 308
+	UploadFileRequest      RequestType = 401
+	DownloadFileRequest    RequestType = 402
+	UploadDirectoryRequest RequestType = 403
+	DownloadDirRequest     RequestType = 404
+	StopTransmission       RequestType = 501
 )
 
 type RequestInfo struct {
@@ -31,30 +45,51 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 	}
 }
 
-func SendRequestInfo(request_info RequestInfo, socket net.Conn) (ResponeInfo, error) {
-	requestBytes, err := json.Marshal(request_info)
+// Send RequestInfo struct to the server.
+// I/O:
+// Input:
+// request_info - RequestInfo struct
+// waitForRespone - flag bool indicates whether to wait and have a timeout for the respone
+// socket - The socket to recieve the respond from.
+// Output:
+// ResponeInfo - struct.
+// error - indicates something went wrong.
+func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.Conn) (ResponeInfo, error) {
+	requestBytes, err := json.Marshal(request_info) // Decode RequestInfo struct to json bytes
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to decode the data to be sent to the server.\nPlease send this info to the developers:\n%s", err.Error())
+		return ResponeInfo{}, &ClientErrors.JsonDecodeError{Err: err}
 	}
 
-	_, err = socket.Write(requestBytes)
+	err = Helper.SendData(&socket, requestBytes) // Send json bytes to server
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to send the request to the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
+	}
+	if !waitForRespone {
+		return ResponeInfo{}, nil
 	}
 
-	buffer := make([]byte, 1024)
-	bytesRead, err := socket.Read(buffer)
+	data, err := Helper.ReciveData(&socket) // Recieve raw data from server
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when reciving a response from the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
-	dataBytes := buffer[:bytesRead]
-
-	var response_info ResponeInfo
-	err = json.Unmarshal(dataBytes, &response_info)
+	// Convert raw bytes json to ResponeInfo struct
+	response_info, err := GetResponseInfo(data)
 	if err != nil {
-		return ResponeInfo{}, fmt.Errorf("error when attempting to encode the response from the server.\nPlease send this info to the developers:\n%s", err)
+		return ResponeInfo{}, err
 	}
-
 	return response_info, nil
+}
 
+// Handles the entire request-response cycle.
+func SendRequest(requestType RequestType, request_data []byte, socket *net.Conn) (string, error) {
+	request_info := BuildRequestInfo(requestType, request_data)
+	response_info, err := SendRequestInfo(request_info, true, *socket) // sends a request and receives a response
+	if err != nil {
+		return "", err
+	}
+	if response_info.Type == ValidRespone { // If error caught in server side
+		return response_info.Respone, nil
+	} else {
+		return "", fmt.Errorf(response_info.Respone)
+	}
 }

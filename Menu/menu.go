@@ -1,13 +1,16 @@
 package Menu
 
 import (
+	"client/ClientErrors"
+	FileRequestsManager "client/FileRequests"
 	HandleInput "client/HandleInput"
 	"fmt"
 	"net"
 )
 
 const (
-	ip_addr = "192.168.50.191:12345"
+	conn_addr = "clouddriveserver.duckdns.org:12345"
+	prompt    = ">> "
 )
 
 type CLI struct {
@@ -17,39 +20,41 @@ type CLI struct {
 }
 
 func NewCLI() (*CLI, error) {
-	var err error
-	var cli CLI
-
-	cli.prompt = ">> "
-	cli.input = HandleInput.NewUserInput()
-	cli.socket, err = net.Dial("tcp", ip_addr)
+	// Connect to the server
+	fmt.Println("Connecting to the CloudDrive Server...")
+	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
-
-		return nil, fmt.Errorf(fmt.Sprintf("There has been an error connecting to the server.\nPlease check your connection and try again.\nIf it doesn't work contact the developers and send them this error message:\n%s", err.Error()))
+		return nil, &ClientErrors.ServerConnectionError{Err: err}
 	}
-
-	return &cli, nil
-
+	return &CLI{socket: sock, prompt: prompt, input: HandleInput.NewUserInput()}, nil
 }
 
 func (cli *CLI) closeConnection() error {
+	// Close socket connection between the server
 	err := cli.socket.Close()
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // Prints the program startup intro
 func (cli *CLI) PrintStartup() {
-	fmt.Println("CloudDrive v1.0 Command Line Interface")
+	fmt.Println("\nCloudDrive v1.0 Command Line Interface!")
 	fmt.Println("Type \"help\" for available commands.")
 }
 
-func (cli *CLI) readInput() {
+// Print the prompt that gets output every command line
+func (cli *CLI) printPrompt() {
+	if FileRequestsManager.IsCurrentPathInitialized() { // If client has authenticated already
+		FileRequestsManager.PrintCurrentPath() // Print the current working directory path
+	}
 	fmt.Print(cli.prompt)
-	fmt.Println(cli.input.Handleinput(cli.socket))
+}
+
+func (cli *CLI) readInput() {
+	cli.printPrompt()
+	fmt.Println(cli.input.HandleInput(cli.socket))
 }
 
 func (cli *CLI) Loop() {
