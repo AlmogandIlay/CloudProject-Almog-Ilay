@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	ip_addr = "192.168.50.220:12345"
-	prompt  = ">> "
+	conn_addr = "clouddriveserver.duckdns.org:12345"
+	prompt    = ">> "
 )
 
 type CLI struct {
@@ -20,8 +20,9 @@ type CLI struct {
 }
 
 func NewCLI() (*CLI, error) {
-
-	sock, err := net.Dial("tcp", ip_addr)
+	// Connect to the server
+	fmt.Println("Connecting to the CloudDrive Server...")
+	sock, err := net.Dial("tcp", conn_addr)
 	if err != nil {
 		return nil, &ClientErrors.ServerConnectionError{Err: err}
 	}
@@ -29,6 +30,7 @@ func NewCLI() (*CLI, error) {
 }
 
 func (cli *CLI) closeConnection() error {
+	// Close socket connection between the server
 	err := cli.socket.Close()
 	if err != nil {
 		return err
@@ -38,13 +40,14 @@ func (cli *CLI) closeConnection() error {
 
 // Prints the program startup intro
 func (cli *CLI) PrintStartup() {
-	fmt.Println("CloudDrive v1.0 Command Line Interface!")
+	fmt.Println("\nCloudDrive v1.0 Command Line Interface!")
 	fmt.Println("Type \"help\" for available commands.")
 }
 
+// Print the prompt that gets output every command line
 func (cli *CLI) printPrompt() {
 	if FileRequestsManager.IsCurrentPathInitialized() { // If client has authenticated already
-		FileRequestsManager.PrintCurrentPath()
+		FileRequestsManager.PrintCurrentPath() // Print the current working directory path
 	}
 	fmt.Print(cli.prompt)
 }
