@@ -24,6 +24,7 @@ func IsPathExists(path string) (bool, error) {
 
 // Counting contents (files and folders) in a given folderpath
 func CountContents(folderPath string) (uint, uint, error) {
+	folderPath = strings.ReplaceAll(folderPath, "'", "") // Removes ' ' between the path if exists
 	var filesCount, folderCount uint
 
 	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
