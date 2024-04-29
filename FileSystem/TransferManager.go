@@ -257,11 +257,11 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 					if err != nil {
 						return err
 					}
-					request_info, err := Requests.ReciveRequestInfo(downloadSocket, false)
+					request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
 					if err != nil {
 						return err
 					}
-					if request_info.Type != Requests.RequestType(okayTypeRespone) {
+					if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
 						return &DownloadFailed{}
 					}
 
