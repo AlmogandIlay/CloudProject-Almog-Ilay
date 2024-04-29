@@ -94,6 +94,7 @@ func uploadFile(fileSize int64, chunksSize int, filename string, shoutFlag bool,
 
 // Upload directory to cloud server
 func uploadDirectory(dirpath string, socket net.Conn) {
+	dirpath = strings.ReplaceAll(dirpath, "'", "") // Removes ' ' between the path if exists
 
 	fileCountInDir, folderCountInDir, err := Helper.CountContents(dirpath) // Count the amount of contents (files and folders) that are in the path
 	if err != nil {
