@@ -40,6 +40,8 @@ type CreatePrivateSocketError struct{}
 
 type UploadTimeOut struct{}
 
+type DownloadFailed struct{}
+
 // Creates custom errors for filesystem
 
 func (fileError *FileSizeError) Error() string {
@@ -138,6 +140,10 @@ func (fileError *CreatePrivateSocketError) Error() string {
 
 func (fileError *UploadTimeOut) Error() string {
 	return "Upload process has been stopped as it's passed the timeout duration of upload.\nThis doesn't mean the upload proccess didn't finished.\nPlease take a look of the uploaded content."
+}
+
+func (fileError *DownloadFailed) Error() string {
+	return "Couldn't successfully download the content."
 }
 
 func (fileError *AbsFileError) Error() string {

@@ -15,16 +15,15 @@ import (
 )
 
 const (
-	okayRespone   string = "Okay"
-	chunksRespone string = "ChunksSize:"
+	okayTypeRespone int    = 200
+	okayRespone     string = "Okay"
+	chunksRespone   string = "ChunksSize:"
 )
 
 type clientResponeInfo struct {
 	Type    int    `json:"Type"`
 	Respone string `json:"Data"`
 }
-
-
 
 // Upload a file to the Cloud
 func (user *LoggedUser) UploadFile(file *Content, uploadListener *net.Listener) (uint, error) {
@@ -54,7 +53,6 @@ func (user *LoggedUser) UploadFile(file *Content, uploadListener *net.Listener) 
 
 	return FileTransmission.GetChunkSize(file.Size), nil
 }
-
 
 func (user *LoggedUser) UploadDirectory(dir *Content, uploadListener *net.Listener) error {
 	if dir.Path == "" { // if path wasn't decleared
@@ -120,7 +118,6 @@ func (user *LoggedUser) DownloadDirectory(dirPath string, downloadListener *net.
 	return nil
 }
 
-
 // ---------------- download and upload implementation ---------------- //
 
 // Uploading file proccess
@@ -162,7 +159,6 @@ func uploadAbsDirectory(dir *Content, uploadListener *net.Listener) {
 	}
 }
 
-
 // Recieves folder from client implemention
 func receiveFolder(conn *net.Conn, absDirPath string) error {
 	for {
@@ -200,8 +196,6 @@ func receiveFolder(conn *net.Conn, absDirPath string) error {
 		}
 	}
 }
-
-
 
 func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) {
 	// Creates a private socket with the client to send the directory
@@ -263,6 +257,13 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 					if err != nil {
 						return err
 					}
+					request_info, err := Requests.ReciveRequestInfo(downloadSocket, false)
+					if err != nil {
+						return err
+					}
+					if request_info.Type != Requests.RequestType(okayTypeRespone) {
+						return &DownloadFailed{}
+					}
 
 				}
 			} else {
@@ -310,7 +311,6 @@ func downloadAbsFile(filepath string, downloadListener *net.Listener) {
 	}
 }
 
-
 // Create private socket for file recieve and ready to accept the client connection
 func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
 	conn, err := uploadListener.Accept()
@@ -319,8 +319,6 @@ func createPrivateSocket(uploadListener net.Listener) (*net.Conn, error) {
 	}
 	return &conn, nil
 }
-
-
 
 // Implement createFolder for reciving folder implemention.
 // Input:
