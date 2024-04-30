@@ -2,6 +2,7 @@ package FileRequestsManager
 
 import (
 	"bufio"
+	"bytes"
 	"client/ClientErrors"
 	"client/Helper"
 	"client/Requests"
@@ -223,8 +224,8 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 	for {
 		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
 		// If the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
-		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || string(chunkBytes) == stopTransmissionRespone {
-			fmt.Println("File with the path", path, "has succefully done downloading successfully")
+
+		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || bytes.Contains(chunkBytes, []byte(stopTransmissionRespone)) {
 			break
 		}
 		if err != nil {
@@ -233,7 +234,6 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 		}
 
 		writtenBytes, err := (*writer).Write(chunkBytes)
-		fmt.Println("Bytes written for file path", path, "is", writtenBytes)
 		if err != nil {
 			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
 			return
@@ -330,11 +330,8 @@ func downloadDirectory(path string, socket net.Conn) {
 	var startDownload = func() error {
 		// Start reciving contents in the base directory
 		for {
-			fmt.Println("Reading data...")
 			dataBytes, err := Helper.ReciveData(&socket) // Recieves bytes json data from server
 			if err != nil {
-				fmt.Println("Error in reading data...")
-				fmt.Println("dataBytes is", dataBytes)
 				return err
 			}
 			responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
@@ -362,14 +359,11 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 				// Avoid downloading empty file
 				if fileSize > 0 {
-					fmt.Println("Downloading", fileAbsPath, "...")
-					downloadFile(fileAbsPath, int(chunkSize), true, &socket, int64(fileSize)) // Start downloading file proccess with no success prints
-					fmt.Println("Finished downloading")
+					downloadFile(fileAbsPath, int(chunkSize), true, &socket, int64(fileSize))                        // Start downloading file proccess with no success prints
 					_, err := Requests.SendRequest(Requests.RequestType(Requests.ValidRespone), false, nil, &socket) // Send finished downloading file confirmation to server
 					if err != nil {
 						return err
 					}
-					fmt.Println("Confirmed")
 				} else {
 					// If file is empty, only create it
 					file, err := os.Create(fileAbsPath) // Creates the file in the given/default path
