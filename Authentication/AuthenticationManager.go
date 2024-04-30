@@ -29,7 +29,7 @@ func HandleSignup(commandArguments []string, socket *net.Conn) error {
 	if err != nil {
 		return &ClientErrors.JsonEncodeError{}
 	}
-	_, err = Requests.SendRequest(Requests.SignupRequest, request_data, socket) // Sends sign up request
+	_, err = Requests.SendRequest(Requests.SignupRequest, true, request_data, socket) // Sends sign up request
 
 	return err
 
@@ -45,7 +45,7 @@ func HandleSignIn(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return &ClientErrors.JsonEncodeError{}
 	}
-	_, err = Requests.SendRequest(Requests.LoginRequest, request_data, socket) // Sends sign in request
+	_, err = Requests.SendRequest(Requests.LoginRequest, true, request_data, socket) // Sends sign in request
 
 	return err
 }

@@ -52,7 +52,7 @@ func HandleChangeDirectory(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-	responeData, err := Requests.SendRequest(Requests.ChangeDirectoryRequest, data, socket)
+	responeData, err := Requests.SendRequest(Requests.ChangeDirectoryRequest, true, data, socket)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func HandleChangeDirectory(command_arguments []string, socket *net.Conn) error {
 
 // Handle Garbage request
 func HandleGarbage(socket *net.Conn) error {
-	responeData, err := Requests.SendRequest(Requests.GarbageRequest, nil, socket) // Send request type without any data
+	responeData, err := Requests.SendRequest(Requests.GarbageRequest, true, nil, socket) // Send request type without any data
 
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func HandleCreate(command []string, socket *net.Conn) error {
 	default:
 		return fmt.Errorf("wrong create request")
 	}
-	_, err = Requests.SendRequest(createType, data, socket)
+	_, err = Requests.SendRequest(createType, true, data, socket)
 	return err
 }
 
@@ -108,7 +108,7 @@ func HandleRemoveContent(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	_, err = Requests.SendRequest(Requests.DeleteContentRequest, data, socket)
+	_, err = Requests.SendRequest(Requests.DeleteContentRequest, true, data, socket)
 	return err
 }
 
@@ -131,7 +131,7 @@ func HandleRename(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-	_, err = Requests.SendRequest(Requests.RenameRequest, data, socket)
+	_, err = Requests.SendRequest(Requests.RenameRequest, true, data, socket)
 	return err
 }
 
@@ -154,7 +154,7 @@ func HandleMove(command_arguments []string, socket *net.Conn) error {
 	if err != nil {
 		return err
 	}
-	_, err = Requests.SendRequest(Requests.MoveRequest, data, socket)
+	_, err = Requests.SendRequest(Requests.MoveRequest, true, data, socket)
 	return err
 }
 
@@ -173,7 +173,7 @@ func HandleShow(command_arguments []string, socket *net.Conn) (string, error) {
 	} else {
 		data = nil // If path hasn't been specified
 	}
-	respone, err := Requests.SendRequest(Requests.ShowRequest, data, socket)
+	respone, err := Requests.SendRequest(Requests.ShowRequest, true, data, socket)
 	if err != nil {
 		return "", err
 	}
@@ -213,8 +213,8 @@ func HandleUploadFile(command_arguments []string, socket *net.Conn) error {
 		return &ClientErrors.JsonEncodeError{}
 	}
 
-	respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, socket) // Sends upload file request
-	if err != nil {                                                                     // If upload file request was rejected
+	respone, err := Requests.SendRequest(Requests.UploadFileRequest, true, file_data, socket) // Sends upload file request
+	if err != nil {                                                                           // If upload file request was rejected
 		return err
 	}
 	chunksSize, err := Helper.ConvertResponeToChunks(respone) // Convert respone to chunks size
@@ -270,7 +270,7 @@ func HandleDownloadFile(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	respone, err := Requests.SendRequest(Requests.DownloadFileRequest, data, socket) // Sends download file request
+	respone, err := Requests.SendRequest(Requests.DownloadFileRequest, true, data, socket) // Sends download file request
 	if err != nil {
 		return err
 	}
@@ -344,8 +344,8 @@ func HandleUploadDirectory(command_arguments []string, socket *net.Conn) error {
 		return &ClientErrors.JsonEncodeError{}
 	}
 
-	_, err = Requests.SendRequest(Requests.UploadDirectoryRequest, dir_data, socket) // Sends upload folder request
-	if err != nil {                                                                  // If upload folder request was rejected
+	_, err = Requests.SendRequest(Requests.UploadDirectoryRequest, true, dir_data, socket) // Sends upload folder request
+	if err != nil {                                                                        // If upload folder request was rejected
 		return err
 	}
 
@@ -407,8 +407,8 @@ func HandleDownloadDir(command_arguments []string, socket *net.Conn) error {
 		return err
 	}
 
-	_, err = Requests.SendRequest(Requests.DownloadDirRequest, data, socket) // Sends download directory request
-	if err != nil {                                                          // If download directory has been rejected
+	_, err = Requests.SendRequest(Requests.DownloadDirRequest, true, data, socket) // Sends download directory request
+	if err != nil {                                                                // If download directory has been rejected
 		return err
 	}
 

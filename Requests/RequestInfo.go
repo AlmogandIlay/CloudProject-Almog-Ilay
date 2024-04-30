@@ -54,7 +54,7 @@ func BuildRequestInfo(request_type RequestType, request_data json.RawMessage) Re
 // Output:
 // ResponeInfo - struct.
 // error - indicates something went wrong.
-func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.Conn) (ResponeInfo, error) {
+func SendRequestInfo(request_info RequestInfo, returnRespone bool, waitForRespone bool, socket net.Conn) (ResponeInfo, error) {
 	requestBytes, err := json.Marshal(request_info) // Decode RequestInfo struct to json bytes
 	if err != nil {
 		return ResponeInfo{}, &ClientErrors.JsonDecodeError{Err: err}
@@ -67,29 +67,31 @@ func SendRequestInfo(request_info RequestInfo, waitForRespone bool, socket net.C
 	if !waitForRespone {
 		return ResponeInfo{}, nil
 	}
-
-	data, err := Helper.ReciveData(&socket) // Recieve raw data from server
-	if err != nil {
-		return ResponeInfo{}, err
+	if returnRespone {
+		data, err := Helper.ReciveData(&socket) // Recieve raw data from server
+		if err != nil {
+			return ResponeInfo{}, err
+		}
+		// Convert raw bytes json to ResponeInfo struct
+		response_info, err := GetResponseInfo(data)
+		if err != nil {
+			return ResponeInfo{}, err
+		}
+		return response_info, nil
 	}
-	// Convert raw bytes json to ResponeInfo struct
-	response_info, err := GetResponseInfo(data)
-	if err != nil {
-		return ResponeInfo{}, err
-	}
-	return response_info, nil
+	return ResponeInfo{}, nil
 }
 
 // Handles the entire request-response cycle.
-func SendRequest(requestType RequestType, request_data []byte, socket *net.Conn) (string, error) {
+func SendRequest(requestType RequestType, returnRespone bool, request_data []byte, socket *net.Conn) (string, error) {
 	request_info := BuildRequestInfo(requestType, request_data)
-	response_info, err := SendRequestInfo(request_info, true, *socket) // sends a request and receives a response
+	response_info, err := SendRequestInfo(request_info, returnRespone, true, *socket) // sends a request and receives a response depends on the 'returnRespone' flag
 	if err != nil {
 		return "", err
 	}
-	if response_info.Type == ValidRespone { // If error caught in server side
+	if response_info.Type == ValidRespone || !returnRespone { // if respone was valid or not specificed to get respone
 		return response_info.Respone, nil
 	} else {
-		return "", fmt.Errorf(response_info.Respone)
+		return "", fmt.Errorf(response_info.Respone) // If error caught in server side
 	}
 }

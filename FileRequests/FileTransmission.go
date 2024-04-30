@@ -134,7 +134,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 				}
 
 				// Sends Upload File reques
-				respone, err := Requests.SendRequest(Requests.UploadFileRequest, file_data, &socket)
+				respone, err := Requests.SendRequest(Requests.UploadFileRequest, true, file_data, &socket)
 				if err != nil { // If upload file request was rejected
 					return err
 				}
@@ -154,7 +154,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 
 			} else { // If content is directory
 				// Sends request to make a new directory
-				respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), true, socket)
+				respone, err := Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.CreateFolderRequest, dirData), true, true, socket)
 				if err != nil {
 					return err
 				}
@@ -174,7 +174,7 @@ func uploadDirectory(dirpath string, socket net.Conn) {
 		fmt.Println(err.Error())
 		return
 	}
-	_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopTransmission, nil), false, socket) // Send stop upload request to server
+	_, err = Requests.SendRequestInfo(Requests.BuildRequestInfo(Requests.StopTransmission, nil), true, false, socket) // Send stop upload request to server
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -224,6 +224,7 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 		chunkBytes, err := Helper.ReciveChunkData(socket, chunksSize)
 		// If the client hasn't recived any new chunks for over the configured timeout, finish reading file sucessfully
 		if netErr, ok := err.(*net.OpError); ok && netErr.Timeout() || string(chunkBytes) == stopTransmissionRespone {
+			fmt.Println("File with the path", path, "has succefully done downloading successfully")
 			break
 		}
 		if err != nil {
@@ -345,7 +346,14 @@ func downloadDirectory(path string, socket net.Conn) {
 				}
 				// Avoid downloading empty file
 				if fileSize > 0 {
+					fmt.Println("Downloading", fileAbsPath, "...")
 					downloadFile(fileAbsPath, int(chunkSize), true, &socket, int64(fileSize)) // Start downloading file proccess with no success prints
+					fmt.Println("Finished downloading")
+					_, err := Requests.SendRequest(Requests.RequestType(Requests.ValidRespone), false, nil, &socket) // Send finished downloading file confirmation to server
+					if err != nil {
+						return err
+					}
+					fmt.Println("Confirmed")
 				} else {
 					// If file is empty, only create it
 					file, err := os.Create(fileAbsPath) // Creates the file in the given/default path
