@@ -239,7 +239,17 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
-				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
+				fmt.Println("Waiting for confirmation for info")
+				request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
+				if err != nil {
+					fmt.Println("Caught here")
+					return err
+				}
+				fmt.Println("Got confirmation")
+				if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
+					fmt.Println("Caught in the second here")
+					return &DownloadFailed{}
+				}
 
 				// Recieves chunks size for the specific file
 				chunkSize := FileTransmission.GetChunkSize(uint32(file.Size))
@@ -250,18 +260,32 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
-				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
+				fmt.Println("Waiting for confirmation for info")
+				request_info, err = Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
+				if err != nil {
+					fmt.Println("Caught here")
+					return err
+				}
+				fmt.Println("Got confirmation")
+				if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
+					fmt.Println("Caught in the second here")
+					return &DownloadFailed{}
+				}
 				// Avoid sending empty file
 				if file.Size > 0 {
 					err = FileTransmission.SendFile(downloadSocket, uint64(file.Size), contentpath) // Starting sending file content to the client
 					if err != nil {
 						return err
 					}
+					fmt.Println("Waiting for confirmation")
 					request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
 					if err != nil {
+						fmt.Println("Caught here")
 						return err
 					}
+					fmt.Println("Got confirmation")
 					if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
+						fmt.Println("Caught in the second here")
 						return &DownloadFailed{}
 					}
 
