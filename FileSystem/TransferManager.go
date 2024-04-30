@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"time"
 )
 
 const (
@@ -298,7 +297,13 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
-				time.Sleep(500 * time.Millisecond) // Wait for half a second to prevent sending 2 respones in the same packet
+				request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
+				if err != nil {
+					return err
+				}
+				if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
+					return &DownloadFailed{}
+				}
 			}
 		}
 		return nil
