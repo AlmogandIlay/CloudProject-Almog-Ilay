@@ -64,6 +64,7 @@ func SendFile(conn *net.Conn, size uint64, path string) error {
 	for {                            // Reads the file
 		bytesRead, err := file.Read(chunk)
 		if bytesRead == 0 || err == io.EOF { // If file reading is done
+			time.Sleep(time.Millisecond * 500)                                                 // Hold for a half a second to not mess with the previous chunk
 			requestInfo := clientResponeInfo{Type: int(Requests.StopTranmission), Respone: ""} // Create Stop Downloading transmission to client
 			chunk, err = json.Marshal(requestInfo)
 			if err != nil {
