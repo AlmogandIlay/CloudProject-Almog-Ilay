@@ -233,6 +233,7 @@ func downloadFile(path string, chunksSize int, suppression bool, socket *net.Con
 		}
 
 		writtenBytes, err := (*writer).Write(chunkBytes)
+		fmt.Println("Bytes written for file path", path, "is", writtenBytes)
 		if err != nil {
 			fmt.Println("Error writing data on the provided file path.\nPlease contact the developers")
 			return
@@ -293,6 +294,10 @@ func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath str
 	if err != nil {
 		return empty, empty, "", err
 	}
+	_, err = Requests.SendRequest(Requests.RequestType(Requests.ValidRespone), false, nil, socket) // Send finished creating folder confirmation to server
+	if err != nil {
+		return empty, empty, "", err
+	}
 
 	absFilePath := filepath.Join(baseFolderPath, content.Path, content.Name) // Convert to absolute file path
 
@@ -311,6 +316,10 @@ func getFileInfo(socket *net.Conn, info Requests.ResponeInfo, baseFolderPath str
 	if err != nil {
 		return empty, empty, "", err
 	}
+	_, err = Requests.SendRequest(Requests.RequestType(Requests.ValidRespone), false, nil, socket) // Send finished creating folder confirmation to server
+	if err != nil {
+		return empty, empty, "", err
+	}
 
 	return uint32(chunks), content.Size, absFilePath, nil
 }
@@ -321,8 +330,11 @@ func downloadDirectory(path string, socket net.Conn) {
 	var startDownload = func() error {
 		// Start reciving contents in the base directory
 		for {
+			fmt.Println("Reading data...")
 			dataBytes, err := Helper.ReciveData(&socket) // Recieves bytes json data from server
 			if err != nil {
+				fmt.Println("Error in reading data...")
+				fmt.Println("dataBytes is", dataBytes)
 				return err
 			}
 			responeInfo, err := Requests.GetResponseInfo(dataBytes) // Convert raw bytes json to ResponeInfo struct
@@ -337,6 +349,10 @@ func downloadDirectory(path string, socket net.Conn) {
 				err = createFolder(responeInfo, path)
 				if err != nil {
 					fmt.Println(err.Error()) // Print create folder error, so it won't stop the reciving folder proccess
+				}
+				_, err := Requests.SendRequest(Requests.RequestType(Requests.ValidRespone), false, nil, &socket) // Send finished creating folder confirmation to server
+				if err != nil {
+					return err
 				}
 			case Requests.ResponeType(Requests.DownloadFileRequest):
 				// If server pointed at a file to recieve
