@@ -238,15 +238,11 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
-				fmt.Println("Waiting for confirmation for info")
 				request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
 				if err != nil {
-					fmt.Println("Caught here")
 					return err
 				}
-				fmt.Println("Got confirmation")
 				if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
-					fmt.Println("Caught in the second here")
 					return &DownloadFailed{}
 				}
 
@@ -259,15 +255,11 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 				if err != nil {
 					return err
 				}
-				fmt.Println("Waiting for confirmation for info")
 				request_info, err = Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
 				if err != nil {
-					fmt.Println("Caught here")
 					return err
 				}
-				fmt.Println("Got confirmation")
 				if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
-					fmt.Println("Caught in the second here")
 					return &DownloadFailed{}
 				}
 				// Avoid sending empty file
@@ -276,15 +268,11 @@ func downloadAbsDirectory(directoryPath string, downloadListener *net.Listener) 
 					if err != nil {
 						return err
 					}
-					fmt.Println("Waiting for confirmation")
 					request_info, err := Requests.ReciveRequestInfo(downloadSocket, false) // Waiting for confirmation from client
 					if err != nil {
-						fmt.Println("Caught here")
 						return err
 					}
-					fmt.Println("Got confirmation")
 					if request_info.Type != Requests.RequestType(okayTypeRespone) { // If client returned invalid confirmation type
-						fmt.Println("Caught in the second here")
 						return &DownloadFailed{}
 					}
 
