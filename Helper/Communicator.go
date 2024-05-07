@@ -26,7 +26,7 @@ const (
 	chunksIndex                       = 1
 	SkipEnclose                       = 1
 
-	transmissionAddr = "clouddriveserver.duckdns.org:12346"
+	transmissionAddr = "clouddrive.freemyip.com:12346"
 )
 
 // bufferSize is usually 1024
