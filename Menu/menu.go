@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	conn_addr = "clouddriveserver.duckdns.org:12345"
+	conn_addr = "clouddrive.freemyip.com:12345"
 	prompt    = ">> "
 )
 
