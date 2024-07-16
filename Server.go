@@ -9,10 +9,24 @@ import (
 	"net"
 )
 
-const (
-	addr             = "192.168.50.220:12345"
-	transmissionAddr = "192.168.50.220:12346"
-)
+func getOutboundIP() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	return conn.LocalAddr().(*net.UDPAddr).IP.String()
+}
+
+var serverAddr string
+
+var transmissionAddr string
+
+func init() {
+	serverAddr = getOutboundIP() + ":12345"
+	transmissionAddr = getOutboundIP() + ":12346"
+	fmt.Println(serverAddr)
+}
 
 //Prints the Remote IP:Port's client in the CLI server program.
 
@@ -70,7 +84,7 @@ func main() {
 		return
 	}
 
-	listener, err := net.Listen("tcp", addr)
+	listener, err := net.Listen("tcp", serverAddr)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -84,7 +98,7 @@ func main() {
 	}
 	defer fileTransferListener.Close()
 
-	fmt.Printf("Server is listening on %s...\n", addr)
+	fmt.Printf("Server is listening on %s...\n", serverAddr)
 
 	for {
 		conn, err := listener.Accept()

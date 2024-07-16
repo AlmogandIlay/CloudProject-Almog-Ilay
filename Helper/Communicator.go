@@ -16,7 +16,7 @@ const (
 Recive data from client socket with the given buffer size and with the timeout flag option.
 Returns the received bytes or error.
 */
-func ReciveData(conn *net.Conn, bufferSize int, timeoutFlag bool) ([]byte, error) {
+func ReciveData(conn *net.Conn, bufferSize int, timeoutFlag bool) ([]byte, error) { // TLDR: check for a way to send optional parametrs like the timeoutFlag
 	buffer := make([]byte, bufferSize)
 	if timeoutFlag { // If timeout flag is on
 		err := (*conn).SetReadDeadline(time.Now().Add(10 * time.Second)) // Set timeout for packet to recieve (10 seconds)
