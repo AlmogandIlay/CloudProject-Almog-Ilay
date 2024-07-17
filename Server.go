@@ -78,7 +78,7 @@ func handleConnection(conn net.Conn, fileTransferListener net.Listener) {
 }
 
 func main() {
-	_, err := RequestHandlers.InitializeAuthenticationManagerFactory()
+	err := RequestHandlers.InitializeAuthenticationManagerFactory()
 	if err != nil {
 		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return

@@ -12,15 +12,15 @@ var (
 )
 
 // Initialize Authentication Manager instance
-func InitializeAuthenticationManagerFactory() (*authentication.AuthenticationManager, error) {
+func InitializeAuthenticationManagerFactory() error {
 	var err error
 	Manager, err = authentication.InitializeAuthenticationManager()
 	if err != nil {
 		Manager = &authentication.AuthenticationManager{}
-		return Manager, err
+		return err
 	}
 
-	return Manager, nil
+	return nil
 }
 
 // Access Authentication Manager instance
