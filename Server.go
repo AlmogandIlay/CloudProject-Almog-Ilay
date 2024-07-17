@@ -25,7 +25,6 @@ var transmissionAddr string
 func init() {
 	serverAddr = getOutboundIP() + ":12345"
 	transmissionAddr = getOutboundIP() + ":12346"
-	fmt.Println(serverAddr)
 }
 
 //Prints the Remote IP:Port's client in the CLI server program.
