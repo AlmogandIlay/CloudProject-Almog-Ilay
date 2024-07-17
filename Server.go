@@ -77,36 +77,58 @@ func handleConnection(conn net.Conn, fileTransferListener net.Listener) {
 	printDisconnectedRemoteAddr(conn)
 }
 
+// Start server and listening socket
+
+// Array of options:
+// [0] = Print flag
+func startServer(address string, options ...bool) (net.Listener, error) {
+	listener, err := net.Listen("tcp", address)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, option := range options {
+		if i > 0 { // Ensuring looping only once
+			break
+		}
+		if option {
+			fmt.Printf("Server is listening on %s...\n", serverAddr)
+		}
+	}
+
+	return listener, nil
+}
+
+func acceptClients(serverListener *net.Listener, fileListener *net.Listener) {
+	for {
+		conn, err := (*serverListener).Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection:", err)
+			continue
+		}
+		go handleConnection(conn, *fileListener)
+	}
+}
+
 func main() {
-	err := RequestHandlers.InitializeAuthenticationManagerFactory()
+	err := RequestHandlers.InitializeAuthenticationManagerFactory() // Initiazling Authentication instance (root factory type)
 	if err != nil {
 		log.Fatal("There has been an error when attempting to initialize Factory.\nError Data:", err.Error())
 		return
 	}
 
-	listener, err := net.Listen("tcp", serverAddr)
+	serverListener, err := startServer(serverAddr, true)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
-	defer listener.Close()
+	defer serverListener.Close()
 
-	fileTransferListener, err := net.Listen("tcp", transmissionAddr)
+	fileTransferListener, err := startServer(transmissionAddr)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 	defer fileTransferListener.Close()
-
-	fmt.Printf("Server is listening on %s...\n", serverAddr)
-
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println("Error accepting connection:", err)
-			continue
-		}
-		go handleConnection(conn, fileTransferListener)
-	}
 
 }
