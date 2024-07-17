@@ -98,6 +98,7 @@ func startServer(address string, options ...bool) (net.Listener, error) {
 	return listener, nil
 }
 
+// Accepts new clients to the server
 func acceptClients(serverListener *net.Listener, fileListener *net.Listener) {
 	for {
 		conn, err := (*serverListener).Accept()
