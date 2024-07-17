@@ -131,4 +131,6 @@ func main() {
 	}
 	defer fileTransferListener.Close()
 
+	acceptClients(&serverListener, &fileTransferListener)
+
 }
